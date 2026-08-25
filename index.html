@@ -7046,7 +7046,7 @@ details-disclosure > details {
               b0.dataset.spPlace = pl.id;
               b0.setAttribute('aria-pressed', String(pl.id === state.placement));
               b0.innerHTML = `<svg viewBox="0 0 110 76" aria-hidden="true">${ready}</svg>`
-                + `<span><b>${pl.tip == null ? 'Možnosť ' + (PLACEMENTS.indexOf(pl) + 1) : 'TIP ' + pl.tip}</b><br>${pl.label}</span>`;
+                + `<span><b>${pl.tip == null ? 'Možnosť ' + (PLACEMENTS.indexOf(pl) + 1) : 'TYP ' + pl.tip}</b><br>${pl.label}</span>`;
               host.appendChild(b0);
               return;
             }
@@ -7086,7 +7086,7 @@ details-disclosure > details {
             b.dataset.spPlace = pl.id;
             b.setAttribute('aria-pressed', String(pl.id === state.placement));
             b.innerHTML = `<svg viewBox="0 0 110 76" aria-hidden="true">${svg.join('')}</svg>`
-              + `<span><b>${pl.tip == null ? 'Možnosť ' + (PLACEMENTS.indexOf(pl) + 1) : 'TIP ' + pl.tip}</b><br>${pl.label}</span>`;
+              + `<span><b>${pl.tip == null ? 'Možnosť ' + (PLACEMENTS.indexOf(pl) + 1) : 'TYP ' + pl.tip}</b><br>${pl.label}</span>`;
             host.appendChild(b);
           });
         };
@@ -7637,7 +7637,7 @@ details-disclosure > details {
                 model().roof === 'panel'
                   ? `Konštrukcia ${state.frameColor.name} (${state.frameColor.ral}).`
                   : `Konštrukcia ${state.frameColor.name} (${state.frameColor.ral}), lamely ${state.louverColor.name} (${state.louverColor.ral}).`,
-                `Umiestnenie: ${placement().tip == null ? '' : 'TIP ' + placement().tip + ' — '}${placement().label}.`,
+                `Umiestnenie: ${placement().tip == null ? '' : 'TYP ' + placement().tip + ' — '}${placement().label}.`,
                 chosen.length ? `Strany — ${chosen.join('; ')}.` : 'Všetky strany otvorené.',
                 state.box.on && boxPrice() ? `Zadný box: ${mm(boxPrice().w)} × ${mm(boxPrice().d)}, ${boxFinishLabel()}, ${(state.boxColor || state.frameColor).name} (${(state.boxColor || state.frameColor).ral}).` : '',
                 state.ceiling !== 'none' && ceilingOptions().length
