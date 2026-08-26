@@ -6477,15 +6477,48 @@ details-disclosure > details {
             const wallHex = shade('#efece6', 0);
             const over = Math.round(Math.min(1400, Math.max(L, W) * 0.14));
             const wallTop = H + beam + Math.round(H * 0.30);
-            if (walls.indexOf('rear') > -1) {
-              quad([[-over, 0, 0], [L + over, 0, 0], [L + over, 0, wallTop], [-over, 0, wallTop]], wallHex, { normal: [0,1,0], cull: true, edge: false, fit: false });
+            const plinth = 420;
+
+            /* One wall, built the way a house is: a plinth course the render
+               stops on, the field above it, and a window with a reveal and a
+               sill. Flat off-white with a shadow band on it read as a screen
+               standing behind the model rather than a building it is fixed to.
+               `u` runs along the wall, `v` is its plane. */
+            const houseWall = (axis, v, nrm, u0, u1) => {
+              const P = (u, z, off) => (axis === 'x'
+                ? [u, v + (off || 0) * nrm[1], z]
+                : [v + (off || 0) * nrm[0], u, z]);
+              const band = (zA, zB, hex, off, extra) => quad(
+                [P(u0, zA, off), P(u1, zA, off), P(u1, zB, off), P(u0, zB, off)],
+                hex, Object.assign({ normal: nrm, cull: true, edge: false, fit: false }, extra || {}));
+
+              band(plinth, wallTop, wallHex);                       // the field
+              band(0, plinth, shade('#e2ded6', 0), 0.6);            // plinth, a shade darker
+              band(plinth, plinth + 26, shade('#d3cec4', 0), 1.2, { raw: false, bias: 40 });
+
+              /* A window, set where the roof does not cover it so it is worth
+                 drawing at all - out past the end of the carport. */
+              const room = u1 - u0;
+              if (room > 2600) {
+                const ww = Math.min(1250, room * 0.2), wh = 1400;
+                const wz = plinth + 560;
+                const wu = u1 - Math.max(360, over * 0.55) - ww;
+                if (wu > u0 + 200) {
+                  const win = (a, b, zA, zB, hex, off, extra) => quad(
+                    [P(a, zA, off), P(b, zA, off), P(b, zB, off), P(a, zB, off)],
+                    hex, Object.assign({ normal: nrm, cull: true, edge: false, fit: false }, extra || {}));
+                  win(wu - 70, wu + ww + 70, wz - 70, wz + wh + 70, shade('#e6e1d8', 0), 1.4, { bias: 70 });   // reveal
+                  win(wu, wu + ww, wz, wz + wh, 'rgb(96,112,124)', 2.2, { raw: true, bias: 120 });             // glass
+                  win(wu + ww * 0.48, wu + ww * 0.52, wz, wz + wh, shade('#efece6', 0), 2.6, { bias: 150 });   // mullion
+                  win(wu - 110, wu + ww + 110, wz - 130, wz - 70, shade('#d8d3c9', 0), 2.0, { bias: 140 });    // sill
+                }
+              }
               // the shadow the roof throws on the wall it is fixed to
-              quad([[-post, 1, H - 40], [L + post, 1, H - 40], [L + post, 1, H + beam], [-post, 1, H + beam]], 'rgba(24,26,28,.13)', { normal: [0,1,0], cull: true, edge: false, raw: true, bias: 60, fit: false });
-            }
-            if (walls.indexOf('left') > -1) {
-              quad([[0, -over, 0], [0, W + over, 0], [0, W + over, wallTop], [0, -over, wallTop]], wallHex, { normal: [1,0,0], cull: true, edge: false, fit: false });
-              quad([[1, -post, H - 40], [1, W + post, H - 40], [1, W + post, H + beam], [1, -post, H + beam]], 'rgba(24,26,28,.13)', { normal: [1,0,0], cull: true, edge: false, raw: true, bias: 60, fit: false });
-            }
+              band(H - 40, H + beam, 'rgba(24,26,28,.13)', 1.0, { raw: true, bias: 200 });
+            };
+
+            if (walls.indexOf('rear') > -1) houseWall('x', 0, [0, 1, 0], -over, L + over);
+            if (walls.indexOf('left') > -1) houseWall('y', 0, [1, 0, 0], -over, W + over);
             layer = 0;
           }
 
