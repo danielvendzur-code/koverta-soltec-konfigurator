@@ -6930,6 +6930,7 @@ details-disclosure > details {
                the way the frame is quoted. A section can be no deeper than the
                frame less the panel and its reveal, or it would draw through. */
             const sec = model().secBeam || [80, 50];
+            const PANEL = 30;                  // every carport and canopy model says "ISO panel 30 mm"
             const rw = sec[1];
             const rd = Math.min(sec[0], Math.max(24, beam - Math.round(beam * 0.15) - 30));
             const rimHigh = bz + beam + (fallShown ? fall : 0);
@@ -6937,24 +6938,32 @@ details-disclosure > details {
             const zRim = (x) => rimHigh + ((rimLow - rimHigh) * (x - x0)) / (x1 - x0);
             /* both gaps are read off the frame depth, so a 240 section simply
                gets a deeper reveal at the top and more air underneath */
-            const clear = Math.round(beam * 0.20);          // under the secondary beams
-            const reveal = Math.round(beam * 0.15);         // between the sheet and the rim
-            const skin = Math.max(24, beam - clear - rd - reveal);
-            /* Where the fall is hidden it has to go somewhere inside a level
-               frame, and the only room there is the air under the beams: above
-               that sits the beam, the deck and the reveal, and they already
-               fill the section. So a 240 hides more of it than a 170 does,
-               and the 80 mm secondary beam has no say in it - measuring the
-               room off that beam gave both sections the same 62 mm. */
-            const hide = fallShown ? 0 : Math.min(fall, clear);
+            /* Air under the beams and the reveal under the rim are drawing
+               choices, not catalogue dimensions - so where the fall has to be
+               hidden they give way to it first, and the profiles sit up close
+               under the rim. Where it is shown they keep the air, because an
+               SL has nothing to hide. */
+            const clear = Math.round(beam * (fallShown ? 0.20 : 0.05));
+            const reveal = Math.round(beam * (fallShown ? 0.15 : 0.05));
+            const skin = PANEL;                             // "ISO panel 30 mm"
+            /* On an F the secondary profiles are straight - level, all of them
+               at one height, the run of them dead flat - and the fall is in
+               how high the panels are fixed above them: packed up at the water
+               end, sitting down on the profile at the exit end. Stepping the
+               profiles themselves down the length, which is what this did
+               before, draws a crooked roof out of straight members.
+
+               The room for that packing is what the frame has left over its
+               beams once the panel and the reveal under the rim are taken out.
+               Where that comes to nothing the deck stays flat: better a fall
+               too small to see than a member drawn through the section that
+               holds it. */
+            const room = Math.max(0, beam - clear - rd - skin - reveal);
+            const hide = fallShown ? 0 : Math.min(fall, room);
             const drop = (x) => hide * ((x - inX0) / Math.max(1, inX1 - inX0));
-            /* the beams hang from the rim - SL tilts with it, F stays level -
-               and on F they step down along the length, each one still dead
-               level across the width, which is what the type means. */
-            const secTop = (x) => (fallShown ? zRim(x) : rimLow - drop(x)) - beam + clear + rd;
-            /* the deck sits on the beams that carry it. Packing it down past
-               them instead left it hanging below its own supports. */
-            const zBot = (x) => secTop(x);
+            const secTop = (x) => (fallShown ? zRim(x) : rimLow) - beam + clear + rd;
+            /* the panels ride on packers above the profile, never below it */
+            const zBot = (x) => secTop(x) + (fallShown ? 0 : hide - drop(x));
             const zTop = (x) => zBot(x) + skin;
 
             // perimeter frame: the long rails follow the fall, the ends are level
@@ -7013,6 +7022,33 @@ details-disclosure > details {
               quad([[a, inY1, zBot(a)], [b, inY1, zBot(b)], [b, inY0, zBot(b)], [a, inY0, zBot(a)]], skinLow,
                    Object.assign({ cull: true, edgeHex: seamLow }, pane));
             });
+            /* The deck sits down inside the frame, and a rail standing that
+               proud of it throws a line of shade along its own foot. Without
+               it the deck reads as painted onto the opening rather than set
+               into it - a flat fill meeting a flat fill at a hard edge, which
+               is exactly what makes a render look drawn. Four soft bands, one
+               per rail, stacked so they fade away from the metal. */
+            if (!fromAbove && !glass) {
+              const ao = Math.min(340, Math.max(120, beam * 1.1));
+              const savedAO = layer;
+              layer = roofBase + ON_SKIN;
+              for (let i = 5; i >= 1; i--) {
+                const g = (ao * i) / 5;
+                const al = (0.030 * (1 - (i - 1) / 5)).toFixed(4);
+                const band = (pts) => quad(pts, 'rgba(24,27,24,' + al + ')',
+                  { normal: [0, 0, 1], raw: true, edge: false, fit: false });
+                band([[inX0, inY0, zTop(inX0)], [inX1, inY0, zTop(inX1)],
+                      [inX1, inY0 + g, zTop(inX1)], [inX0, inY0 + g, zTop(inX0)]]);
+                band([[inX0, inY1 - g, zTop(inX0)], [inX1, inY1 - g, zTop(inX1)],
+                      [inX1, inY1, zTop(inX1)], [inX0, inY1, zTop(inX0)]]);
+                band([[inX0, inY0, zTop(inX0)], [inX0 + g, inY0, zTop(inX0 + g)],
+                      [inX0 + g, inY1, zTop(inX0 + g)], [inX0, inY1, zTop(inX0)]]);
+                band([[inX1 - g, inY0, zTop(inX1 - g)], [inX1, inY0, zTop(inX1)],
+                      [inX1, inY1, zTop(inX1)], [inX1 - g, inY1, zTop(inX1 - g)]]);
+              }
+              layer = savedAO;
+            }
+
             /* the four edges of the slab, so it is a solid and not two sheets */
             const edgeHex = glass ? shade(frame, 0.10) : shade(frame, -0.10);
             quad([[inX0, inY0, zTop(inX0)], [inX1, inY0, zTop(inX1)], [inX1, inY0, zBot(inX1)], [inX0, inY0, zBot(inX0)]], edgeHex, { normal: [0,-1,0], cull: true, edge: false, bias: -600 });
