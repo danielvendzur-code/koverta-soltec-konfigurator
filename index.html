@@ -5804,9 +5804,11 @@ details-disclosure > details {
            list of loads is not the same thing as the fixed-width SL layout. */
         /* "1 avto / F170", "2 avta / SL 240" - the books say how many each
            shelters, and the width has to be there for them in any case. */
+        /* Silver first: the frame is anthracite, so a dark car sinks into it
+           and the glazing has nothing to read against. */
         const CAR_COLORS = [
+          { name: 'Strieborná', hex: '#b3b7bb' },
           { name: 'Grafitová', hex: '#4a4f55' },
-          { name: 'Strieborná', hex: '#a7abaf' },
           { name: 'Biela', hex: '#e9e9e4' },
           { name: 'Tmavomodrá', hex: '#2f3f57' }
         ];
@@ -6326,9 +6328,6 @@ details-disclosure > details {
                  colour, so members merge into one surface without a gap */
               edgeCol: o.edge === false ? null : (o.edgeHex || (o.arris === false ? lit : darken(lit, 0.72))),
               fit: o.fit !== false,
-              label: o.label || null,
-              labelFill: o.labelFill || null,
-              labelAspect: o.labelAspect || null,
               d: pp.reduce((a, v) => a + v.d, 0) / pp.length + (o.bias || 0) + layer
             });
           };
@@ -6480,13 +6479,8 @@ details-disclosure > details {
             const wallHex = shade('#efece6', 0);
             const over = Math.round(Math.min(1400, Math.max(L, W) * 0.14));
             const wallTop = H + beam + Math.round(H * 0.30);
-            const plinth = 420;
-
-            /* One wall, built the way a house is: a plinth course the render
-               stops on, the field above it, and a window with a reveal and a
-               sill. Flat off-white with a shadow band on it read as a screen
-               standing behind the model rather than a building it is fixed to.
-               `u` runs along the wall, `v` is its plane. */
+            /* One wall, one function, so the corner placement gets the same
+               wall twice instead of two that drifted apart. */
             const houseWall = (axis, v, nrm, u0, u1) => {
               const P = (u, z, off) => (axis === 'x'
                 ? [u, v + (off || 0) * nrm[1], z]
@@ -6494,28 +6488,7 @@ details-disclosure > details {
               const band = (zA, zB, hex, off, extra) => quad(
                 [P(u0, zA, off), P(u1, zA, off), P(u1, zB, off), P(u0, zB, off)],
                 hex, Object.assign({ normal: nrm, cull: true, edge: false, fit: false }, extra || {}));
-
-              band(plinth, wallTop, wallHex);                       // the field
-              band(0, plinth, shade('#e2ded6', 0), 0.6);            // plinth, a shade darker
-              band(plinth, plinth + 26, shade('#d3cec4', 0), 1.2, { raw: false, bias: 40 });
-
-              /* A window, set where the roof does not cover it so it is worth
-                 drawing at all - out past the end of the carport. */
-              const room = u1 - u0;
-              if (room > 2600) {
-                const ww = Math.min(1250, room * 0.2), wh = 1400;
-                const wz = plinth + 560;
-                const wu = u1 - Math.max(360, over * 0.55) - ww;
-                if (wu > u0 + 200) {
-                  const win = (a, b, zA, zB, hex, off, extra) => quad(
-                    [P(a, zA, off), P(b, zA, off), P(b, zB, off), P(a, zB, off)],
-                    hex, Object.assign({ normal: nrm, cull: true, edge: false, fit: false }, extra || {}));
-                  win(wu - 70, wu + ww + 70, wz - 70, wz + wh + 70, shade('#e6e1d8', 0), 1.4, { bias: 70 });   // reveal
-                  win(wu, wu + ww, wz, wz + wh, 'rgb(96,112,124)', 2.2, { raw: true, bias: 120 });             // glass
-                  win(wu + ww * 0.48, wu + ww * 0.52, wz, wz + wh, shade('#efece6', 0), 2.6, { bias: 150 });   // mullion
-                  win(wu - 110, wu + ww + 110, wz - 130, wz - 70, shade('#d8d3c9', 0), 2.0, { bias: 140 });    // sill
-                }
-              }
+              band(0, wallTop, wallHex);
               // the shadow the roof throws on the wall it is fixed to
               band(H - 40, H + beam, 'rgba(24,26,28,.13)', 1.0, { raw: true, bias: 200 });
             };
@@ -6534,76 +6507,144 @@ details-disclosure > details {
           const drawCars = () => {
             const n = carCount();
             if (!n) return;
-            /* Rough saloon: 4 520 long, 1 830 wide, 1 460 tall, sitting on
-               660 wheels at a 2 700 wheelbase. The greenhouse is a third of
-               the length and sits well back - a cabin that runs half the car
-               and rises as far as the body is a van, which is what the first
-               attempt at this looked like. */
-            const CL = 4520, CW = 1830, CH = 1460;
-            const floorZ = 300, beltZ = 980;
             const paint = (state.carColor || CAR_COLORS[0]).hex;
-            const glassHex = 'rgb(54,62,69)';
-            const tyre = 'rgb(28,29,31)';
-            const rim = 'rgb(128,132,136)';
+            const glassHex = 'rgb(42,50,58)';
+            const tyre = 'rgb(26,27,29)';
+            const rimHex = 'rgb(150,154,158)';
+            const CL = 4560, CW = 1840;
+
+            /* The car is lofted, not stacked out of boxes. Each station along
+               the length carries a silhouette - how wide the body is there and
+               where its roof and its sill sit - and the skin is the quads
+               between one station and the next. That is what gives it a bonnet
+               that falls away, a windscreen that rakes and shoulders that turn
+               over, none of which a box can do.
+
+               t along the length, hw half-width, zt the top line, zb the sill,
+               glass true where the greenhouse is rather than the body. */
+            const STATION = [
+              { t: 0.000, hw: 0.74, zt: 700,  zb: 560 },
+              { t: 0.022, hw: 0.88, zt: 780,  zb: 430 },
+              { t: 0.060, hw: 0.96, zt: 860,  zb: 360 },
+              { t: 0.140, hw: 1.00, zt: 930,  zb: 330 },
+              { t: 0.270, hw: 1.00, zt: 985,  zb: 330 },
+              { t: 0.340, hw: 0.99, zt: 1035, zb: 330 },
+              { t: 0.400, hw: 0.96, zt: 1210, zb: 330, glass: true },
+              { t: 0.455, hw: 0.93, zt: 1395, zb: 330, glass: true },
+              { t: 0.520, hw: 0.92, zt: 1452, zb: 330, glass: true },
+              { t: 0.660, hw: 0.92, zt: 1460, zb: 330, glass: true },
+              { t: 0.735, hw: 0.93, zt: 1400, zb: 330, glass: true },
+              { t: 0.800, hw: 0.96, zt: 1235, zb: 330, glass: true },
+              { t: 0.858, hw: 0.99, zt: 1080, zb: 330 },
+              { t: 0.940, hw: 1.00, zt: 1020, zb: 360 },
+              { t: 0.978, hw: 0.94, zt: 975,  zb: 430 },
+              { t: 1.000, hw: 0.78, zt: 900,  zb: 560 }
+            ];
+            const BELT = 1010;   // where the glass starts on the greenhouse
+
+            /* One station's outline, from the near sill up over the roof and
+               down to the far sill. Corners are eased so the shoulders and the
+               roof rails turn rather than break. */
+            const ring = (st, cy) => {
+              const hw = (CW / 2) * st.hw;
+              const zt = st.zt, zb = st.zb;
+              const h = Math.max(1, zt - zb);
+              const ez = Math.min(150, h * 0.30);          // shoulder ease
+              const ey = Math.min(hw * 0.34, 190);         // roof ease
+              /* The belt is a point on every outline, glazed or not, so the
+                 stations all have the same number of points to loft between
+                 and the glass comes out as a clean band round the cabin
+                 instead of a sliver under the roof. */
+              const zbelt = Math.max(zb + ez + 1, Math.min(BELT, zt - ez - 1));
+              return [
+                [cy - hw * 0.80, zb],
+                [cy - hw,        zb + ez],
+                [cy - hw,        zbelt],
+                [cy - hw,        zt - ez],
+                [cy - hw + ey,   zt],
+                [cy,             zt + (st.glass ? 0 : 6)],
+                [cy + hw - ey,   zt],
+                [cy + hw,        zt - ez],
+                [cy + hw,        zbelt],
+                [cy + hw,        zb + ez],
+                [cy + hw * 0.80, zb],
+                [cy - hw * 0.80, zb]      // close it, so there is a floor under it
+              ];
+            };
+
             const bay = W / n;
             for (let i = 0; i < n; i++) {
               const cy = bay * (i + 0.5);
-              const cx = L / 2 + (i % 2 ? 170 : -170);   // not lined up like a showroom
-              const x0 = cx - CL / 2, x1 = cx + CL / 2;
-              const y0 = cy - CW / 2, y1 = cy + CW / 2;
-              const face = (pts, hex, nrm, extra) =>
-                quad(pts, hex, Object.assign({ normal: nrm, cull: true, arris: false }, extra || {}));
+              const cx = L / 2 + (i % 2 ? 170 : -170);
+              const x0 = cx - CL / 2;
+              const X = (t) => x0 + CL * t;
 
-              /* Body in two courses: a skirt set in at the sills and the
-                 shoulder proud of it, so the flank has a line along it
-                 instead of reading as one slab. */
-              boxFaces(x0 + 130, y0 + 120, floorZ, CL - 260, CW - 240, 210, shade(paint, -0.16), ['-z', '+z'], []);
-              boxFaces(x0, y0 + 25, floorZ + 190, CL, CW - 50, beltZ - floorZ - 190, paint, ['-z'], ['+z']);
-
-              /* Greenhouse, shorter than the body and narrower at the roof. */
-              const ca0 = x0 + 1560, ca1 = x1 - 1080;
-              const cb0 = x0 + 1980, cb1 = x1 - 1290;
-              const gi = 60, gj = 210;
-              const A = [[ca0, y0 + gi], [ca1, y0 + gi], [ca1, y1 - gi], [ca0, y1 - gi]];
-              const B = [[cb0, y0 + gj], [cb1, y0 + gj], [cb1, y1 - gj], [cb0, y1 - gj]];
-              const side = (a, b, nrm, hex) => face(
-                [[A[a][0], A[a][1], beltZ], [A[b][0], A[b][1], beltZ],
-                 [B[b][0], B[b][1], CH], [B[a][0], B[a][1], CH]], hex, nrm);
-              side(0, 1, [0, -1, 0], glassHex);
-              side(2, 3, [0, 1, 0], glassHex);
-              side(1, 2, [1, 0, 0], glassHex);
-              side(3, 0, [-1, 0, 0], glassHex);
-              face([[B[0][0], B[0][1], CH], [B[1][0], B[1][1], CH],
-                    [B[2][0], B[2][1], CH], [B[3][0], B[3][1], CH]], paint, [0, 0, 1]);
-
-              /* Wheels as discs on the flank, not cubes: an eight-sided face
-                 reads as round at this size and costs four points. */
-              const R = 330, axle = R;
-              const disc = (axX, atY, nrm, hex, r) => {
-                const pts = [];
-                for (let k = 0; k < 8; k++) {
-                  const a = (Math.PI * 2 * k) / 8 + Math.PI / 8;
-                  pts.push([axX + Math.cos(a) * r, atY, axle + Math.sin(a) * r]);
+              const rings = STATION.map((st) => ring(st, cy));
+              // the skin
+              for (let k = 0; k < STATION.length - 1; k++) {
+                const a = STATION[k], b = STATION[k + 1];
+                const ra = rings[k], rb = rings[k + 1];
+                const xa = X(a.t), xb = X(b.t);
+                for (let j = 0; j < ra.length - 1; j++) {
+                  /* Where the skin is glass. Down the flanks it is the band
+                     between the belt and the shoulder; at the two ends of the
+                     cabin it is the panel that rakes - which is the windscreen
+                     and the backlight. The roof between them keeps its paint,
+                     because a car's roof is painted. */
+                  const rake = Math.abs(b.zt - a.zt) > 120;
+                  const glazed = (a.glass && b.glass && (j === 2 || j === 7))
+                    || ((a.glass || b.glass) && rake && j >= 3 && j <= 6);
+                  quad([
+                    [xa, ra[j][0], ra[j][1]], [xb, rb[j][0], rb[j][1]],
+                    [xb, rb[j + 1][0], rb[j + 1][1]], [xa, ra[j + 1][0], ra[j + 1][1]]
+                  ], glazed ? glassHex : paint, { cull: true, arris: false });
                 }
-                face(pts, hex, nrm, { raw: true });
+              }
+              // the two ends, so it is not a tube
+              const cap = (idx, xAt) => {
+                const r = rings[idx];
+                quad(r.map((q) => [xAt, q[0], q[1]]), shade(paint, -0.10), { cull: true, arris: false });
               };
-              [x0 + 1010, x1 - 940].forEach((axX) => {
-                disc(axX, y0 + 18, [0, -1, 0], tyre, R);
-                disc(axX, y0 + 14, [0, -1, 0], rim, R * 0.52);
-                disc(axX, y1 - 18, [0, 1, 0], tyre, R);
-                disc(axX, y1 - 14, [0, 1, 0], rim, R * 0.52);
-              });
-              /* it has to sit on the paving, not hover over it */
-              quad([[x0 + 260, y0 + 60, 4], [x1 - 200, y0 + 60, 4], [x1 - 200, y1 - 60, 4], [x0 + 260, y1 - 60, 4]],
-                   'rgba(24,24,24,.20)', { normal: [0, 0, 1], raw: true, edge: false, fit: false });
+              cap(0, X(0));
+              cap(STATION.length - 1, X(1));
 
-              // lamps
-              const lamp = (x, nrm, hex, zA, zB) => {
-                face([[x, y0 + 210, zA], [x, y0 + 620, zA], [x, y0 + 620, zB], [x, y0 + 210, zB]], hex, nrm, { raw: true });
-                face([[x, y1 - 620, zA], [x, y1 - 210, zA], [x, y1 - 210, zB], [x, y1 - 620, zB]], hex, nrm, { raw: true });
+              /* Wheels: a tyre disc, a rim inside it, and the arch it sits in
+                 cut as a dark band so the body reads as having a wheel well. */
+              const R = 335;
+              const disc = (axX, atY, nrm, hex, r, seg) => {
+                const pts = [];
+                for (let k = 0; k < seg; k++) {
+                  const ang = (Math.PI * 2 * k) / seg + Math.PI / seg;
+                  pts.push([axX + Math.cos(ang) * r, atY, R + Math.sin(ang) * r]);
+                }
+                quad(pts, hex, { normal: nrm, cull: true, edge: false, raw: true });
               };
-              lamp(x0 - 2, [-1, 0, 0], 'rgb(236,236,228)', 640, 800);
-              lamp(x1 + 2, [1, 0, 0], 'rgb(152,44,40)', 660, 810);
+              const hwOut = CW / 2;
+              [X(0.205), X(0.800)].forEach((axX) => {
+                // tucked inside the flank, the way a wheel sits in its arch
+                [[cy - hwOut + 78, [0, -1, 0]], [cy + hwOut - 78, [0, 1, 0]]].forEach((w) => {
+                  disc(axX, w[0], w[1], tyre, R, 14);
+                  disc(axX, w[0] + w[1][1] * 6, w[1], rimHex, R * 0.54, 12);
+                  disc(axX, w[0] + w[1][1] * 8, w[1], shade(paint, -0.42), R * 0.20, 10);
+                });
+              });
+
+              // lamps, set into the ends
+              const lamp = (t, nrm, hex, zA, zB, inset) => {
+                const xAt = X(t) + inset;
+                const hwL = (CW / 2) * 0.86;
+                [[cy - hwL, cy - hwL * 0.42], [cy + hwL * 0.42, cy + hwL]].forEach((seg) => {
+                  quad([[xAt, seg[0], zA], [xAt, seg[1], zA], [xAt, seg[1], zB], [xAt, seg[0], zB]],
+                       hex, { normal: nrm, cull: true, edge: false, raw: true, bias: 300 });
+                });
+              };
+              lamp(0.028, [-1, 0, 0], 'rgba(240,240,232,.92)', 620, 760, -4);
+              lamp(0.972, [1, 0, 0], 'rgba(168,48,44,.92)', 680, 820, 4);
+
+              /* it has to sit on the paving, not hover over it */
+              quad([[X(0.05), cy - CW * 0.44, 4], [X(0.95), cy - CW * 0.44, 4],
+                    [X(0.95), cy + CW * 0.44, 4], [X(0.05), cy + CW * 0.44, 4]],
+                   'rgba(24,24,24,.18)', { normal: [0, 0, 1], raw: true, edge: false, fit: false });
             }
           };
 
@@ -7219,35 +7260,6 @@ details-disclosure > details {
           canvas.setAttribute('viewBox', '0 0 ' + VW + ' ' + VH);
           const pad = Math.round(Math.min(VW, VH) * 0.08);
           let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-          /* The maker's badge, on the frame where it goes on the real thing.
-             It has to be laid down after the structure: the rail is drawn on a
-             far higher layer than the ground floor of the scene, so a sticker
-             collected earlier ends up behind the metal it is stuck to. Culled
-             with its face, so only the flank you are looking at carries it. */
-          (() => {
-            const bw = Math.min(900, Math.max(420, L * 0.16));
-            const bh = Math.min(Math.round(beam * 0.44), 92);
-            const bx = post + Math.round(Math.min(700, L * 0.10));
-            const bz2 = H + Math.round(beam * 0.26);
-            const keep = layer;
-            layer = 4 * ROOF_LAYER;
-            const badge = (y, nrm, p, q) => {
-              // whichever end projects further left is the one the word starts at
-              const a = cam(p, y, bz2).x <= cam(q, y, bz2).x ? p : q;
-              const b = a === p ? q : p;
-              quad([[a, y, bz2], [b, y, bz2], [b, y, bz2 + bh], [a, y, bz2 + bh]],
-                shade(frame, -0.26),
-                { normal: nrm, cull: true, edge: false, fit: false,
-                  label: 'SOLTEC', labelFill: 'rgba(246,245,243,.88)', labelAspect: bh / bw });
-            };
-            /* Which way round the corners go decides which way the word
-               reads: p0 to p1 is the baseline, so each flank takes the order
-               that puts it left to right on screen. */
-            badge(W + 4, [0, 1, 0], bx, bx + bw);
-            badge(-4, [0, -1, 0], bx, bx + bw);
-            layer = keep;
-          })();
-
           faces.forEach((f) => { if (!f.fit) return; f.p.forEach((q) => {
             if (q.x < minX) minX = q.x; if (q.x > maxX) maxX = q.x;
             if (q.y < minY) minY = q.y; if (q.y > maxY) maxY = q.y;
@@ -7266,40 +7278,6 @@ details-disclosure > details {
                genuinely lit differently. */
             if (f.edge) { a.stroke = f.edgeCol; a['stroke-width'] = '1'; a['stroke-linejoin'] = 'round'; }
             g.appendChild(svgEl('polygon', a));
-            /* A face may carry a word. Mapping a 100 x 100 local box onto the
-               face's own projected corners puts the text in the plane of the
-               metal, so it leans with the model instead of floating flat over
-               it - which is the whole point of drawing it here and not in the
-               overlay. The face is culled when it turns away, so the text
-               never shows back to front. */
-            if (f.label) {
-              const P = f.p.map((q) => ({ x: q.x * scale + ox, y: q.y * scale + oy }));
-              /* The local box has to be the same shape as the face, or the
-                 glyphs are squashed along one axis - 100 x 100 mapped onto a
-                 900 x 74 plate crushed the letters into slivers. Its height is
-                 the face's own aspect, so a local square is a world square. */
-              /* The local box must be the same shape as the face or the glyphs
-                 are squashed along one axis, and its axes must point the way
-                 SVG text expects: +x along the baseline, +y down the page. The
-                 quad is wound [bottom-left, bottom-right, top-right, top-left],
-                 so the text's origin is the top-left corner and its down is the
-                 way back to the bottom. Getting this from the winding rather
-                 than guessing per flank is what stopped the word coming out in
-                 a mirror. */
-              const LH = 100 * (f.labelAspect || 1);
-              const org = P[3];
-              const ex = { x: (P[2].x - org.x) / 100, y: (P[2].y - org.y) / 100 };
-              const ey = { x: (P[0].x - org.x) / LH, y: (P[0].y - org.y) / LH };
-              const tn = svgEl('text', {
-                transform: `matrix(${ex.x.toFixed(5)} ${ex.y.toFixed(5)} ${ey.x.toFixed(5)} ${ey.y.toFixed(5)} ${org.x.toFixed(1)} ${org.y.toFixed(1)})`,
-                x: '50', y: (LH * 0.72).toFixed(2), 'text-anchor': 'middle', 'font-size': (LH * 0.60).toFixed(2),
-                'font-family': 'Archivo, Helvetica, Arial, sans-serif',
-                'font-weight': '700', 'letter-spacing': (LH * 0.05).toFixed(2),
-                fill: f.labelFill || 'rgba(255,255,255,.82)'
-              });
-              tn.textContent = f.label;
-              g.appendChild(tn);
-            }
           });
           /* A screen reader gets the configuration, not just "a visualisation". */
           const above = view.el >= 0.9 ? 'zhora' : (view.el < 0 ? 'zdola' : 'zboku');
