@@ -6228,7 +6228,12 @@ details-disclosure > details {
 
           /* Perspective: near faces grow a little, far ones shrink. Without it
              the structure reads as a technical drawing rather than a product. */
-          const DIST = Math.max(L, W, H) * 5.2;   // a long lens, the way the installations are shot
+          /* A 5.2 lens is so long the projection is all but isometric, and
+             that is what made the stage read as a drawing rather than a
+             photograph: parallel posts, a ground plane that never recedes. At
+             2.9 the verticals converge and the paving runs away under the
+             structure, without the bowing a genuinely wide lens would give. */
+          const DIST = Math.max(L, W, H) * 2.9;
           const cam = (x, y, z) => {
             const cx = x - L / 2, cy = y - W / 2, cz = z - H / 2;
             const rx = cx * ca + cy * sa;
@@ -6262,12 +6267,23 @@ details-disclosure > details {
             const s = v.slice(0, 3).map((x) => Math.round(x * k)).join(',');
             return v[3] == null ? 'rgb(' + s + ')' : 'rgba(' + s + ',' + v[3] + ')';
           };
+          /* Powder-coated aluminium is not chalk: the faces that happen to sit
+             near the mirror angle throw a sheen, and that highlight travelling
+             across the section as the model turns is most of what tells the eye
+             it is looking at metal rather than at a drawing. Half-vector
+             between the key and the camera, raised to a wide-ish power so the
+             catch is broad and soft rather than a hot spot, and added rather
+             than multiplied so it lifts a dark colour as much as a light one. */
+          let HALF = KEY;                       // set once the camera is known, just below
+          const SPEC_I = 0.30, SPEC_P = 14;
           const litFill = (c, n) => {
             const base = toRGB(c);
             const kd = Math.max(0, n[0] * KEY[0] + n[1] * KEY[1] + n[2] * KEY[2]);
             const fd = Math.max(0, n[0] * FILL[0] + n[1] * FILL[1] + n[2] * FILL[2]);
             const l = AMB + KEY_I * kd + FILL_I * fd + BOUNCE_I * Math.max(0, -n[2]) + SKY_I * Math.max(0, n[2]);
-            const v = base.slice(0, 3).map((x) => Math.max(0, Math.min(255, Math.round(x * l))));
+            const hn = Math.max(0, n[0] * HALF[0] + n[1] * HALF[1] + n[2] * HALF[2]);
+            const spec = kd > 0 ? SPEC_I * Math.pow(hn, SPEC_P) * 255 : 0;
+            const v = base.slice(0, 3).map((x) => Math.max(0, Math.min(255, Math.round(x * l + spec))));
             return base[3] == null
               ? 'rgb(' + v[0] + ',' + v[1] + ',' + v[2] + ')'
               : 'rgba(' + v[0] + ',' + v[1] + ',' + v[2] + ',' + base[3] + ')';
@@ -6280,6 +6296,7 @@ details-disclosure > details {
 
           // direction toward the camera, in world space
           const VIEWDIR = [-sa * ce, ca * ce, se];
+          HALF = unit([KEY[0] + VIEWDIR[0], KEY[1] + VIEWDIR[1], KEY[2] + VIEWDIR[2]]);
           const facing = (n) => n[0] * VIEWDIR[0] + n[1] * VIEWDIR[1] + n[2] * VIEWDIR[2];
           /* The camera orbits the middle of the structure, so being above that
              is not the same as being above the roof - which sits (H + beam) / 2
