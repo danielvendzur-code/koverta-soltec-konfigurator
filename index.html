@@ -6246,7 +6246,12 @@ details-disclosure > details {
           const unit = (v) => { const m = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / m, v[1] / m, v[2] / m]; };
           const KEY = unit([-0.25, 0.62, 0.74]);
           const FILL = unit([0.86, -0.10, 0.50]);
-          const AMB = 0.50, KEY_I = 0.42, FILL_I = 0.17, BOUNCE_I = 0.46, SKY_I = 0.13;
+          /* Ambient at half strength lit every face to nearly the same tone,
+             so the aluminium read as a flat silhouette. Taking some of it back
+             and putting it into the key opens the gap between a face turned to
+             the sun and one turned away, which is what makes the section look
+             like metal with a form rather than a cut-out. */
+          const AMB = 0.42, KEY_I = 0.54, FILL_I = 0.20, BOUNCE_I = 0.46, SKY_I = 0.13;
           const toRGB = (c) => {
             if (c.charAt(0) === '#') { const n = parseInt(c.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255, null]; }
             const m = c.match(/[\d.]+/g) || [];
@@ -6417,7 +6422,13 @@ details-disclosure > details {
             [-grow + shX, -grow + shY, 0], [L + grow + shX, -grow + shY, 0],
             [L + grow + shX, W + grow + shY, 0], [-grow + shX, W + grow + shY, 0]
           ], 'rgba(20,22,24,' + alpha + ')', { raw: true, edge: false, fit: false });
-          for (let i = 10; i >= 0; i--) shadow(40 + i * 26, 0.026);
+          /* A penumbra is dense at the core and thins quickly at the edge.
+             An even alpha across every ring gave a linear ramp, which reads as
+             a grey rectangle with soft corners rather than a shadow. */
+          for (let i = 10; i >= 0; i--) {
+            const t = 1 - i / 10;
+            shadow(40 + i * 26, +(0.012 + 0.030 * t * t).toFixed(4));
+          }
 
           /* Sun through open blades. Dropping the gaps between them onto the
              ground along the same light is what shows, at a glance, that the
@@ -6496,9 +6507,12 @@ details-disclosure > details {
               layer = -2 * ROOF_LAYER + 2;
               for (let s = 7; s >= 1; s--) {
                 const grow = g0 * s;
+                // same falloff as the cast shadow: dense at the foot, thin at the edge
+                const t = 1 - (s - 1) / 6;
                 quad([[px - grow, py - grow, 0], [px + post + grow, py - grow, 0],
                       [px + post + grow, py + post + grow, 0], [px - grow, py + post + grow, 0]],
-                     'rgba(18,20,22,.045)', { raw: true, edge: false, fit: false, normal: [0,0,1] });
+                     'rgba(18,20,22,' + (0.018 + 0.052 * t * t).toFixed(4) + ')',
+                     { raw: true, edge: false, fit: false, normal: [0,0,1] });
               }
               layer = savedLayer;
               /* The water exits are at one end, so the posts there stand
