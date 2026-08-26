@@ -5857,6 +5857,29 @@ details-disclosure > details {
           return out;
         };
         const sideSpan = (side) => (side === 'front' || side === 'rear' ? lengthMM() : widthMM());
+        /* How many leaves a side is made of. The price worked this out and the
+           drawing assumed two, so a five-leaf H50 was quoted and drawn as a
+           pair. One answer, so what a customer sees is what is on the quote.
+           G2 folds rather than slides and the book caps a folding leaf at
+           650 mm, which is what sets its count. */
+        const G2_LEAF_MAX = 650;
+        const sideLeaves = (kind, span) => {
+          if (kind === 'h50l' || kind === 'h50a') {
+            const ws = BIO.slideW || [];
+            const widest = ws[ws.length - 1] || 1200;
+            return Math.max(2, Math.ceil(span / widest));
+          }
+          if (kind === 'g1') {
+            const g = BIO.glassPanel;
+            if (g) {
+              const sys = ['2', '3', '4', '5'].find((k) => g[k] && span <= g[k].len[g[k].len.length - 1] && span >= g[k].len[0]);
+              if (sys) return Number(sys);
+            }
+            return 2;
+          }
+          if (kind === 'g2') return Math.max(2, Math.ceil(span / G2_LEAF_MAX));
+          return 0;
+        };
 
         /* The roof is a run of ISO panels, not a run of secondary-beam bays: the
            two spacings are different things and only the panels show as seams.
@@ -6048,8 +6071,7 @@ details-disclosure > details {
             const slidePrice = (mat) => {
               const t = BIO.slide && BIO.slide[mat];
               if (!t || !BIO.slideW) return null;
-              const widest = BIO.slideW[BIO.slideW.length - 1];
-              const leaves = Math.max(2, Math.ceil(span / widest));
+              const leaves = sideLeaves(kind, span);
               const each = span / leaves;
               if (each < BIO.slideW[0] * 0.75) return null;   // narrower than the book goes
               const band = t[nearestKey(t, state.height)];
@@ -6075,9 +6097,15 @@ details-disclosure > details {
             } else if (kind === 'h50l' || kind === 'h50a') {
               const r = slidePrice(kind === 'h50l' ? 'wood' : 'alu');
               if (r) { value = r.v; note = `${r.n} ${r.n === 1 ? 'krídlo' : r.n < 5 ? 'krídla' : 'krídel'}, 2 vodiace lišty`; }
-            } else if (kind === 'g1' || kind === 'g2') {
+            } else if (kind === 'g1') {
               const r = glassPrice();
               if (r) { value = r.v; note = `${r.n} vodiace lišty`; }   // 2, 3 or 4 - always the plural that takes 'vodiace'
+            } else if (kind === 'g2') {
+              /* "glass folding panels ... CENA SE DOLOCI POSAMEZNO ZA VSAK
+                 PROJEKT" - the folding system has no table in the book, and
+                 pricing it off the sliding one invented a figure. */
+              value = null;
+              note = `${sideLeaves('g2', span)} krídel po max. ${G2_LEAF_MAX} mm`;
             }
             if (value === null) open = true;
             lines.push({ k: `${SIDE_LABEL[side]} — ${opt.label}${note ? ' · ' + note : ''}`, v: value, sum: value || 0 });
@@ -6505,6 +6533,16 @@ details-disclosure > details {
                 if (axis === 'x') boxFaces(uA, v[0], zA, uB - uA, v[1] - v[0], zB - zA, hex, skip, flat);
                 else boxFaces(v[0], uA, zA, v[1] - v[0], uB - uA, zB - zA, hex, skip, flat);
               };
+              /* Like pane, but its two ends sit at different depths - a leaf
+                 caught mid-fold is not parallel to the opening. */
+              const foldPane = (t0, t1, zA, zB, pA, pB, hex, extra) => {
+                const uA = u0 + uLen * t0, uB = u0 + uLen * t1;
+                if (zB - zA <= 0.2) return;
+                const vA = vSpan(pA, pA)[0], vB = vSpan(pB, pB)[0];
+                const P = (u, v, z) => (axis === 'x' ? [u, v, z] : [v, u, z]);
+                quad([P(uA, vA, zA), P(uB, vB, zA), P(uB, vB, zB), P(uA, vA, zB)], hex,
+                     Object.assign({ normal: norm, edge: false }, extra || {}));
+              };
               const pane = (t0, t1, zA, zB, p, hex, extra) => {
                 const uA = u0 + uLen * t0, uB = u0 + uLen * t1;
                 if (uB - uA <= 0.2 || zB - zA <= 0.2) return;
@@ -6538,10 +6576,14 @@ details-disclosure > details {
               memb(0, 1, z1 - headTop, z1, 0, kind === 'zip' ? Math.round(gw * 1.15) : gw, railHex, endsX, SHAFT);
 
               const zTop = z1 - headTop;
-              const zBase = kind === 'zip' ? 0 : Math.round(gw * 0.55);
+              /* A door runs to the floor - it is the way out. Only the fixed
+                 walls stand off it, which is where that reveal belongs. */
+              const onFloor = kind === 'zip' || kind === 'g1' || kind === 'g2'
+                           || kind === 'h50l' || kind === 'h50a';
+              const zBase = onFloor ? 0 : Math.round(gw * 0.55);
               if (kind !== 'zip') memb(gt, 1 - gt, 0, zBase, 0, gw, shade(sideHex, -0.14), endsX, SHAFT);
 
-              const leaves = { g1: 2, g2: 2, h50l: 2, h50a: 2 }[kind] || 0;
+              const leaves = sideLeaves(kind, sideSpan(side));
 
               if (kind === 'zip') {
                 /* the screen rolls into its own cassette: the fabric shortens
@@ -6566,6 +6608,33 @@ details-disclosure > details {
                 memb(gt, 1 - gt, zBase, zBase + track, back - frD, back + frD, shade(sideHex, -0.18), endsX, SHAFT);
                 const zA = zBase + track, zB = zTop;
                 const w = (1 - 2 * gt) / leaves;
+                if (kind === 'g2') {
+                  /* G2 is the folding system, not the sliding one: the leaves
+                     are hinged in a run and concertina toward one stile, so
+                     alternate hinges stand proud of the opening while the
+                     leaves between them lie at an angle. Folded flat the book
+                     allows "min. 32 mm x stevilo panelov", so the pack keeps
+                     that thickness rather than collapsing into the stile. */
+                  const wReal = w * uLen;
+                  const ang = open * (Math.PI / 2);
+                  const cw = Math.max(32 / Math.max(1, uLen), w * Math.cos(ang));
+                  const amp = wReal * Math.sin(ang);
+                  const start = gt + (1 - 2 * gt) - leaves * cw;
+                  const dAt = (j) => back + (j % 2 ? amp : 0);
+                  const tAt = (j) => start + cw * j;
+                  for (let i = 0; i < leaves; i++) {
+                    const pA = dAt(i), pB = dAt(i + 1);
+                    foldPane(tAt(i), tAt(i + 1), zA + fr, zB - fr, pA, pB,
+                             'rgba(181,205,214,.42)', { raw: true });
+                  }
+                  // the hinge stiles, each square to the opening at its own depth
+                  for (let j = 0; j <= leaves; j++) {
+                    const d = dAt(j), t = tAt(j);
+                    memb(Math.max(0, t - fr / 2), t + fr / 2, zA, zB, d - frD, d + frD,
+                         shade(sideHex, 0.04), [], SHAFT);
+                  }
+                  return;
+                }
                 for (let i = 0; i < leaves; i++) {
                   /* Shut, the leaves fill the bay. Run back, they slide toward
                      the far stile and stack there, each on its own track, so
@@ -6573,7 +6642,11 @@ details-disclosure > details {
                   const home = gt + w * i;
                   const parked = gt + (1 - 2 * gt) - w * (leaves - i);
                   const t0 = home + (parked - home) * open, t1 = t0 + w;
-                  const dOff = i * Math.round(frD * 0.85);
+                  /* Each leaf has its own track, but shut they close into one
+                     plane - stepping them in depth at rest doubled every stile
+                     against its neighbour, so the wall read as a run of bars of
+                     uneven thickness. The tracks separate as the leaves run. */
+                  const dOff = Math.round(i * frD * 0.85 * open);
                   const p0 = back - frD + dOff, p1 = back + frD + dOff;
                   memb(t0, t0 + fr, zA, zB, p0, p1, shade(sideHex, 0.04), [], SHAFT);
                   memb(t1 - fr, t1, zA, zB, p0, p1, shade(sideHex, 0.04), [], SHAFT);
