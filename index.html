@@ -6326,6 +6326,9 @@ details-disclosure > details {
                  colour, so members merge into one surface without a gap */
               edgeCol: o.edge === false ? null : (o.edgeHex || (o.arris === false ? lit : darken(lit, 0.72))),
               fit: o.fit !== false,
+              label: o.label || null,
+              labelFill: o.labelFill || null,
+              labelAspect: o.labelAspect || null,
               d: pp.reduce((a, v) => a + v.d, 0) / pp.length + (o.bias || 0) + layer
             });
           };
@@ -7216,6 +7219,35 @@ details-disclosure > details {
           canvas.setAttribute('viewBox', '0 0 ' + VW + ' ' + VH);
           const pad = Math.round(Math.min(VW, VH) * 0.08);
           let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+          /* The maker's badge, on the frame where it goes on the real thing.
+             It has to be laid down after the structure: the rail is drawn on a
+             far higher layer than the ground floor of the scene, so a sticker
+             collected earlier ends up behind the metal it is stuck to. Culled
+             with its face, so only the flank you are looking at carries it. */
+          (() => {
+            const bw = Math.min(900, Math.max(420, L * 0.16));
+            const bh = Math.min(Math.round(beam * 0.44), 92);
+            const bx = post + Math.round(Math.min(700, L * 0.10));
+            const bz2 = H + Math.round(beam * 0.26);
+            const keep = layer;
+            layer = 4 * ROOF_LAYER;
+            const badge = (y, nrm, p, q) => {
+              // whichever end projects further left is the one the word starts at
+              const a = cam(p, y, bz2).x <= cam(q, y, bz2).x ? p : q;
+              const b = a === p ? q : p;
+              quad([[a, y, bz2], [b, y, bz2], [b, y, bz2 + bh], [a, y, bz2 + bh]],
+                shade(frame, -0.26),
+                { normal: nrm, cull: true, edge: false, fit: false,
+                  label: 'SOLTEC', labelFill: 'rgba(246,245,243,.88)', labelAspect: bh / bw });
+            };
+            /* Which way round the corners go decides which way the word
+               reads: p0 to p1 is the baseline, so each flank takes the order
+               that puts it left to right on screen. */
+            badge(W + 4, [0, 1, 0], bx, bx + bw);
+            badge(-4, [0, -1, 0], bx, bx + bw);
+            layer = keep;
+          })();
+
           faces.forEach((f) => { if (!f.fit) return; f.p.forEach((q) => {
             if (q.x < minX) minX = q.x; if (q.x > maxX) maxX = q.x;
             if (q.y < minY) minY = q.y; if (q.y > maxY) maxY = q.y;
@@ -7234,6 +7266,40 @@ details-disclosure > details {
                genuinely lit differently. */
             if (f.edge) { a.stroke = f.edgeCol; a['stroke-width'] = '1'; a['stroke-linejoin'] = 'round'; }
             g.appendChild(svgEl('polygon', a));
+            /* A face may carry a word. Mapping a 100 x 100 local box onto the
+               face's own projected corners puts the text in the plane of the
+               metal, so it leans with the model instead of floating flat over
+               it - which is the whole point of drawing it here and not in the
+               overlay. The face is culled when it turns away, so the text
+               never shows back to front. */
+            if (f.label) {
+              const P = f.p.map((q) => ({ x: q.x * scale + ox, y: q.y * scale + oy }));
+              /* The local box has to be the same shape as the face, or the
+                 glyphs are squashed along one axis - 100 x 100 mapped onto a
+                 900 x 74 plate crushed the letters into slivers. Its height is
+                 the face's own aspect, so a local square is a world square. */
+              /* The local box must be the same shape as the face or the glyphs
+                 are squashed along one axis, and its axes must point the way
+                 SVG text expects: +x along the baseline, +y down the page. The
+                 quad is wound [bottom-left, bottom-right, top-right, top-left],
+                 so the text's origin is the top-left corner and its down is the
+                 way back to the bottom. Getting this from the winding rather
+                 than guessing per flank is what stopped the word coming out in
+                 a mirror. */
+              const LH = 100 * (f.labelAspect || 1);
+              const org = P[3];
+              const ex = { x: (P[2].x - org.x) / 100, y: (P[2].y - org.y) / 100 };
+              const ey = { x: (P[0].x - org.x) / LH, y: (P[0].y - org.y) / LH };
+              const tn = svgEl('text', {
+                transform: `matrix(${ex.x.toFixed(5)} ${ex.y.toFixed(5)} ${ey.x.toFixed(5)} ${ey.y.toFixed(5)} ${org.x.toFixed(1)} ${org.y.toFixed(1)})`,
+                x: '50', y: (LH * 0.72).toFixed(2), 'text-anchor': 'middle', 'font-size': (LH * 0.60).toFixed(2),
+                'font-family': 'Archivo, Helvetica, Arial, sans-serif',
+                'font-weight': '700', 'letter-spacing': (LH * 0.05).toFixed(2),
+                fill: f.labelFill || 'rgba(255,255,255,.82)'
+              });
+              tn.textContent = f.label;
+              g.appendChild(tn);
+            }
           });
           /* A screen reader gets the configuration, not just "a visualisation". */
           const above = view.el >= 0.9 ? 'zhora' : (view.el < 0 ? 'zdola' : 'zboku');
