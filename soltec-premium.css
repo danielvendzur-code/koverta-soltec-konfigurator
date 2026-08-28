@@ -1422,3 +1422,28 @@
 #SoltecPremium .sp-ref__nav button:hover { border-color: var(--sp-ink); }
 #SoltecPremium .sp-ref__nav button:focus-visible { outline: 2px solid var(--sp-ink); outline-offset: 2px; }
 #SoltecPremium [data-sp-ref-count] { color: var(--sp-muted); font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+
+
+/* 2026-08-28 continuous draggable range controls */
+#SoltecPremium input[type="range"].sp-slider,
+#SoltecPremium input[type="range"].sp-louver-range {
+  position: relative;
+  z-index: 4;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: ew-resize;
+}
+#SoltecPremium input[type="range"].sp-slider::-webkit-slider-thumb,
+#SoltecPremium input[type="range"].sp-louver-range::-webkit-slider-thumb {
+  cursor: grab;
+}
+#SoltecPremium input[type="range"].sp-slider:active::-webkit-slider-thumb,
+#SoltecPremium input[type="range"].sp-louver-range:active::-webkit-slider-thumb {
+  cursor: grabbing;
+}
+#SoltecPremium input[type="range"].sp-slider::-moz-range-thumb,
+#SoltecPremium input[type="range"].sp-louver-range::-moz-range-thumb {
+  cursor: grab;
+}

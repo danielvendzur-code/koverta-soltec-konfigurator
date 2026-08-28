@@ -304,11 +304,28 @@
         const ledLength = calc.querySelector('[data-sp-led-length]');
         const ledQty = calc.querySelector('[data-sp-led-qty]');
         const sensorInputs = [...calc.querySelectorAll('[data-sp-sensor]')];
-        const state = { key: priceData.order[0], w: 0, l: 0, load: 0 };
+        const state = { key: priceData.order[0], w: 0, l: 0, load: 0, wValue: null, lValue: null };
+
+        const priceBandIndex = (values, value) => {
+          if (!Array.isArray(values) || !values.length) return 0;
+          const target = Number(value);
+          let index = 0;
+          for (let i = 1; i < values.length; i += 1) {
+            if (target < values[i]) break;
+            index = i;
+          }
+          return index;
+        };
+        const syncPriceBands = (currentModel) => {
+          if (currentModel.type === 'grid') state.w = priceBandIndex(currentModel.widths, state.wValue);
+          state.l = priceBandIndex(currentModel.lengths, state.lValue);
+        };
 
         const paintTrack = (slider) => {
+          const min = Number(slider.min) || 0;
           const max = Number(slider.max) || 1;
-          slider.style.setProperty('--sp-fill', `${(Number(slider.value) / max) * 100}%`);
+          const value = Number(slider.value);
+          slider.style.setProperty('--sp-fill', `${((value - min) / (max - min || 1)) * 100}%`);
         };
 
         const setScale = (prefix, values) => {
@@ -411,8 +428,9 @@
         const render = () => {
           const model = priceData.models[state.key];
           const isGrid = model.type === 'grid';
-          const width = isGrid ? model.widths[state.w] : model.width;
-          const length = model.lengths[state.l];
+          syncPriceBands(model);
+          const width = isGrid ? Number(state.wValue) : model.width;
+          const length = Number(state.lValue);
           const basePrice = isGrid
             ? model.prices[state.l][state.w]
             : model.prices[String(model.loads[state.load])][state.l];
@@ -463,12 +481,18 @@
           if (loadField) loadField.hidden = isGrid;
 
           if (isGrid && widthSlider) {
-            state.w = Math.min(model.defW, model.widths.length - 1);
-            widthSlider.max = String(model.widths.length - 1);
-            widthSlider.value = String(state.w);
+            const preferred = Number.isFinite(Number(model.defW)) ? Number(model.defW) : Math.round((model.widths.length - 1) / 2);
+            state.w = Math.max(0, Math.min(preferred, model.widths.length - 1));
+            state.wValue = model.widths[state.w];
+            widthSlider.min = String(model.widths[0]);
+            widthSlider.max = String(model.widths[model.widths.length - 1]);
+            widthSlider.step = '1';
+            widthSlider.value = String(state.wValue);
             setScale('width', model.widths);
-          } else if (widthFixedVal) {
-            widthFixedVal.textContent = mm(model.width);
+          } else {
+            state.w = 0;
+            state.wValue = model.width;
+            if (widthFixedVal) widthFixedVal.textContent = mm(model.width);
           }
 
           if (!isGrid) {
@@ -477,9 +501,13 @@
           }
 
           if (lengthSlider) {
-            state.l = Math.min(model.defL, model.lengths.length - 1);
-            lengthSlider.max = String(model.lengths.length - 1);
-            lengthSlider.value = String(state.l);
+            const preferred = Number.isFinite(Number(model.defL)) ? Number(model.defL) : Math.round((model.lengths.length - 1) / 2);
+            state.l = Math.max(0, Math.min(preferred, model.lengths.length - 1));
+            state.lValue = model.lengths[state.l];
+            lengthSlider.min = String(model.lengths[0]);
+            lengthSlider.max = String(model.lengths[model.lengths.length - 1]);
+            lengthSlider.step = '1';
+            lengthSlider.value = String(state.lValue);
             setScale('length', model.lengths);
           }
           render();
@@ -491,8 +519,18 @@
           loadButtons.forEach((other, otherIndex) => other.setAttribute('aria-pressed', String(otherIndex === index)));
           render();
         }));
-        if (widthSlider) widthSlider.addEventListener('input', () => { state.w = Number(widthSlider.value); render(); });
-        if (lengthSlider) lengthSlider.addEventListener('input', () => { state.l = Number(lengthSlider.value); render(); });
+        if (widthSlider) widthSlider.addEventListener('input', () => {
+          const model = priceData.models[state.key];
+          state.wValue = Number(widthSlider.value);
+          state.w = priceBandIndex(model.widths, state.wValue);
+          render();
+        });
+        if (lengthSlider) lengthSlider.addEventListener('input', () => {
+          const model = priceData.models[state.key];
+          state.lValue = Number(lengthSlider.value);
+          state.l = priceBandIndex(model.lengths, state.lValue);
+          render();
+        });
         if (boxEnabled) boxEnabled.addEventListener('change', () => { if (boxConfig) boxConfig.hidden = !boxEnabled.checked; render(); });
         [boxMaterial, boxWidth, boxDepth, ceiling, ledType, ledLength].forEach((control) => { if (control) control.addEventListener('change', render); });
         if (ledQty) ledQty.addEventListener('input', render);
@@ -735,7 +773,7 @@
         const state = {
           model: BIO.order[0],
           placement: 'tip1',
-          width: 0, length: 0, height: 2500,
+          width: 0, length: 0, widthValue: null, lengthValue: null, height: 2500,
           louverT: 0.84,          // 0 shut, 1 as far open as the section allows
           frameColor: BIO.colors[0],
           louverColor: BIO.colors[0],
@@ -773,8 +811,22 @@
           return { w: w || 200, t: t || 24 };
         };
         const isLoad = () => model().type === 'load';
-        const widthMM = () => (isLoad() ? model().width : model().widths[state.width]);
-        const lengthMM = () => model().lengths[state.length];
+        const dimensionBandIndex = (values, value) => {
+          if (!Array.isArray(values) || !values.length) return 0;
+          const target = Number(value);
+          let index = 0;
+          for (let i = 1; i < values.length; i += 1) {
+            if (target < values[i]) break;
+            index = i;
+          }
+          return index;
+        };
+        const widthMM = () => isLoad()
+          ? model().width
+          : (Number.isFinite(state.widthValue) ? state.widthValue : model().widths[state.width]);
+        const lengthMM = () => Number.isFinite(state.lengthValue)
+          ? state.lengthValue
+          : model().lengths[state.length];
         /* SL is priced by load alone and G by load and size together, so the
            list of loads is not the same thing as the fixed-width SL layout. */
         /* Cars, to give the span a size the eye can read. The sections are
@@ -1036,8 +1088,19 @@
         };
         const clampIdx = () => {
           const m = model();
-          state.width = m.widths ? Math.max(0, Math.min(state.width, m.widths.length - 1)) : 0;
-          state.length = Math.max(0, Math.min(state.length, m.lengths.length - 1));
+          if (m.widths && m.widths.length) {
+            const oldIndex = Math.max(0, Math.min(Number(state.width) || 0, m.widths.length - 1));
+            const rawWidth = Number.isFinite(state.widthValue) ? state.widthValue : m.widths[oldIndex];
+            state.widthValue = Math.round(Math.max(m.widths[0], Math.min(rawWidth, m.widths[m.widths.length - 1])));
+            state.width = dimensionBandIndex(m.widths, state.widthValue);
+          } else {
+            state.width = 0;
+            state.widthValue = m.width;
+          }
+          const oldLengthIndex = Math.max(0, Math.min(Number(state.length) || 0, m.lengths.length - 1));
+          const rawLength = Number.isFinite(state.lengthValue) ? state.lengthValue : m.lengths[oldLengthIndex];
+          state.lengthValue = Math.round(Math.max(m.lengths[0], Math.min(rawLength, m.lengths[m.lengths.length - 1])));
+          state.length = dimensionBandIndex(m.lengths, state.lengthValue);
           const ll = m.loads || m.gridLoads;
           state.load = ll ? Math.max(0, Math.min(state.load, ll.length - 1)) : 0;
         };
@@ -1314,6 +1377,9 @@
             if (o.cull && facing(o.normal || faceNormal(pts)) <= 0) return;
             const pp = pts.map((v) => cam(v[0], v[1], v[2]));
             const lit = o.raw ? fill : litFill(fill, o.normal || faceNormal(pts));
+            const depths = pp.map((point) => point.d);
+            const depthAvg = depths.reduce((sum, value) => sum + value, 0) / depths.length;
+            const depthFar = Math.min(...depths);
             faces.push({
               p: pp,
               fill: lit,
@@ -1322,7 +1388,7 @@
                  colour, so members merge into one surface without a gap */
               edgeCol: o.edge === false ? null : (o.edgeHex || (o.arris === false ? lit : darken(lit, 0.72))),
               fit: o.fit !== false,
-              d: pp.reduce((a, v) => a + v.d, 0) / pp.length + (o.bias || 0) + layer
+              d: depthAvg * 0.38 + depthFar * 0.62 + (o.bias || 0) + layer
             });
           };
           /* the four upright faces of a post or a rail, which have to run
@@ -1666,8 +1732,9 @@
             const outward = axis === 'x' ? [0, out, 0] : [out, 0, 0];
             const norm = facing(outward) > 0 ? outward : outward.map((v) => -v);
             const wallBase = layer;
-            layer = wallBase + (facing(outward) > 0 ? UNDER_SIDE
-                                : (fromAbove ? -UNDER_SIDE : -ROOF_LAYER - UNDER_SIDE));
+            // Keep infills near their physical plane. Giant forced layers made
+            // rear panels punch through nearer posts, or hid whole posts.
+            layer = wallBase + (facing(outward) > 0 ? 1200 : -1200);
             const vSpan = (p, q) => (out < 0 ? [vFace + p, vFace + q] : [vFace - q, vFace - p]);
             const railHex = shade(sideHex, -0.06);
             const endsX = axis === 'x' ? ['-x', '+x'] : ['-y', '+y'];
@@ -2583,8 +2650,16 @@
           const loadField = cfgRoot.querySelector('[data-sp-load-field]');
           if (wrap) wrap.hidden = isLoad();
           if (loadField) loadField.hidden = !hasLoads() || loadList().length < 2;
-          if (!isLoad()) { w.max = String(m.widths.length - 1); w.value = String(state.width); }
-          l.max = String(m.lengths.length - 1); l.value = String(state.length);
+          if (!isLoad()) {
+            w.min = String(m.widths[0]);
+            w.max = String(m.widths[m.widths.length - 1]);
+            w.step = '1';
+            w.value = String(widthMM());
+          }
+          l.min = String(m.lengths[0]);
+          l.max = String(m.lengths[m.lengths.length - 1]);
+          l.step = '1';
+          l.value = String(lengthMM());
           /* The height had the only slider whose end the model did not set, so
              it kept the markup's 3 000 while every carport and canopy model
              carries maxHeight 2800 - the configurator would draw, and price, a
@@ -2960,12 +3035,16 @@
         /* ---------------------------------------------------------- events */
         const clampToModel = () => {
           const m = model();
-          if (m.widths) state.width = Math.min(state.width, m.widths.length - 1);
-          state.length = Math.min(state.length, m.lengths.length - 1);
+          clampIdx();
           if (state.model === '240/60' && widthMM() > 5000 && lengthMM() > m.post4) {
-            // catalogue: above 6 m length the 240/60 tops out at 5 m width
-            while (state.width > 0 && widthMM() > 5000) state.width -= 1;
+            // Catalogue rule: above 6 m length the 240/60 tops out at 5 m width.
+            state.widthValue = 5000;
           }
+          if (m.maxArea && m.widths && widthMM() * lengthMM() > m.maxArea * 1000000) {
+            const maxWidthByArea = Math.floor((m.maxArea * 1000000) / lengthMM());
+            state.widthValue = Math.max(m.widths[0], Math.min(state.widthValue, maxWidthByArea));
+          }
+          clampIdx();
         };
         cfgRoot.addEventListener('change', (event) => {
           const el = event.target.closest('[data-sp-add-on]');
@@ -3021,8 +3100,6 @@
             state.model = t.dataset.spModel;
             refIdx = 0;
             openingSize();
-            if (model().widths) state.width = Math.min(state.width, model().widths.length - 1);
-            state.length = Math.min(state.length, model().lengths.length - 1);
             clampToModel();
             const allowedBoxFinishes = boxFinishOptions();
             if (!allowedBoxFinishes.some((item) => item.key === state.box.fin)) {
@@ -3156,8 +3233,8 @@
           const t = event.target;
           if (t.hasAttribute('data-sp-louver-range')) { runMover('louver', Number(t.value) / 100, true); return; }
           if (t.hasAttribute('data-sp-side-range')) { runMover('side', Number(t.value) / 100, true); return; }
-          if (t.hasAttribute('data-sp-w')) state.width = Number(t.value);
-          else if (t.hasAttribute('data-sp-l')) state.length = Number(t.value);
+          if (t.hasAttribute('data-sp-w')) state.widthValue = Number(t.value);
+          else if (t.hasAttribute('data-sp-l')) state.lengthValue = Number(t.value);
           else if (t.hasAttribute('data-sp-h')) state.height = Number(t.value);
           else if (t.hasAttribute('data-sp-anchor')) state.anchor = t.value;
           else return;
@@ -3226,10 +3303,16 @@
           if (m.widths) {
             const wanted = m.widths.findIndex((v) => v >= 2500);
             state.width = wanted < 0 ? m.widths.length - 1 : wanted;
-          } else state.width = 0;
+            state.widthValue = m.widths[state.width];
+          } else {
+            state.width = 0;
+            state.widthValue = m.width;
+          }
           let li = m.lengths.findIndex((l) => l >= 5000);
           if (li < 0) li = Math.round((m.lengths.length - 1) * 0.6);
           state.length = li;
+          state.lengthValue = m.lengths[li];
+          clampToModel();
         };
         openingSize();
         // drag to orbit; the model can be inspected from above and from below
