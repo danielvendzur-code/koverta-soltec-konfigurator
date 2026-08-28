@@ -1,0 +1,1424 @@
+@charset "UTF-8";
+
+/* Hide every other section of the collection template; this section replaces them. */
+
+
+    #SoltecPremium {
+      /* Brand palette taken from the Koverta logo and the theme colour schemes. */
+      --sp-yellow: #ffc007;
+      --sp-slate: #455a64;
+      --sp-ink: #121212;
+      --sp-muted: rgba(18, 18, 18, .62);
+      --sp-line: rgba(18, 18, 18, .12);
+      --sp-soft: #f3f3f3;
+      --sp-sticky-top: 0px;
+      --sp-rhythm: clamp(4.4rem, 5vw, 6.4rem);
+      --sp-rhythm-sm: clamp(2.8rem, 3.2vw, 4rem);
+      color: var(--sp-ink);
+      background: #fff;
+      overflow: clip;
+    }
+    #SoltecPremium * { box-sizing: border-box; }
+    /* `hidden` musí poraziť pravidlá komponentov pod ním. Tie sú všetky
+       #-scoped, takže so [hidden] remizujú na špecificite a vyhrajú poradím —
+       a práve tak si prázdna referenčná figúra udržala display: grid
+       a kreslila prázdny rám. Jedno základné pravidlo, aby to nový komponent
+       nemusel opakovať. */
+    #SoltecPremium [hidden] { display: none !important; }
+    /* height:auto is required so the width/height HTML attributes do not win over aspect-ratio */
+    #SoltecPremium img { max-width: 100%; height: auto; }
+    #SoltecPremium a:not(.button) { color: inherit; }
+    #SoltecPremium [id] { scroll-margin-top: calc(var(--sp-sticky-top) + 7rem); }
+
+    #SoltecPremium .sp-display,
+    #SoltecPremium .sp-h2,
+    #SoltecPremium .sp-h3,
+    #SoltecPremium .sp-model-copy h3,
+    #SoltecPremium .sp-media-card h3,
+    #SoltecPremium .sp-accessory h3,
+    #SoltecPremium .sp-benefit h3 {
+      font-family: var(--font-heading-family);
+      font-style: var(--font-heading-style);
+      font-weight: var(--font-heading-weight);
+    }
+    #SoltecPremium .sp-display { margin: 0; font-size: clamp(4.2rem, 5vw, 7rem); line-height: 1.04; letter-spacing: -.02em; }
+    #SoltecPremium .sp-h2 { margin: 0; font-size: clamp(3rem, 3.4vw, 4.4rem); line-height: 1.1; letter-spacing: -.015em; }
+    #SoltecPremium .sp-h3 { margin: 0; font-size: clamp(2.4rem, 2.6vw, 3.2rem); line-height: 1.15; }
+    #SoltecPremium .sp-copy { color: var(--sp-muted); font-size: 1.7rem; line-height: 1.62; }
+    #SoltecPremium .sp-rule { width: 5.6rem; height: .4rem; margin: 2.2rem 0; background: var(--sp-yellow); }
+    #SoltecPremium .sp-eyebrow { margin: 0 0 1.4rem; color: var(--sp-slate); font-size: 1.3rem; letter-spacing: .14em; text-transform: uppercase; }
+    #SoltecPremium .sp-arrow { width: 2rem; height: 2rem; flex: 0 0 auto; }
+
+    /* ---------------------------------------------------------------- hero */
+    #SoltecPremium .sp-hero { position: relative; min-height: min(80rem, calc(100vh - 8rem)); overflow: hidden; background: var(--sp-ink); }
+    #SoltecPremium .sp-hero__media { position: absolute; inset: 0; overflow: hidden; }
+    #SoltecPremium .sp-hero__media img { width: 100%; height: calc(100% + 4rem); object-fit: cover; object-position: center; transform: translate3d(0, var(--sp-parallax, 0px), 0) scale(1.02); }
+    #SoltecPremium .sp-hero__scrim { position: absolute; inset: 0;
+      background:
+        linear-gradient(180deg, rgba(18,18,18,.34) 0%, rgba(18,18,18,.04) 28%, rgba(18,18,18,.46) 68%, rgba(18,18,18,.86) 100%),
+        linear-gradient(90deg, rgba(18,18,18,.58) 0%, rgba(18,18,18,.22) 42%, rgba(18,18,18,0) 72%); }
+    #SoltecPremium .sp-hero__inner { position: relative; z-index: 1; display: flex; min-height: min(80rem, calc(100vh - 8rem)); align-items: flex-end; padding-top: 12rem; padding-bottom: clamp(4rem, 6vw, 8rem); }
+    #SoltecPremium .sp-hero__panel { max-width: 74rem; color: #fff; }
+    #SoltecPremium .sp-hero__panel .sp-display { color: #fff; text-shadow: 0 .2rem 3rem rgba(0,0,0,.28); }
+    #SoltecPremium .sp-hero__tagline { max-width: 58rem; margin: 2.4rem 0 0; font-size: clamp(1.9rem, 2.1vw, 2.4rem); line-height: 1.4; color: #fff; }
+    #SoltecPremium .sp-hero__copy { max-width: 56rem; margin: 1.8rem 0 0; color: rgba(255,255,255,.92); font-size: 1.6rem; line-height: 1.6; text-shadow: 0 .1rem 1.6rem rgba(0,0,0,.35); }
+    #SoltecPremium .sp-hero__actions { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: clamp(2.8rem, 3.4vw, 4rem); }
+    #SoltecPremium .sp-hero .sp-rule { margin: 0 0 2.4rem; }
+
+    /* ---------------------------------------------------------- local nav */
+    #SoltecPremium .sp-local-nav { position: sticky; top: var(--sp-sticky-top); z-index: 2; transition: top .25s ease; border-bottom: 1px solid var(--sp-line); background: rgba(255,255,255,.97); backdrop-filter: blur(10px); }
+    #SoltecPremium .sp-local-nav__rail { display: flex; overflow-x: auto; scrollbar-width: none; }
+    #SoltecPremium .sp-local-nav__rail::-webkit-scrollbar { display: none; }
+    #SoltecPremium .sp-local-nav a { position: relative; flex: 1 0 auto; min-width: 12rem; padding: 1.9rem 1.2rem; color: var(--sp-muted); font-size: 1.45rem; text-align: center; text-decoration: none; }
+    #SoltecPremium .sp-local-nav a:after { content: ''; position: absolute; right: 1rem; bottom: 0; left: 1rem; height: .3rem; background: var(--sp-yellow); transform: scaleX(0); transition: transform .2s ease; }
+    #SoltecPremium .sp-local-nav a.is-active { color: var(--sp-ink); }
+    #SoltecPremium .sp-local-nav a.is-active:after { transform: scaleX(1); }
+    #SoltecPremium .sp-progress { position: absolute; right: 0; bottom: -1px; left: 0; height: 3px; overflow: hidden; background: rgba(18,18,18,.08); }
+    #SoltecPremium .sp-progress span { display: block; width: var(--sp-progress, 0%); height: 100%; background: var(--sp-yellow); transition: width .1s linear; }
+
+    /* --------------------------------------------------------------- trust */
+    #SoltecPremium .sp-trust { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(2rem, 4vw, 5rem); margin: 0 auto; padding-top: clamp(3rem, 4vw, 4.5rem); padding-bottom: 0; list-style: none; }
+    #SoltecPremium .sp-trust li { padding-top: 1.8rem; border-top: 2px solid var(--sp-yellow); }
+    #SoltecPremium .sp-trust strong { display: block; margin-bottom: .5rem; font-family: var(--font-heading-family); font-size: 1.7rem; font-weight: 400; }
+    #SoltecPremium .sp-trust span { color: var(--sp-muted); font-size: 1.35rem; line-height: 1.45; }
+
+    /* --------------------------------------------------------------- story */
+    #SoltecPremium .sp-story { padding: clamp(5.5rem, 7vw, 8.5rem) 0; }
+    #SoltecPremium .sp-story__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: clamp(3rem, 6vw, 8rem); align-items: center; }
+    #SoltecPremium .sp-story__media { overflow: hidden; border-radius: var(--media-radius, .8rem); }
+    #SoltecPremium .sp-story__media img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+    #SoltecPremium .sp-benefits { display: grid; gap: 0; margin-top: 4rem; }
+    #SoltecPremium .sp-benefit { display: grid; grid-template-columns: 9rem 1fr; gap: 2.2rem; align-items: center; padding: 2.4rem 0; border-top: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-benefit:last-child { border-bottom: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-benefit__icon { width: 9rem; height: 7rem; object-fit: contain; object-position: left center; }
+    #SoltecPremium .sp-benefit h3 { margin: 0 0 .5rem; font-size: 1.9rem; }
+    #SoltecPremium .sp-benefit p { margin: 0; color: var(--sp-muted); font-size: 1.5rem; line-height: 1.55; }
+
+    /* -------------------------------------------------------------- models */
+    #SoltecPremium .sp-models { padding: clamp(5.5rem, 7vw, 8.5rem) 0; background: var(--sp-soft); }
+    #SoltecPremium .sp-section-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(28rem, .8fr); gap: clamp(2rem, 5vw, 6rem); align-items: end; margin-bottom: 4.4rem; }
+    #SoltecPremium .sp-section-head p { margin: 0; }
+    #SoltecPremium .sp-models__wide { max-width: 164rem; margin: 0 auto; padding: 0 clamp(1.5rem, 3vw, 4rem); }
+    #SoltecPremium .sp-explorer { display: grid; grid-template-columns: 27rem minmax(0, 1fr); border-radius: var(--media-radius, .8rem); background: #fff; overflow: clip; overflow-anchor: none; box-shadow: 0 .2rem 4rem rgba(18,18,18,.07); }
+    #SoltecPremium .sp-model-menu { border-right: 1px solid var(--sp-line); background: #fff; }
+    #SoltecPremium .sp-model-tab { position: relative; display: grid; width: 100%; min-height: 11rem; align-content: center; gap: .6rem; padding: 2rem 4.4rem 2rem 2.2rem; border: 0; border-bottom: 1px solid var(--sp-line); background: #fff; color: var(--sp-ink); font: inherit; text-align: left; cursor: pointer; }
+    #SoltecPremium .sp-model-tab:last-child { border-bottom: 0; }
+    #SoltecPremium .sp-model-tab:before { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: .4rem; background: var(--sp-yellow); transform: scaleY(0); transition: transform .18s ease; }
+    #SoltecPremium .sp-model-tab[aria-selected="true"]:before { transform: scaleY(1); }
+    #SoltecPremium .sp-model-tab[aria-selected="true"] { background: rgba(255,192,7,.09); }
+    #SoltecPremium .sp-model-tab strong { font-family: var(--font-heading-family); font-size: 2.1rem; font-weight: 400; }
+    #SoltecPremium .sp-model-tab span { color: var(--sp-muted); font-size: 1.35rem; line-height: 1.35; }
+    #SoltecPremium .sp-model-tab svg { position: absolute; right: 1.6rem; top: 50%; width: 1.8rem; transform: translateY(-50%); opacity: .35; }
+    #SoltecPremium .sp-model-tab[aria-selected="true"] svg { opacity: 1; }
+    #SoltecPremium .sp-mobile-model-control { display: none; }
+    #SoltecPremium .sp-model-panel { min-height: 0; }
+    #SoltecPremium .sp-model-panel[hidden] { display: none !important; }
+    #SoltecPremium .sp-model-panel.is-entering { animation: sp-panel-in .22s ease both; }
+    #SoltecPremium .sp-model-layout { display: grid; min-height: 58rem; grid-template-columns: minmax(0, 1.25fr) minmax(34rem, .85fr); }
+    #SoltecPremium .sp-model-figure { position: relative; display: grid; min-width: 0; background: var(--sp-soft); }
+    #SoltecPremium .sp-model-photo { min-height: 0; overflow: hidden; }
+    #SoltecPremium .sp-model-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    #SoltecPremium .sp-model-photo--contain { padding: 3rem; background: #fff; }
+    #SoltecPremium .sp-model-photo--contain img { object-fit: contain; }
+    #SoltecPremium .sp-model-diagram { position: absolute; z-index: 1; inset: 0; display: none; padding: 3rem; background: #fff; }
+    #SoltecPremium .sp-model-diagram.is-open { display: block; }
+    #SoltecPremium .sp-model-diagram img { display: block; width: 100%; height: 100%; object-fit: contain; }
+    #SoltecPremium .sp-diagram-toggle { position: absolute; z-index: 2; right: 2rem; bottom: 2rem; display: inline-flex; min-height: 4.4rem; align-items: center; gap: 1rem; padding: 1rem 1.6rem; border: 1px solid var(--sp-line); border-radius: var(--buttons-radius, .4rem); background: rgba(255,255,255,.94); color: var(--sp-ink); font: inherit; font-size: 1.4rem; cursor: pointer; }
+    #SoltecPremium .sp-model-copy { display: flex; min-width: 0; flex-direction: column; padding: clamp(2.6rem, 3.4vw, 4.4rem); }
+    #SoltecPremium .sp-model-copy h3 { margin: 0 0 .6rem; font-size: clamp(3rem, 3.6vw, 4rem); }
+    #SoltecPremium .sp-model-badge { display: inline-block; margin: 0 0 1.2rem; color: var(--sp-slate); font-size: 1.25rem; letter-spacing: .1em; text-transform: uppercase; }
+    #SoltecPremium .sp-model-summary { margin: 0 0 1.8rem; color: var(--sp-muted); font-size: 1.55rem; line-height: 1.58; }
+    #SoltecPremium .sp-specs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 2rem; margin: 0 0 1.8rem; border-top: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-spec { display: block; padding: 1.1rem 0; border-bottom: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-spec dt { color: var(--sp-muted); font-size: 1.2rem; }
+    #SoltecPremium .sp-spec dd { margin: .3rem 0 0; font-size: 1.35rem; line-height: 1.4; }
+    #SoltecPremium .sp-price-line { display: flex; align-items: center; justify-content: space-between; gap: 2rem; padding: 1.8rem 2rem; margin-top: auto; border-radius: var(--media-radius, .8rem); background: var(--sp-soft); }
+    #SoltecPremium .sp-price-line small { display: block; margin-bottom: .4rem; color: var(--sp-muted); font-size: 1.2rem; }
+    #SoltecPremium .sp-price-line strong { font-family: var(--font-heading-family); white-space: nowrap; font-size: 3rem; font-weight: 400; }
+    #SoltecPremium .sp-price-line em { display: block; margin-top: .4rem; color: var(--sp-muted); font-size: 1.2rem; font-style: normal; }
+    #SoltecPremium .sp-model-cta { margin-top: 1.6rem; }
+    #SoltecPremium .sp-model-cta .button { width: 100%; }
+    #SoltecPremium .sp-price-list { margin: 2rem 0 1.4rem; padding: 0; list-style: none; border-top: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-price-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .4rem 1rem; padding: 1rem 0; border-bottom: 1px solid var(--sp-line); font-size: 1.3rem; }
+    #SoltecPremium .sp-price-list li span:nth-child(2) { grid-column: 1; color: var(--sp-muted); font-size: 1.2rem; }
+    #SoltecPremium .sp-price-list li strong { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-weight: 500; }
+    #SoltecPremium .sp-model-note { margin: 0; color: var(--sp-muted); font-size: 1.15rem; line-height: 1.45; }
+    #SoltecPremium .sp-price-more { margin-top: 1.6rem; border-top: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-price-more summary { display: flex; min-height: 4.4rem; align-items: center; justify-content: space-between; gap: 1rem; cursor: pointer; list-style: none; color: var(--sp-slate); font-size: 1.35rem; }
+    #SoltecPremium .sp-price-more summary::-webkit-details-marker { display: none; }
+    #SoltecPremium .sp-price-more summary:after { content: '+'; color: var(--sp-muted); font-size: 2rem; font-weight: 300; }
+    #SoltecPremium .sp-price-more[open] summary:after { content: '−'; color: var(--sp-yellow); }
+    #SoltecPremium .sp-panel-nav { display: flex; align-items: center; justify-content: space-between; gap: 2rem; padding: 1.4rem 1.8rem; border-top: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-panel-nav button { display: inline-flex; min-height: 4.4rem; align-items: center; gap: 1rem; padding: .8rem; border: 0; background: transparent; color: var(--sp-ink); font: inherit; font-size: 1.4rem; cursor: pointer; }
+    #SoltecPremium .sp-panel-count { min-width: 7rem; color: var(--sp-muted); font-size: 1.35rem; text-align: center; }
+
+    /* ---------------------------------------------------------- comparison */
+    #SoltecPremium .sp-comparison { padding-top: clamp(5rem, 7vw, 8rem); }
+    #SoltecPremium .sp-comparison__head { display: flex; align-items: baseline; justify-content: space-between; gap: 2rem; margin-bottom: 2.4rem; }
+    #SoltecPremium .sp-comparison__head span { color: var(--sp-muted); font-size: 1.4rem; }
+    #SoltecPremium .sp-table-wrap { overflow-x: auto; border-radius: var(--media-radius, .8rem); background: #fff; }
+    #SoltecPremium .sp-table { width: 100%; min-width: 84rem; border-collapse: collapse; font-size: 1.4rem; }
+    #SoltecPremium .sp-table th, #SoltecPremium .sp-table td { padding: 1.5rem; border-right: 1px solid var(--sp-line); border-bottom: 1px solid var(--sp-line); text-align: left; vertical-align: top; }
+    #SoltecPremium .sp-table th:last-child, #SoltecPremium .sp-table td:last-child { border-right: 0; }
+    #SoltecPremium .sp-table tr:last-child th, #SoltecPremium .sp-table tr:last-child td { border-bottom: 0; }
+    #SoltecPremium .sp-table thead th { background: rgba(255,192,7,.12); font-family: var(--font-heading-family); font-size: 1.6rem; font-weight: 400; }
+    #SoltecPremium .sp-table tbody th { width: 17rem; color: var(--sp-muted); font-weight: 400; }
+    #SoltecPremium .sp-table-note { margin: 1.4rem 0 0; color: var(--sp-muted); font-size: 1.3rem; line-height: 1.5; }
+
+    /* --------------------------------------------------------- quote band */
+    /* ------------------------------------------------------------- gallery */
+    #SoltecPremium .sp-gallery { padding: clamp(5.5rem, 7vw, 8.5rem) 0; }
+    #SoltecPremium .sp-gallery__lead { display: grid; grid-template-columns: minmax(0, 1fr) minmax(28rem, .8fr); gap: clamp(2rem, 5vw, 6rem); align-items: end; margin-bottom: 4rem; }
+    #SoltecPremium .sp-gallery__lead p { margin: 0; }
+    #SoltecPremium .sp-gallery__wide { padding: 0 clamp(1.5rem, 3vw, 4rem); }
+    #SoltecPremium .sp-gallery__grid { display: grid; grid-template-columns: 1.6fr .9fr; gap: 1.6rem; }
+    #SoltecPremium .sp-gallery__side { display: grid; gap: 1.6rem; }
+    #SoltecPremium .sp-media-card { position: relative; overflow: hidden; border-radius: var(--media-radius, .8rem); background: var(--sp-ink); }
+    #SoltecPremium .sp-media-card img { display: block; width: 100%; object-fit: cover; transition: transform .7s cubic-bezier(.2,.75,.2,1); }
+    #SoltecPremium .sp-media-card--large img { aspect-ratio: 4 / 3; }
+    #SoltecPremium .sp-gallery__side .sp-media-card img { aspect-ratio: 16 / 9; }
+    #SoltecPremium .sp-media-card:hover img { transform: scale(1.03); }
+    #SoltecPremium .sp-media-card__caption { position: absolute; right: 0; bottom: 0; left: 0; padding: 6rem 2.4rem 2.2rem; color: #fff; background: linear-gradient(180deg, rgba(18,18,18,0) 0%, rgba(18,18,18,.78) 100%); }
+    #SoltecPremium .sp-media-card h3 { margin: 0 0 .5rem; font-size: 2rem; color: #fff; }
+    #SoltecPremium .sp-media-card p { margin: 0; color: rgba(255,255,255,.8); font-size: 1.35rem; line-height: 1.45; }
+
+    /* --------------------------------------------------------- accessories */
+    #SoltecPremium .sp-accessories { padding: clamp(5rem, 6.5vw, 7.5rem) 0; background: var(--sp-soft); }
+    #SoltecPremium .sp-accessories__head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(28rem, .8fr); gap: clamp(2rem, 5vw, 6rem); align-items: end; margin-bottom: 3.6rem; }
+    #SoltecPremium .sp-accessories__head p { margin: 0; }
+    #SoltecPremium .sp-accessory-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.6rem; }
+    #SoltecPremium .sp-accessory { overflow: hidden; border-radius: var(--media-radius, .8rem); background: #fff; }
+    #SoltecPremium .sp-accessory img { display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; }
+    #SoltecPremium .sp-accessory__copy { padding: 1.8rem; }
+    #SoltecPremium .sp-accessory h3 { margin: 0 0 .5rem; font-size: 1.7rem; }
+    #SoltecPremium .sp-accessory p { margin: 0; color: var(--sp-muted); font-size: 1.3rem; line-height: 1.45; }
+    #SoltecPremium .sp-accessory__more { margin-top: 1.2rem; border-top: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-accessory__more summary { display: flex; min-height: 4rem; align-items: center; justify-content: space-between; gap: 1rem; cursor: pointer; list-style: none; color: var(--sp-slate); font-size: 1.3rem; }
+    #SoltecPremium .sp-accessory__more summary::-webkit-details-marker { display: none; }
+    #SoltecPremium .sp-accessory__more summary:after { content: '+'; color: var(--sp-muted); font-size: 1.9rem; font-weight: 300; }
+    #SoltecPremium .sp-accessory__more[open] summary:after { content: '−'; color: var(--sp-yellow); }
+    #SoltecPremium .sp-accessory__detail p { margin: 0 0 1rem; color: var(--sp-muted); font-size: 1.3rem; line-height: 1.5; }
+    #SoltecPremium .sp-accessory__detail p:last-child { margin-bottom: .6rem; }
+    #SoltecPremium .sp-accessory__colors span { color: var(--sp-ink); }
+
+    /* -------------------------------------------------------------- colors */
+    #SoltecPremium .sp-colors { padding: clamp(4.5rem, 6vw, 6.5rem) 0; }
+    #SoltecPremium .sp-color-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 1.4rem; margin-top: 2.4rem; }
+    #SoltecPremium .sp-color { font-size: 1.25rem; text-align: center; }
+    #SoltecPremium .sp-color img { display: block; width: 100%; max-width: 7rem; aspect-ratio: 1 / 1; margin: 0 auto 1.2rem; object-fit: contain; }
+    #SoltecPremium .sp-color small { display: block; color: var(--sp-muted); }
+    #SoltecPremium .sp-colors__note { margin: 3rem 0 0; color: var(--sp-muted); font-size: 1.4rem; }
+
+    /* ------------------------------------------------------------- journey */
+
+    /* ----------------------------------------------------------------- faq */
+    #SoltecPremium .sp-faq { padding: clamp(5rem, 6.5vw, 7.5rem) 0; border-top: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-faq__grid { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: clamp(3rem, 6vw, 8rem); align-items: start; }
+    #SoltecPremium .sp-faq__media { overflow: hidden; border-radius: var(--media-radius, .8rem); }
+    #SoltecPremium .sp-faq__media img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+    #SoltecPremium .sp-faq__items { margin-top: 2.4rem; border-top: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-faq details { border-bottom: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-faq summary { display: flex; min-height: 6.4rem; align-items: center; justify-content: space-between; gap: 2rem; cursor: pointer; list-style: none; font-size: 1.65rem; }
+    #SoltecPremium .sp-faq summary::-webkit-details-marker { display: none; }
+    #SoltecPremium .sp-faq summary:after { content: '+'; color: var(--sp-muted); font-size: 2.4rem; font-weight: 300; }
+    #SoltecPremium .sp-faq details[open] summary:after { content: '−'; color: var(--sp-yellow); }
+    #SoltecPremium .sp-faq details p { max-width: 62rem; margin: 0; padding: 0 3rem 2.2rem 0; color: var(--sp-muted); font-size: 1.45rem; line-height: 1.6; }
+
+    /* ------------------------------------------------------------- related */
+    #SoltecPremium .sp-related { padding: 0 0 clamp(4.5rem, 6vw, 6.5rem); }
+    #SoltecPremium .sp-related h2 { margin-bottom: 2.8rem; }
+    #SoltecPremium .sp-related__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.6rem; }
+    #SoltecPremium .sp-related__card { position: relative; display: block; overflow: hidden; border-radius: var(--media-radius, .8rem); background: var(--sp-ink); text-decoration: none; }
+    #SoltecPremium .sp-related__card img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; transition: transform .7s cubic-bezier(.2,.75,.2,1); }
+    #SoltecPremium .sp-related__card:hover img { transform: scale(1.03); }
+    #SoltecPremium .sp-related__card span { position: absolute; right: 0; bottom: 0; left: 0; padding: 5rem 2.2rem 2rem; color: #fff; background: linear-gradient(180deg, rgba(18,18,18,0) 0%, rgba(18,18,18,.8) 100%); }
+    #SoltecPremium .sp-related__card strong { display: block; margin-bottom: .3rem; font-family: var(--font-heading-family); font-size: 2rem; font-weight: 400; }
+    #SoltecPremium .sp-related__card span { font-size: 1.35rem; }
+
+    /* ------------------------------------------------------------- contact */
+    #SoltecPremium .sp-contact { padding: clamp(5rem, 6.5vw, 7.5rem) 0; }
+    #SoltecPremium .sp-contact__intro { max-width: 68rem; margin-bottom: 3.4rem; }
+    #SoltecPremium .sp-contact .contact { padding: 0; }
+    #SoltecPremium .sp-contact .contact__button { margin-top: 3rem; }
+
+
+    /* ------------------------------------------------- trust strip (carport) */
+    #SoltecPremium .sp-trust--refined { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; padding-top: clamp(3rem, 4vw, 4.5rem); }
+    #SoltecPremium .sp-trust--refined li { position: relative; padding: 0 clamp(1.6rem, 2.4vw, 3rem); border-top: 0; }
+    #SoltecPremium .sp-trust--refined li:first-child { padding-left: 0; }
+    #SoltecPremium .sp-trust--refined li:last-child { padding-right: 0; }
+    #SoltecPremium .sp-trust--refined li + li:before { content: ''; position: absolute; top: .4rem; bottom: .4rem; left: 0; width: 1px; background: var(--sp-line); }
+    #SoltecPremium .sp-trust--refined b { display: block; margin-bottom: .2rem; color: var(--sp-slate); font-size: 1.15rem; letter-spacing: .12em; text-transform: uppercase; }
+    #SoltecPremium .sp-trust--refined strong { font-size: clamp(2.2rem, 2.4vw, 2.8rem); line-height: 1.15; }
+
+    /* --------------------------------------------------- model spec drawer */
+    #SoltecPremium .sp-quickfacts { display: flex; flex-wrap: wrap; gap: .8rem; margin: 0 0 2rem; padding: 0; list-style: none; }
+    #SoltecPremium .sp-quickfacts li { padding: .7rem 1.2rem; border: 1px solid var(--sp-line); border-radius: 100px; color: var(--sp-slate); font-size: 1.3rem; }
+    #SoltecPremium .sp-drawer { margin: 0 0 1.6rem; border-top: 1px solid var(--sp-line); border-bottom: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-drawer + .sp-drawer { margin-top: -1.6rem; border-top: 0; }
+    #SoltecPremium .sp-drawer > summary { display: flex; min-height: 4.8rem; align-items: center; justify-content: space-between; gap: 1rem; cursor: pointer; list-style: none; color: var(--sp-slate); font-size: 1.4rem; }
+    #SoltecPremium .sp-drawer > summary::-webkit-details-marker { display: none; }
+    #SoltecPremium .sp-drawer > summary:after { content: '+'; color: var(--sp-muted); font-size: 2rem; font-weight: 300; }
+    #SoltecPremium .sp-drawer[open] > summary:after { content: '−'; color: var(--sp-yellow); }
+    #SoltecPremium .sp-drawer .sp-specs { margin-bottom: 1.4rem; border-top: 0; }
+
+    /* --------------------------------------------------------- price calc */
+    #SoltecPremium .sp-pricing { padding: clamp(5rem, 6.5vw, 7.5rem) 0; background: var(--sp-soft); }
+    #SoltecPremium .sp-pricing__head { max-width: 66rem; margin-bottom: clamp(3rem, 4vw, 4.4rem); }
+    #SoltecPremium .sp-pricing__head p { margin: 1.6rem 0 0; }
+    #SoltecPremium .sp-calc { display: grid; grid-template-columns: minmax(0, 1fr) 38rem; gap: clamp(2rem, 3vw, 3.2rem); align-items: start; }
+    #SoltecPremium .sp-calc__panel { padding: clamp(2.4rem, 3vw, 3.6rem); border-radius: var(--media-radius, .8rem); background: #fff; }
+    #SoltecPremium .sp-field + .sp-field { margin-top: 3rem; padding-top: 3rem; border-top: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-field__label { display: flex; align-items: baseline; justify-content: space-between; gap: 1.4rem; margin-bottom: 1.4rem; }
+    #SoltecPremium .sp-field__label b { display: flex; align-items: baseline; gap: .9rem; font-family: var(--font-heading-family); font-size: 1.8rem; font-weight: 400; }
+    #SoltecPremium .sp-field__step { display: grid; width: 2.4rem; height: 2.4rem; flex: 0 0 auto; place-items: center; border-radius: 50%; background: var(--sp-yellow); color: var(--sp-ink); font-family: var(--font-body-family); font-size: 1.2rem; }
+    #SoltecPremium .sp-field__value { color: var(--sp-slate); font-size: 1.5rem; white-space: nowrap; }
+    #SoltecPremium .sp-chips { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .8rem; }
+    #SoltecPremium .sp-chips--load { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    #SoltecPremium .sp-chip { padding: 1.4rem 1rem; border: 1px solid var(--sp-line); border-radius: var(--media-radius, .8rem); background: #fff; color: var(--sp-ink); cursor: pointer; text-align: center; transition: border-color .18s ease, background-color .18s ease; }
+    #SoltecPremium .sp-chip strong { display: block; font-family: var(--font-heading-family); font-size: 1.7rem; font-weight: 400; }
+    #SoltecPremium .sp-chip span { display: block; margin-top: .2rem; color: var(--sp-muted); font-size: 1.2rem; }
+    #SoltecPremium .sp-chip:hover { border-color: var(--sp-slate); }
+    #SoltecPremium .sp-chip[aria-pressed="true"] { border-color: var(--sp-ink); background: var(--sp-ink); }
+    #SoltecPremium .sp-chip[aria-pressed="true"] strong { color: #fff; }
+    #SoltecPremium .sp-chip[aria-pressed="true"] span { color: rgba(255,255,255,.7); }
+    #SoltecPremium .sp-slider { width: 100%; height: 4.4rem; margin: 0; padding: 0; background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer; }
+    #SoltecPremium .sp-slider:focus-visible { outline: 2px solid var(--sp-slate); outline-offset: .4rem; }
+    #SoltecPremium .sp-slider::-webkit-slider-runnable-track { height: .6rem; border-radius: 100px; background: linear-gradient(to right, var(--sp-yellow) 0 var(--sp-fill, 0%), var(--sp-line) var(--sp-fill, 0%) 100%); }
+    #SoltecPremium .sp-slider::-moz-range-track { height: .6rem; border-radius: 100px; background: var(--sp-line); }
+    #SoltecPremium .sp-slider::-moz-range-progress { height: .6rem; border-radius: 100px; background: var(--sp-yellow); }
+    #SoltecPremium .sp-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 2.2rem; height: 2.2rem; margin-top: -.8rem; border: 0; border-radius: 50%; background: var(--sp-ink); box-shadow: 0 .2rem .8rem rgba(18,18,18,.28); }
+    #SoltecPremium .sp-slider::-moz-range-thumb { width: 2.2rem; height: 2.2rem; border: 0; border-radius: 50%; background: var(--sp-ink); box-shadow: 0 .2rem .8rem rgba(18,18,18,.28); }
+    #SoltecPremium .sp-scale { display: flex; justify-content: space-between; margin-top: .6rem; color: var(--sp-muted); font-size: 1.2rem; }
+    #SoltecPremium .sp-fixed { margin: 0; color: var(--sp-muted); font-size: 1.4rem; }
+    #SoltecPremium .sp-fixed b { color: var(--sp-ink); font-weight: 500; }
+
+    #SoltecPremium .sp-result { position: sticky; top: calc(var(--sp-sticky-top) + 8rem); padding: clamp(2.4rem, 3vw, 3.2rem); border-radius: var(--media-radius, .8rem); background: var(--sp-ink); color: #fff; transition: top .25s ease; }
+    #SoltecPremium .sp-result__eyebrow { margin: 0 0 .8rem; color: var(--sp-yellow); font-size: 1.2rem; letter-spacing: .14em; text-transform: uppercase; }
+    #SoltecPremium .sp-result__model { margin: 0 0 2rem; font-family: var(--font-heading-family); font-size: 2.2rem; font-weight: 400; line-height: 1.2; }
+    #SoltecPremium .sp-result__price { display: flex; align-items: baseline; gap: .8rem; font-family: var(--font-heading-family); font-size: clamp(3.6rem, 4.4vw, 4.8rem); line-height: 1; letter-spacing: -.02em; }
+    #SoltecPremium .sp-result__price b { font-weight: 400; }
+    #SoltecPremium .sp-result__price span { font-family: var(--font-body-family); font-size: 1.4rem; color: rgba(255,255,255,.66); letter-spacing: 0; }
+    #SoltecPremium .sp-result__list { margin: 2.4rem 0 0; padding: 0; list-style: none; }
+    #SoltecPremium .sp-result__list li { display: flex; align-items: baseline; justify-content: space-between; gap: 1.4rem; padding: 1.1rem 0; border-bottom: 1px solid rgba(255,255,255,.14); font-size: 1.4rem; }
+    #SoltecPremium .sp-result__list li span { color: rgba(255,255,255,.62); }
+    #SoltecPremium .sp-result__list li b { font-weight: 400; text-align: right; }
+    #SoltecPremium .sp-result .button { width: 100%; margin-top: 2.4rem; }
+    #SoltecPremium .sp-result__note { margin: 1.6rem 0 0; color: rgba(255,255,255,.6); font-size: 1.25rem; line-height: 1.5; }
+    #SoltecPremium .sp-sizes { margin-top: clamp(3rem, 4vw, 4rem); border-top: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-sizes > summary { display: flex; min-height: 5.6rem; align-items: center; justify-content: space-between; gap: 1rem; cursor: pointer; list-style: none; font-family: var(--font-heading-family); font-size: 1.8rem; }
+    #SoltecPremium .sp-sizes > summary::-webkit-details-marker { display: none; }
+    #SoltecPremium .sp-sizes > summary:after { content: '+'; color: var(--sp-muted); font-size: 2.2rem; font-weight: 300; }
+    #SoltecPremium .sp-sizes[open] > summary:after { content: '−'; color: var(--sp-yellow); }
+    #SoltecPremium .sp-sizes .sp-table { min-width: 72rem; }
+
+    /* ------------------------------------------------- accessories carousel */
+    #SoltecPremium .sp-acc { border-radius: var(--media-radius, .8rem); background: #fff; overflow: hidden; }
+    #SoltecPremium .sp-acc__slide { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+    #SoltecPremium .sp-acc__slide[hidden] { display: none; }
+    #SoltecPremium .sp-acc__media { position: relative; background: #ececec; }
+    #SoltecPremium .sp-acc__media img { display: block; width: 100%; height: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+    #SoltecPremium .sp-acc__copy { display: flex; flex-direction: column; padding: clamp(2.6rem, 3.4vw, 4.4rem); }
+    #SoltecPremium .sp-acc__copy h3 { margin: 0 0 .8rem; font-size: clamp(2.2rem, 2.4vw, 2.8rem); }
+    #SoltecPremium .sp-acc__lead { margin: 0 0 1.8rem; color: var(--sp-ink); font-size: 1.7rem; line-height: 1.5; }
+    #SoltecPremium .sp-acc__copy p { color: var(--sp-muted); font-size: 1.45rem; line-height: 1.6; }
+    #SoltecPremium .sp-acc__meta { margin: auto 0 0; padding-top: 2rem; border-top: 1px solid var(--sp-line); color: var(--sp-muted); font-size: 1.3rem; line-height: 1.55; }
+    #SoltecPremium .sp-acc__meta b { color: var(--sp-ink); font-weight: 500; }
+    #SoltecPremium .sp-acc-bar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 1.6rem; align-items: center; margin-top: 1.6rem; }
+    #SoltecPremium .sp-acc-bar button { display: grid; width: 5.2rem; height: 5.2rem; place-items: center; border: 1px solid var(--sp-line); border-radius: 50%; background: #fff; color: var(--sp-ink); cursor: pointer; transition: border-color .18s ease, background-color .18s ease; }
+    #SoltecPremium .sp-acc-bar button:hover { border-color: var(--sp-ink); background: var(--sp-ink); color: #fff; }
+    #SoltecPremium .sp-acc-dots { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; }
+    #SoltecPremium .sp-acc-dots button { width: auto; height: auto; min-width: 3.2rem; padding: .8rem .4rem; border: 0; border-radius: 0; background: transparent; cursor: pointer; }
+    #SoltecPremium .sp-acc-dots button:before { content: ''; display: block; height: .3rem; border-radius: 100px; background: var(--sp-line); transition: background-color .18s ease; }
+    #SoltecPremium .sp-acc-dots button:hover:before { background: var(--sp-slate); }
+    #SoltecPremium .sp-acc-dots button[aria-current="true"]:before { background: var(--sp-yellow); }
+    #SoltecPremium .sp-acc-count { color: var(--sp-muted); font-size: 1.4rem; white-space: nowrap; }
+
+    /* ------------------------------------------------- pergola configurator */
+    /* Bio page only. Visualisation and price share one state object. */
+    #SoltecPremium .sp-cfg { padding: clamp(5rem, 6.5vw, 7.5rem) 0; background: var(--sp-soft); }
+    #SoltecPremium .sp-cfg__head { max-width: 62rem; margin-bottom: clamp(2.8rem, 4vw, 4rem); }
+    #SoltecPremium .sp-cfg__head p { margin: 1.6rem 0 0; }
+    #SoltecPremium .sp-cfg__tabs { display: inline-flex; gap: .3rem; margin-bottom: 2rem; padding: .4rem; border-radius: 999px; background: rgba(18,18,18,.06); }
+    #SoltecPremium .sp-cfg__tabs button { min-height: 4.2rem; padding: 0 2rem; border: 0; border-radius: 999px; background: transparent; color: var(--sp-muted); cursor: pointer; font-size: 1.45rem; transition: background-color .2s ease, color .2s ease; }
+    #SoltecPremium .sp-cfg__tabs button[aria-selected="true"] { background: #fff; color: var(--sp-ink); box-shadow: 0 .2rem .8rem rgba(18,18,18,.08); }
+
+    #SoltecPremium .sp-cfg__grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(33rem, .58fr); gap: clamp(1.6rem, 2vw, 2.4rem); align-items: stretch; height: min(70rem, calc(100vh - 15rem)); min-height: 48rem; }
+    #SoltecPremium .sp-stage { position: relative; display: flex; flex-direction: column; min-height: 0; height: 100%; overflow: hidden; border-radius: var(--media-radius, .8rem); background: #fff; }
+    #SoltecPremium .sp-stage__canvas { display: block; flex: 1 1 auto; width: 100%; min-height: 0; height: auto; background: linear-gradient(180deg, #fbfbfa 0%, #f0efec 100%); }
+    #SoltecPremium .sp-stage__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 1.6rem; padding: 1.4rem clamp(1.6rem, 2.2vw, 2.4rem); border-top: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-stage__dims { color: var(--sp-muted); font-size: 1.35rem; }
+    #SoltecPremium .sp-stage__dims b { color: var(--sp-ink); font-weight: 500; }
+    #SoltecPremium .sp-louver-toggle { display: inline-flex; gap: .3rem; padding: .3rem; border-radius: 999px; background: rgba(18,18,18,.06); }
+    #SoltecPremium .sp-louver-toggle button { min-height: 3.6rem; padding: 0 1.4rem; border: 0; border-radius: 999px; background: transparent; color: var(--sp-muted); cursor: pointer; font-size: 1.3rem; transition: background-color .2s ease, color .2s ease; }
+    #SoltecPremium .sp-louver-toggle button[aria-pressed="true"] { background: var(--sp-ink); color: #fff; }
+    #SoltecPremium .sp-louver { display: inline-flex; flex-direction: column; gap: .6rem; align-items: stretch; }
+    #SoltecPremium .sp-louver-range { width: 100%; height: 2.2rem; margin: 0; padding: 0; border-radius: 999px; background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer; }
+    #SoltecPremium .sp-louver-range:focus-visible { outline: 2px solid var(--sp-ink); outline-offset: .3rem; }
+    #SoltecPremium .sp-louver-range::-webkit-slider-runnable-track { height: .5rem; border-radius: 999px; background: rgba(18,18,18,.16); }
+    #SoltecPremium .sp-louver-range::-moz-range-track { height: .5rem; border-radius: 999px; background: rgba(18,18,18,.16); }
+    #SoltecPremium .sp-louver-range::-webkit-slider-thumb { width: 1.8rem; height: 1.8rem; margin-top: -.65rem; border: 0; border-radius: 50%; background: var(--sp-ink); -webkit-appearance: none; appearance: none; box-shadow: 0 .2rem .6rem rgba(18,18,18,.25); }
+    #SoltecPremium .sp-louver-range::-moz-range-thumb { width: 1.8rem; height: 1.8rem; border: 0; border-radius: 50%; background: var(--sp-ink); box-shadow: 0 .2rem .6rem rgba(18,18,18,.25); }
+    #SoltecPremium .sp-louver-run { display: flex; align-items: center; gap: .8rem; }
+    #SoltecPremium .sp-louver-btn { display: grid; width: 3.4rem; height: 3.4rem; flex: 0 0 auto; place-items: center; padding: 0; border: 1px solid var(--sp-line); border-radius: 50%; background: #fff; color: var(--sp-ink); cursor: pointer; touch-action: none; transition: background-color .15s ease, border-color .15s ease, transform .12s ease; }
+    #SoltecPremium .sp-louver-btn svg { width: 1.9rem; height: 1.9rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    #SoltecPremium .sp-louver-btn:hover { border-color: var(--sp-ink); }
+    #SoltecPremium .sp-louver-btn:active { background: var(--sp-ink); border-color: var(--sp-ink); color: #fff; transform: scale(.94); }
+    #SoltecPremium .sp-louver-btn:focus-visible { outline: 2px solid var(--sp-ink); outline-offset: .3rem; }
+    #SoltecPremium .sp-xlist { display: grid; gap: .2rem; }
+    #SoltecPremium .sp-xrow { display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; padding: .85rem 1rem; border-bottom: 1px solid var(--sp-line); border-radius: .6rem; transition: background-color .15s ease; }
+    #SoltecPremium .sp-xrow:hover { background: rgba(18,18,18,.028); }
+    #SoltecPremium .sp-xrow.is-on { background: rgba(255,192,7,.09); border-bottom-color: transparent; }
+    #SoltecPremium .sp-xrow:last-child { border-bottom: 0; }
+    #SoltecPremium .sp-xrow__t { min-width: 0; }
+    #SoltecPremium .sp-xrow__t b { display: block; font-weight: 400; font-size: 1.4rem; line-height: 1.35; }
+    #SoltecPremium .sp-xrow__t small { color: var(--sp-muted); font-size: 1.2rem; }
+    #SoltecPremium .sp-xrow.is-on .sp-xrow__t b { font-weight: 500; }
+    #SoltecPremium .sp-xrow.is-on .sp-xrow__t small { color: var(--sp-ink); }
+    #SoltecPremium .sp-stepper--sm output { min-width: 3.2rem; text-align: center; font-variant-numeric: tabular-nums; }
+    #SoltecPremium .sp-xlist { max-height: 42rem; overflow-y: auto; overscroll-behavior: contain; padding-right: .3rem; }
+    #SoltecPremium .sp-stepper--sm { flex: 0 0 auto; }
+    #SoltecPremium .sp-stepper--sm button { min-width: 4.4rem; min-height: 4.4rem; }
+
+    #SoltecPremium .sp-side-move { display: flex; flex-direction: column; gap: .5rem; margin-top: 1.4rem; padding: 1rem; border: 1px solid var(--sp-line); border-radius: .9rem; background: var(--sp-soft); }
+    #SoltecPremium .sp-side-move[hidden] { display: none; }
+    #SoltecPremium .sp-side-move__head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+    #SoltecPremium .sp-side-move__head b { font-size: 1.18rem; }
+    #SoltecPremium .sp-side-move__head span { color: var(--sp-muted); font-size: 1rem; }
+    #SoltecPremium .sp-louver-pct { color: var(--sp-muted); font-size: 1.2rem; text-align: center; font-variant-numeric: tabular-nums; }
+
+    #SoltecPremium .sp-panel { display: flex; flex-direction: column; min-height: 0; height: 100%; padding: clamp(1.6rem, 2vw, 2.2rem); border-radius: var(--media-radius, .8rem); background: #fff; }
+    #SoltecPremium .sp-step + .sp-step { margin-top: 2.4rem; padding-top: 2.4rem; border-top: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-step__label { display: flex; align-items: baseline; justify-content: space-between; gap: 1.2rem; margin-bottom: 1.3rem; }
+    #SoltecPremium .sp-step__label b { display: flex; align-items: baseline; gap: .9rem; font-family: var(--font-heading-family); font-size: 1.7rem; font-weight: 400; }
+    #SoltecPremium .sp-step__n { display: grid; width: 2.2rem; height: 2.2rem; flex: 0 0 auto; place-items: center; border-radius: 50%; background: var(--sp-yellow); color: var(--sp-ink); font-family: var(--font-body-family); font-size: 1.15rem; }
+    #SoltecPremium .sp-step__val { color: var(--sp-slate); font-size: 1.4rem; text-align: right; }
+
+    /* plan-view option tiles: the visitor sees the layout, not a dropdown label */
+    #SoltecPremium .sp-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; }
+    @media screen and (max-width: 1279px) { #SoltecPremium .sp-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    #SoltecPremium .sp-tile { display: grid; grid-template-rows: auto auto; gap: .7rem; padding: 1.2rem 1rem 1rem; border: 1px solid var(--sp-line); border-radius: var(--media-radius, .8rem); background: #fff; color: var(--sp-ink); cursor: pointer; text-align: center; transition: border-color .18s ease, background-color .18s ease; }
+    #SoltecPremium .sp-tile svg { display: block; width: 100%; height: 5.6rem; }
+    #SoltecPremium .sp-tile span { font-size: 1.2rem; line-height: 1.35; }
+    #SoltecPremium .sp-tile span b { color: var(--sp-slate); font-size: 1.05rem; font-weight: 500; letter-spacing: .08em; }
+    #SoltecPremium .sp-tile[aria-pressed="true"] span b { color: var(--sp-ink); }
+    #SoltecPremium .sp-tile:hover { border-color: var(--sp-slate); }
+    #SoltecPremium .sp-tile[aria-pressed="true"] { border-color: var(--sp-ink); background: rgba(18,18,18,.04); }
+    #SoltecPremium .sp-tile[aria-pressed="true"] .sp-tile__ink { stroke: var(--sp-ink); }
+    #SoltecPremium .sp-tile[aria-pressed="true"] .sp-tile__fill { fill: var(--sp-yellow); }
+    #SoltecPremium .sp-tile__ink { fill: none; stroke: var(--sp-muted); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    #SoltecPremium .sp-tile__fill { fill: rgba(18,18,18,.22); }
+    #SoltecPremium .sp-tile__wall { stroke: var(--sp-slate); stroke-width: 6; stroke-linecap: round; }
+
+    /* model cards */
+    #SoltecPremium .sp-modelgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; }
+    #SoltecPremium .sp-modelgrid button { padding: 1.1rem .7rem; border: 1px solid var(--sp-line); border-radius: var(--media-radius, .8rem); background: #fff; color: var(--sp-ink); cursor: pointer; text-align: center; transition: border-color .18s ease, background-color .18s ease; }
+    #SoltecPremium .sp-modelgrid strong { display: block; font-family: var(--font-heading-family); font-size: 1.5rem; font-weight: 400; }
+    #SoltecPremium .sp-modelgrid small { display: block; margin-top: .25rem; color: var(--sp-muted); font-size: 1.05rem; line-height: 1.25; }
+    #SoltecPremium .sp-modelgrid button:hover { border-color: var(--sp-slate); }
+    #SoltecPremium .sp-modelgrid button[aria-pressed="true"] { border-color: var(--sp-ink); background: var(--sp-ink); }
+    #SoltecPremium .sp-modelgrid button[aria-pressed="true"] strong { color: #fff; }
+    #SoltecPremium .sp-modelgrid button[aria-pressed="true"] small { color: rgba(255,255,255,.72); }
+
+    /* side picker: a top view you click straight on */
+    #SoltecPremium .sp-sides { display: grid; grid-template-columns: 4.6rem minmax(0, 1fr) 4.6rem; grid-template-rows: 3.4rem auto 3.4rem; gap: .5rem; align-items: center; justify-items: center; max-width: 30rem; margin: 0 auto 1.4rem; }
+    #SoltecPremium .sp-sides__plan { grid-column: 2; grid-row: 2; display: grid; width: 100%; aspect-ratio: 3 / 2; place-items: center; border: 2px dashed var(--sp-line); border-radius: .4rem; color: var(--sp-muted); font-size: 1.1rem; }
+    #SoltecPremium .sp-side-btn { display: grid; width: 100%; min-height: 3.4rem; place-items: center; padding: .3rem; border: 1px solid var(--sp-line); border-radius: .5rem; background: #fff; color: var(--sp-muted); cursor: pointer; font-size: 1.1rem; line-height: 1.15; text-align: center; transition: border-color .18s ease, color .18s ease, background-color .18s ease; }
+    #SoltecPremium .sp-side-btn:hover { border-color: var(--sp-slate); color: var(--sp-ink); }
+    #SoltecPremium .sp-side-btn.is-set { border-color: var(--sp-ink); background: var(--sp-ink); color: #fff; }
+    #SoltecPremium .sp-side-btn[aria-expanded="true"] { border-color: var(--sp-yellow); box-shadow: 0 0 0 2px rgba(255,192,7,.35); }
+    #SoltecPremium .sp-side-btn--front { grid-column: 2; grid-row: 3; max-width: 16rem; }
+    #SoltecPremium .sp-side-btn--rear { grid-column: 2; grid-row: 1; max-width: 16rem; }
+    #SoltecPremium .sp-side-btn--left { grid-column: 1; grid-row: 2; height: 100%; }
+    #SoltecPremium .sp-side-btn--right { grid-column: 3; grid-row: 2; height: 100%; }
+    #SoltecPremium .sp-side-opts { display: grid; grid-template-columns: minmax(0, 1fr); gap: .55rem; }
+    #SoltecPremium .sp-side-opts__group { grid-column: 1 / -1; margin: 1rem 0 .1rem; color: var(--sp-muted); font-size: 1.05rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+    #SoltecPremium .sp-side-opts__group:first-child { margin-top: 0; }
+    #SoltecPremium .sp-side-opts button.sp-sideopt { position: relative; display: grid; width: 100%; min-width: 0; grid-template-columns: 4.4rem minmax(0, 1fr) 1.7rem; align-items: center; gap: .8rem; min-height: 5.8rem; padding: .65rem .8rem; border: 1px solid var(--sp-line); border-radius: .9rem; background: #fff; color: var(--sp-ink); cursor: pointer; font-size: 1.22rem; text-align: left; transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+    #SoltecPremium .sp-side-opts button.sp-sideopt:hover { border-color: var(--sp-slate); transform: translateY(-1px); }
+    #SoltecPremium .sp-side-opts button.sp-sideopt[aria-pressed="true"] { border-color: var(--sp-ink); box-shadow: inset 0 0 0 1px var(--sp-ink); }
+    #SoltecPremium .sp-sideopt__copy { min-width: 0; }
+    #SoltecPremium .sp-sideopt__copy strong { display: block; overflow-wrap: anywhere; font-size: 1.15rem; font-weight: 600; line-height: 1.25; }
+    #SoltecPremium .sp-side-opts em { display: block; margin-top: .25rem; color: var(--sp-muted); font-size: 1rem; font-style: normal; line-height: 1.2; }
+    #SoltecPremium .sp-sideopt__check { width: 1.7rem; height: 1.7rem; border: 1px solid var(--sp-line); border-radius: 50%; }
+    #SoltecPremium .sp-sideopt[aria-pressed="true"] .sp-sideopt__check { border-color: var(--sp-ink); background: var(--sp-ink); box-shadow: inset 0 0 0 .38rem #fff; }
+    #SoltecPremium .sp-sideopt__material { position: relative; display: block; width: 4.4rem; height: 4.4rem; overflow: hidden; border: 1px solid rgba(18,18,18,.14); border-radius: .65rem; background: #f3f3f0; }
+    #SoltecPremium .sp-sideopt__material:after { content: ''; position: absolute; inset: .45rem; border: 1px solid rgba(18,18,18,.32); }
+    #SoltecPremium .sp-sideopt__material--open:after { border-style: dashed; opacity: .45; }
+    #SoltecPremium .sp-sideopt__material--zip { background: repeating-linear-gradient(0deg,#5b6063 0 1px,#777c7e 1px 3px); }
+    #SoltecPremium .sp-sideopt__material--g1,
+    #SoltecPremium .sp-sideopt__material--g2 { background: linear-gradient(145deg,rgba(194,220,230,.9),rgba(241,248,249,.45)); }
+    #SoltecPremium .sp-sideopt__material--g1:before { content:''; position:absolute; z-index:1; inset:.45rem 1.55rem .45rem auto; border-left:1px solid rgba(18,18,18,.34); }
+    #SoltecPremium .sp-sideopt__material--g2:before { content:''; position:absolute; z-index:1; inset:.45rem; background:repeating-linear-gradient(90deg,transparent 0 .72rem,rgba(18,18,18,.28) .72rem .8rem); }
+    #SoltecPremium .sp-sideopt__material--h50l,
+    #SoltecPremium .sp-sideopt__material--fw25 { background-color:#ae7d47; background-image:repeating-linear-gradient(0deg,rgba(57,31,10,.42) 0 .12rem,transparent .12rem .62rem),linear-gradient(90deg,rgba(255,255,255,.18),transparent 55%,rgba(39,20,6,.16)); }
+    #SoltecPremium .sp-sideopt__material--h50a,
+    #SoltecPremium .sp-sideopt__material--l44alu { background:repeating-linear-gradient(0deg,#7d8485 0 .15rem,#a9adae .15rem .62rem); }
+    #SoltecPremium .sp-sideopt__material--fi30 { background:repeating-linear-gradient(90deg,#e3e1d7 0 1.25rem,#c5c4bc 1.25rem 1.32rem); }
+    #SoltecPremium .sp-sideopt__material--l44es { background-color:#6f7475; background-image:repeating-linear-gradient(45deg,transparent 0 .32rem,rgba(255,255,255,.38) .32rem .4rem),repeating-linear-gradient(-45deg,transparent 0 .32rem,rgba(18,18,18,.28) .32rem .4rem); }
+    #SoltecPremium .sp-sideopt__material--e300 { background:repeating-linear-gradient(90deg,#4a4f50 0 .38rem,#d1d3d0 .38rem .82rem); }
+    #SoltecPremium .sp-side-note { margin: .8rem 0 0; color: var(--sp-muted); font-size: 1.2rem; line-height: 1.45; }
+
+    /* colour rows reuse the matt swatch, laid out as a strip */
+    #SoltecPremium .sp-colorrow { display: flex; flex-wrap: wrap; gap: .9rem; }
+    #SoltecPremium .sp-colorchip { width: 4rem; padding: 0; border: 0; background: none; cursor: pointer; }
+    #SoltecPremium .sp-colorchip span { display: block; width: 100%; aspect-ratio: 4 / 5; border-radius: .5rem; background-color: var(--sp-swatch);
+      background-image:
+        radial-gradient(circle at 1px 1px, rgba(255,255,255,.11) 0 .6px, transparent .85px),
+        radial-gradient(circle at 2.5px 3.5px, rgba(0,0,0,.075) 0 .55px, transparent .8px),
+        linear-gradient(178deg, rgba(255,255,255,.05) 0%, rgba(255,255,255,0) 45%, rgba(0,0,0,.06) 100%);
+      background-size: 4px 4px, 5px 5px, 100% 100%;
+      box-shadow: inset 0 0 0 1px rgba(18,18,18,.12);
+      transition: transform .18s cubic-bezier(.22,.61,.36,1); }
+    #SoltecPremium .sp-colorchip:hover span { transform: scale(1.08); }
+    #SoltecPremium .sp-colorchip[aria-pressed="true"] span { box-shadow: inset 0 0 0 1px rgba(18,18,18,.12), 0 0 0 2px #fff, 0 0 0 4px var(--sp-ink); }
+    #SoltecPremium .sp-colorchip small { display: block; margin-top: .45rem; color: var(--sp-muted); font-size: .95rem; line-height: 1.1; }
+
+    #SoltecPremium .sp-roof-finish { margin-top: 2rem; padding-top: 1.8rem; border-top: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-roof-finish[hidden] { display: none; }
+    #SoltecPremium .sp-roof-finish__legend { display: flex; justify-content: space-between; margin: -.4rem 0 .65rem; color: var(--sp-muted); font-size: 1rem; }
+    #SoltecPremium .sp-roofcolors { display: grid; gap: .6rem; }
+    #SoltecPremium .sp-roofchip { display: grid; grid-template-columns: minmax(8rem, 1fr) minmax(10rem, 1.25fr); align-items: center; gap: 1rem; min-height: 5.2rem; padding: .65rem .8rem; border: 1px solid var(--sp-line); border-radius: .8rem; background: #fff; color: var(--sp-ink); cursor: pointer; text-align: left; transition: border-color .15s ease, box-shadow .15s ease; }
+    #SoltecPremium .sp-roofchip:hover { border-color: var(--sp-slate); }
+    #SoltecPremium .sp-roofchip[aria-pressed="true"] { border-color: var(--sp-ink); box-shadow: inset 0 0 0 1px var(--sp-ink); }
+    #SoltecPremium .sp-roofchip__sample { display: grid; grid-template-columns: 1fr 1fr; height: 3.5rem; overflow: hidden; border: 1px solid rgba(18,18,18,.15); border-radius: .55rem; box-shadow: inset 0 -1px rgba(18,18,18,.08); }
+    #SoltecPremium .sp-roofchip__sample i:first-child { background: var(--sp-roof-top); }
+    #SoltecPremium .sp-roofchip__sample i:last-child { background: var(--sp-roof-bottom); }
+    #SoltecPremium .sp-roofchip strong { font-size: 1.25rem; font-weight: 600; }
+    #SoltecPremium .sp-roofchip small { display: block; margin-top: .2rem; color: var(--sp-muted); font-size: 1.02rem; }
+
+    /* accessory rows */
+    #SoltecPremium .sp-addrow { display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; padding: 1.1rem 0; border-bottom: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-addrow:last-of-type { border-bottom: 0; }
+    #SoltecPremium .sp-addrow__t { min-width: 0; font-size: 1.4rem; }
+    #SoltecPremium .sp-addrow__t small { display: block; margin-top: .2rem; color: var(--sp-muted); font-size: 1.15rem; line-height: 1.4; }
+    #SoltecPremium .sp-stepper { display: inline-flex; align-items: center; gap: .2rem; flex: 0 0 auto; border: 1px solid var(--sp-line); border-radius: 999px; }
+    #SoltecPremium .sp-stepper button { display: grid; width: 3.6rem; height: 3.6rem; place-items: center; border: 0; border-radius: 50%; background: transparent; color: var(--sp-ink); cursor: pointer; font-size: 1.8rem; line-height: 1; }
+    #SoltecPremium .sp-stepper button:disabled { color: rgba(18,18,18,.25); cursor: default; }
+    #SoltecPremium .sp-stepper output { min-width: 2.6rem; text-align: center; font-size: 1.4rem; }
+
+    /* price summary */
+    #SoltecPremium .sp-quote { margin-top: 2.4rem; padding: clamp(1.8rem, 2.2vw, 2.4rem); border-radius: var(--media-radius, .8rem); background: var(--sp-ink); color: #fff; }
+    #SoltecPremium .sp-quote__eyebrow { margin: 0 0 .7rem; color: var(--sp-yellow); font-size: 1.15rem; letter-spacing: .14em; text-transform: uppercase; }
+    #SoltecPremium .sp-quote__price { display: flex; align-items: baseline; gap: .8rem; font-family: var(--font-heading-family); font-size: clamp(3rem, 3.6vw, 4rem); line-height: 1; letter-spacing: -.02em; }
+    #SoltecPremium .sp-quote__price b { font-weight: 400; }
+    #SoltecPremium .sp-quote__price span { font-family: var(--font-body-family); font-size: 1.3rem; color: rgba(255,255,255,.66); letter-spacing: 0; }
+    #SoltecPremium .sp-quote__lines { margin: 1.8rem 0 0; padding: 0; list-style: none; }
+    #SoltecPremium .sp-quote__lines li { display: flex; align-items: baseline; justify-content: space-between; gap: 1.2rem; padding: .8rem 0; border-bottom: 1px solid rgba(255,255,255,.14); font-size: 1.32rem; }
+    #SoltecPremium .sp-quote__lines li span { color: rgba(255,255,255,.62); }
+    #SoltecPremium .sp-quote__lines li b { font-weight: 400; text-align: right; }
+    #SoltecPremium .sp-quote .button { width: 100%; margin-top: 2rem; }
+    #SoltecPremium .sp-quote__note { margin: 1.4rem 0 0; color: rgba(255,255,255,.6); font-size: 1.2rem; line-height: 1.5; }
+    #SoltecPremium .sp-hint { display: flex; gap: .8rem; margin: 1.2rem 0 0; padding: 1rem 1.2rem; border-left: 2px solid var(--sp-yellow); background: rgba(255,192,7,.09); color: var(--sp-ink); font-size: 1.25rem; line-height: 1.5; }
+    #SoltecPremium .sp-hint[hidden] { display: none; }
+
+    @media screen and (max-width: 989px) {
+      #SoltecPremium .sp-cfg__grid { grid-template-columns: 1fr; }
+      #SoltecPremium .sp-stage { position: static; }
+      #SoltecPremium .sp-stage__canvas { aspect-ratio: 3 / 2; }
+    }
+    @media screen and (max-width: 749px) {
+      #SoltecPremium .sp-modelgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      #SoltecPremium .sp-panel { padding: 1.8rem 1.4rem; }
+      #SoltecPremium .sp-cfg__tabs button { padding: 0 1.4rem; font-size: 1.35rem; }
+      #SoltecPremium .sp-stage__bar { padding: 1.2rem 1.4rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #SoltecPremium .sp-louver { transition: none !important; }
+    }
+
+    /* Benefit rows: icon tile, hairline rule, quiet lift on hover. */
+    #SoltecPremium[data-sp-page] .sp-benefit,
+    #SoltecPremium[data-sp-page="bio"] .sp-benefit, #SoltecPremium[data-sp-page="canopy"] .sp-benefit { grid-template-columns: 6.4rem 1fr; gap: 2rem; align-items: flex-start; padding: 2.2rem 1.6rem; border-top: 0; border-radius: var(--media-radius, .8rem); transition: background-color .2s ease; }
+    #SoltecPremium[data-sp-page] .sp-benefit + .sp-benefit,
+    #SoltecPremium[data-sp-page="bio"] .sp-benefit + .sp-benefit, #SoltecPremium[data-sp-page="canopy"] .sp-benefit + .sp-benefit { position: relative; }
+    #SoltecPremium[data-sp-page] .sp-benefit + .sp-benefit:before,
+    #SoltecPremium[data-sp-page="bio"] .sp-benefit + .sp-benefit:before, #SoltecPremium[data-sp-page="canopy"] .sp-benefit + .sp-benefit:before { content: ''; position: absolute; top: 0; right: 1.6rem; left: 1.6rem; height: 1px; background: var(--sp-line); }
+    #SoltecPremium[data-sp-page] .sp-benefit:hover,
+    #SoltecPremium[data-sp-page="bio"] .sp-benefit:hover, #SoltecPremium[data-sp-page="canopy"] .sp-benefit:hover { background: rgba(18,18,18,.028); }
+    #SoltecPremium[data-sp-page] .sp-benefit__icon,
+    #SoltecPremium[data-sp-page="bio"] .sp-benefit__icon, #SoltecPremium[data-sp-page="canopy"] .sp-benefit__icon { width: 6.4rem; height: 6.4rem; padding: 1.1rem; border-radius: 1.4rem; background: rgba(255,192,7,.14); object-fit: contain; object-position: center; }
+    #SoltecPremium[data-sp-page] .sp-benefit:last-child,
+    #SoltecPremium[data-sp-page="bio"] .sp-benefit:last-child, #SoltecPremium[data-sp-page="canopy"] .sp-benefit:last-child { border-bottom: 0; }
+    #SoltecPremium[data-sp-page] .sp-benefits,
+    #SoltecPremium[data-sp-page="bio"] .sp-benefits, #SoltecPremium[data-sp-page="canopy"] .sp-benefits { margin-top: 3.2rem; margin-left: -1.6rem; margin-right: -1.6rem; }
+
+
+    /* ------------------------------------------------------------- motion */
+    /* Scroll reveal: subtle, staggered, and never applied to the hero. */
+    #SoltecPremium.sp-motion-ready [data-sp-reveal] {
+      opacity: 0;
+      transform: translateY(2.4rem);
+      transition: opacity .7s cubic-bezier(.22,.61,.36,1), transform .7s cubic-bezier(.22,.61,.36,1);
+      transition-delay: var(--sp-delay, 0ms);
+    }
+    #SoltecPremium.sp-motion-ready [data-sp-reveal].is-visible { opacity: 1; transform: none; }
+    #SoltecPremium[data-sp-page].sp-motion-ready [data-sp-reveal] { transform:translateY(3.2rem); transition-duration:.82s; }
+    #SoltecPremium[data-sp-page].sp-motion-ready [data-sp-reveal].is-visible { transform:none; }
+    /* The yellow rule draws itself in when its block appears. */
+    #SoltecPremium.sp-motion-ready [data-sp-reveal] .sp-rule { transform: scaleX(0); transform-origin: left; transition: transform .8s cubic-bezier(.22,.61,.36,1) .15s; }
+    #SoltecPremium.sp-motion-ready [data-sp-reveal].is-visible .sp-rule { transform: none; }
+    /* Benefit rows drift in slightly after the text above them. */
+    #SoltecPremium.sp-motion-ready [data-sp-reveal] .sp-benefit { opacity: 0; transform: translateY(1.2rem); transition: opacity .6s ease, transform .6s ease; }
+    #SoltecPremium.sp-motion-ready [data-sp-reveal].is-visible .sp-benefit { opacity: 1; transform: none; }
+    #SoltecPremium.sp-motion-ready [data-sp-reveal].is-visible .sp-benefit:nth-child(1) { transition-delay: .18s; }
+    #SoltecPremium.sp-motion-ready [data-sp-reveal].is-visible .sp-benefit:nth-child(2) { transition-delay: .28s; }
+    #SoltecPremium.sp-motion-ready [data-sp-reveal].is-visible .sp-benefit:nth-child(3) { transition-delay: .38s; }
+    /* Media reveals with a slow settle of the image inside its frame. */
+    #SoltecPremium.sp-motion-ready .sp-story__media img,
+    #SoltecPremium.sp-motion-ready .sp-media-card img,
+    #SoltecPremium.sp-motion-ready .sp-related__card img {
+      transform: scale(1.06);
+      transition: transform 1.1s cubic-bezier(.22,.61,.36,1);
+    }
+    #SoltecPremium.sp-motion-ready .sp-story__media.is-visible img,
+    #SoltecPremium.sp-motion-ready .sp-media-card.is-visible img,
+    #SoltecPremium.sp-motion-ready .sp-related__card.is-visible img { transform: none; }
+    @keyframes sp-panel-in { from { opacity: 0; transform: translateX(1rem); } to { opacity: 1; transform: none; } }
+
+    @media screen and (max-width: 1199px) {
+      #SoltecPremium .sp-explorer { grid-template-columns: 22rem minmax(0, 1fr); }
+      #SoltecPremium .sp-model-layout { grid-template-columns: 1fr; min-height: 0; }
+      #SoltecPremium .sp-model-panel { min-height: 0; }
+      #SoltecPremium .sp-model-photo img { height: auto; aspect-ratio: 16 / 10; }
+      #SoltecPremium .sp-model-photo--contain { padding: 2rem; }
+      #SoltecPremium .sp-model-photo--contain img { height: auto; aspect-ratio: 16 / 10; }
+      #SoltecPremium .sp-model-diagram { position: static; display: none; }
+      #SoltecPremium .sp-model-diagram.is-open { display: block; }
+      #SoltecPremium .sp-model-diagram img { height: auto; max-height: 44rem; }
+      #SoltecPremium .sp-accessory-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      #SoltecPremium .sp-color-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      #SoltecPremium .sp-trust { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.4rem 3rem; }
+    }
+    @media screen and (max-width: 989px) {
+      #SoltecPremium .sp-story__grid,
+      #SoltecPremium .sp-section-head,
+      #SoltecPremium .sp-gallery__lead,
+      #SoltecPremium .sp-accessories__head,
+      #SoltecPremium .sp-faq__grid { grid-template-columns: 1fr; }
+      #SoltecPremium .sp-story__media { order: -1; }
+      #SoltecPremium .sp-explorer { display: block; }
+      #SoltecPremium .sp-model-menu { display: none; }
+      #SoltecPremium .sp-mobile-model-control { position: sticky; top: calc(var(--sp-sticky-top) + 5.9rem); z-index: 1; transition: top .25s ease; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; border-bottom: 1px solid var(--sp-line); background: rgba(255,255,255,.97); backdrop-filter: blur(10px); }
+      #SoltecPremium .sp-mobile-model-control button { display: grid; width: 5.6rem; min-height: 6.4rem; place-items: center; border: 0; background: transparent; color: var(--sp-ink); cursor: pointer; }
+      #SoltecPremium .sp-mobile-model-label { min-width: 0; padding: 1rem .4rem; text-align: center; }
+      #SoltecPremium .sp-mobile-model-label strong { display: block; font-family: var(--font-heading-family); font-size: 1.8rem; font-weight: 400; line-height: 1.2; }
+      #SoltecPremium .sp-mobile-model-label span { display: block; overflow: hidden; color: var(--sp-muted); font-size: 1.2rem; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+      #SoltecPremium .sp-mobile-model-count { margin-top: .2rem; }
+      #SoltecPremium .sp-panel-nav { display: none; }
+      #SoltecPremium .sp-gallery__grid { grid-template-columns: 1fr; }
+      #SoltecPremium .sp-calc { grid-template-columns: 1fr; }
+      #SoltecPremium .sp-result { position: static; }
+      #SoltecPremium .sp-acc__slide { grid-template-columns: 1fr; }
+      #SoltecPremium .sp-acc__media img { aspect-ratio: 16 / 10; }
+      #SoltecPremium .sp-trust--refined { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.8rem 0; }
+      #SoltecPremium .sp-trust--refined li:nth-child(3) { padding-left: 0; }
+      #SoltecPremium .sp-trust--refined li:nth-child(3):before { display: none; }
+      #SoltecPremium .sp-trust--refined li:nth-child(2) { padding-right: 0; }
+      #SoltecPremium .sp-faq__media img { aspect-ratio: 16 / 10; }
+    }
+    @media screen and (max-width: 749px) {
+      #SoltecPremium .sp-hero, #SoltecPremium .sp-hero__inner { min-height: 62rem; }
+      #SoltecPremium .sp-hero__inner { padding-top: 8rem; }
+      #SoltecPremium .sp-hero__scrim { background: linear-gradient(180deg, rgba(18,18,18,.30) 0%, rgba(18,18,18,.20) 30%, rgba(18,18,18,.86) 100%); }
+      #SoltecPremium .sp-local-nav a { min-width: 10rem; padding: 1.6rem .8rem; font-size: 1.3rem; }
+      #SoltecPremium .sp-benefit { grid-template-columns: 5.2rem 1fr; gap: 1.6rem; }
+      #SoltecPremium .sp-benefit__icon { width: 5.2rem; height: 4.2rem; }
+      #SoltecPremium .sp-model-copy { padding: 2.6rem 2rem; }
+      #SoltecPremium .sp-specs { grid-template-columns: 1fr 1fr; gap: 0 1.4rem; }
+      #SoltecPremium .sp-price-line { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      #SoltecPremium .sp-accessory-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+      #SoltecPremium .sp-color-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      #SoltecPremium .sp-related__grid { grid-template-columns: 1fr; }
+      #SoltecPremium .sp-chips { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      #SoltecPremium .sp-acc-bar { grid-template-columns: auto auto; justify-content: space-between; }
+      #SoltecPremium .sp-acc-dots { order: -1; grid-column: 1 / -1; }
+      #SoltecPremium .sp-calc__panel, #SoltecPremium .sp-result { padding: 2.2rem 1.8rem; }
+    }
+
+    /* ==========================================================
+       CARPORT V11 — viewport, navigation, motion and conversion
+       ========================================================== */
+    #SoltecPremium[data-sp-page] {
+      --sp-local-nav-space: 5.4rem;
+    }
+    #SoltecPremium[data-sp-page] .sp-local-nav {
+      z-index: 2;
+      box-shadow: 0 .8rem 2.4rem rgba(18,18,18,.035);
+      transition: top .24s ease, transform .34s cubic-bezier(.22,.61,.36,1), box-shadow .24s ease;
+      will-change: transform;
+    }
+    #SoltecPremium[data-sp-page] .sp-local-nav__rail { transition: opacity .2s ease; }
+    #SoltecPremium[data-sp-page] .sp-local-nav a {
+      min-width: 9.6rem;
+      padding: 1.55rem 1rem 1.45rem;
+      font-size: 1.35rem;
+      transition: color .2s ease, opacity .2s ease;
+    }
+    #SoltecPremium[data-sp-page] .sp-local-nav a:after {
+      right: 1.2rem;
+      left: 1.2rem;
+      height: .3rem;
+      border-radius: 100px;
+      transform: scaleX(var(--sp-segment, 0));
+      transform-origin: left center;
+      transition: transform .1s linear;
+    }
+    #SoltecPremium[data-sp-page] .sp-local-nav a.is-active { color: var(--sp-ink); font-weight: 500; }
+    #SoltecPremium[data-sp-page] .sp-local-nav a.is-complete { color: rgba(18,18,18,.78); }
+    #SoltecPremium[data-sp-page] .sp-local-nav.is-auto-hidden { transform: translateY(-100%); box-shadow: none; }
+    #SoltecPremium[data-sp-page] .sp-local-nav.is-auto-hidden .sp-local-nav__rail { opacity: 0; pointer-events: none; }
+    #SoltecPremium[data-sp-page] .sp-progress { display:none; }
+
+    #SoltecPremium[data-sp-page] .sp-cta {
+      display: inline-flex;
+      min-height: 4.8rem;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1.2rem 1.8rem;
+      border: 1px solid transparent;
+      border-radius: .8rem;
+      font: inherit;
+      font-size: 1.42rem;
+      font-weight: 600;
+      line-height: 1.15;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform .22s cubic-bezier(.22,.61,.36,1), box-shadow .22s ease, background-color .22s ease, border-color .22s ease, color .22s ease;
+    }
+    #SoltecPremium[data-sp-page] .sp-cta svg { width: 1.8rem; height: 1.8rem; transition: transform .22s ease; }
+    #SoltecPremium[data-sp-page] .sp-cta:hover { transform: translateY(-2px); }
+    #SoltecPremium[data-sp-page] .sp-cta:hover svg { transform: translateX(.25rem); }
+    #SoltecPremium[data-sp-page] .sp-cta--primary,
+    #SoltecPremium[data-sp-page] .sp-cta--compact { background: var(--sp-yellow); color: var(--sp-ink); box-shadow: 0 .8rem 2.2rem rgba(255,192,7,.18); }
+    #SoltecPremium[data-sp-page] .sp-cta--primary:hover,
+    #SoltecPremium[data-sp-page] .sp-cta--compact:hover { background: #ffd046; box-shadow: 0 1rem 2.8rem rgba(255,192,7,.25); }
+    #SoltecPremium[data-sp-page] .sp-cta--glass { border-color: rgba(255,255,255,.45); background: rgba(255,255,255,.09); color: #fff; backdrop-filter: blur(8px); }
+    #SoltecPremium[data-sp-page] .sp-cta--glass:hover { border-color: #fff; background: rgba(255,255,255,.16); }
+    #SoltecPremium[data-sp-page] .sp-cta--quote { border-color:#c4cbd2; background:#d4d9df; color:#181c20; box-shadow:none; }
+    #SoltecPremium[data-sp-page] .sp-cta--quote:hover { border-color:#b8c0c8; background:#c7cdd4; box-shadow:none; }
+    #SoltecPremium[data-sp-page] .sp-cta--compact { min-height: 4.4rem; padding: 1rem 1.4rem; border-radius: .7rem; font-size: 1.3rem; }
+    #SoltecPremium[data-sp-page] .sp-cta--result { width: 100%; margin-top: 1.8rem; border-color:#b9c0c8; background:#cfd5dc; color:#161a1f; box-shadow:none; }
+    #SoltecPremium[data-sp-page] .sp-cta--result:hover { background:#c1c8d0; box-shadow:none; }
+    #SoltecPremium[data-sp-page] .sp-cta:focus-visible { outline: 2px solid currentColor; outline-offset: .3rem; }
+
+    #SoltecPremium[data-sp-page] .sp-trust--refined , #SoltecPremium[data-sp-page="bio"] .sp-trust--refined, #SoltecPremium[data-sp-page="canopy"] .sp-trust--refined {
+      gap: 1rem;
+      padding-top: 2.4rem;
+      padding-bottom: 2.4rem;
+    }
+    #SoltecPremium[data-sp-page] .sp-trust--refined li , #SoltecPremium[data-sp-page="bio"] .sp-trust--refined li, #SoltecPremium[data-sp-page="canopy"] .sp-trust--refined li {
+      display: grid;
+      grid-template-columns: 4.8rem minmax(0, 1fr);
+      gap: 1.4rem;
+      align-items: center;
+      min-height: 11rem;
+      padding: 1.8rem;
+      border: 1px solid var(--sp-line);
+      border-radius: 1rem;
+      background: linear-gradient(145deg, #fff, #fafafa);
+      overflow: hidden;
+      box-shadow: 0 .4rem 1.8rem rgba(18,18,18,.035);
+      transition: transform .28s cubic-bezier(.22,.61,.36,1), box-shadow .28s ease, border-color .28s ease;
+    }
+    #SoltecPremium[data-sp-page] .sp-trust--refined li:first-child, #SoltecPremium[data-sp-page="bio"] .sp-trust--refined li:first-child, #SoltecPremium[data-sp-page="canopy"] .sp-trust--refined li:first-child,
+    #SoltecPremium[data-sp-page] .sp-trust--refined li:last-child , #SoltecPremium[data-sp-page="bio"] .sp-trust--refined li:last-child, #SoltecPremium[data-sp-page="canopy"] .sp-trust--refined li:last-child { padding: 1.8rem; }
+    #SoltecPremium[data-sp-page] .sp-trust--refined li + li:before , #SoltecPremium[data-sp-page="bio"] .sp-trust--refined li + li:before, #SoltecPremium[data-sp-page="canopy"] .sp-trust--refined li + li:before { display: none; }
+    #SoltecPremium[data-sp-page] .sp-trust--refined li:hover , #SoltecPremium[data-sp-page="bio"] .sp-trust--refined li:hover, #SoltecPremium[data-sp-page="canopy"] .sp-trust--refined li:hover { transform: translateY(-.35rem); border-color: rgba(255,192,7,.55); box-shadow: 0 1.2rem 3.2rem rgba(18,18,18,.07); }
+    #SoltecPremium[data-sp-page] .sp-trust-icon , #SoltecPremium[data-sp-page="bio"] .sp-trust-icon, #SoltecPremium[data-sp-page="canopy"] .sp-trust-icon {
+      display: grid;
+      width: 4.8rem;
+      height: 4.8rem;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(255,192,7,.14);
+      color: var(--sp-ink);
+      transition: transform .35s cubic-bezier(.22,.61,.36,1), background-color .3s ease;
+    }
+    #SoltecPremium[data-sp-page] .sp-trust-icon svg , #SoltecPremium[data-sp-page="bio"] .sp-trust-icon svg, #SoltecPremium[data-sp-page="canopy"] .sp-trust-icon svg { width: 2.5rem; height: 2.5rem; fill: none; stroke: currentColor; stroke-width: 1.45; stroke-linecap: round; stroke-linejoin: round; }
+    #SoltecPremium[data-sp-page] .sp-trust--refined li:hover .sp-trust-icon , #SoltecPremium[data-sp-page="bio"] .sp-trust--refined li:hover .sp-trust-icon, #SoltecPremium[data-sp-page="canopy"] .sp-trust--refined li:hover .sp-trust-icon { transform: scale(1.06) rotate(-2deg); background: var(--sp-yellow); }
+    #SoltecPremium[data-sp-page] .sp-trust--refined b , #SoltecPremium[data-sp-page="bio"] .sp-trust--refined b, #SoltecPremium[data-sp-page="canopy"] .sp-trust--refined b { margin-bottom: .35rem; }
+    #SoltecPremium[data-sp-page] .sp-trust--refined strong , #SoltecPremium[data-sp-page="bio"] .sp-trust--refined strong, #SoltecPremium[data-sp-page="canopy"] .sp-trust--refined strong { font-size: clamp(2rem, 2vw, 2.5rem); }
+    #SoltecPremium[data-sp-page] .sp-trust--refined span:not(.sp-trust-icon) , #SoltecPremium[data-sp-page="bio"] .sp-trust--refined span:not(.sp-trust-icon), #SoltecPremium[data-sp-page="canopy"] .sp-trust--refined span:not(.sp-trust-icon) { display: block; margin-top: .45rem; }
+
+    #SoltecPremium[data-sp-page] .sp-model-layout {
+      height: min(54rem, calc(100svh - var(--sp-sticky-top) - 5rem));
+      min-height: 46rem;
+      grid-template-columns: minmax(0, 1.34fr) minmax(34rem, .76fr);
+    }
+    #SoltecPremium[data-sp-page] .sp-model-copy { padding: clamp(2.2rem, 2.7vw, 3.4rem); overflow: auto; scrollbar-width: thin; }
+    #SoltecPremium[data-sp-page] .sp-model-copy h3 { font-size: clamp(2.8rem, 3vw, 3.6rem); }
+    #SoltecPremium[data-sp-page] .sp-model-summary { margin-bottom: 1.3rem; font-size: 1.48rem; }
+    #SoltecPremium[data-sp-page] .sp-quickfacts { margin-bottom: 1.3rem; }
+    #SoltecPremium[data-sp-page] .sp-price-line { padding: 1.5rem 1.6rem; }
+    #SoltecPremium[data-sp-page] .sp-price-line strong { font-size: 2.7rem; }
+    #SoltecPremium[data-sp-page] .sp-panel-nav { display: none !important; }
+    #SoltecPremium[data-sp-page] .sp-diagram-toggle { right: 1.5rem; bottom: 1.5rem; border-radius: .7rem; box-shadow: 0 .5rem 1.8rem rgba(18,18,18,.08); }
+    #SoltecPremium[data-sp-page] .sp-mobile-model-control { top: calc(var(--sp-sticky-top) + var(--sp-local-nav-space)); }
+
+    #SoltecPremium[data-sp-page] .sp-pricing { padding:clamp(4.5rem,5.5vw,6rem) 0; }
+    #SoltecPremium[data-sp-page] .sp-pricing .page-width { max-width:min(98rem,calc(100vw - 3rem)); }
+    #SoltecPremium[data-sp-page] .sp-pricing__head { max-width:62rem; margin:0 auto 1.8rem; text-align:center; }
+    #SoltecPremium[data-sp-page] .sp-pricing__head .sp-copy { max-width:58rem; margin-right:auto; margin-left:auto; }
+    #SoltecPremium[data-sp-page] .sp-calc { grid-template-columns:minmax(0,1fr) 27rem; gap:1.3rem; }
+    #SoltecPremium[data-sp-page] .sp-calc__panel { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.75rem; padding:1rem; }
+    #SoltecPremium[data-sp-page] .sp-field,
+    #SoltecPremium[data-sp-page] .sp-field + .sp-field { min-width:0; margin:0; padding:1rem; border:1px solid var(--sp-line); border-radius:.8rem; background:#fff; }
+    #SoltecPremium[data-sp-page] .sp-field--model,
+    #SoltecPremium[data-sp-page] .sp-field--load,
+    #SoltecPremium[data-sp-page] .sp-field--addons { grid-column:1 / -1; }
+    #SoltecPremium[data-sp-page] .sp-field__label,
+    #SoltecPremium[data-sp-page] .sp-field__label--addons { margin-bottom:.75rem; }
+    #SoltecPremium[data-sp-page] .sp-field__label b { font-size:1.48rem; }
+    #SoltecPremium[data-sp-page] .sp-field__step { width:2rem; height:2rem; }
+    #SoltecPremium[data-sp-page] .sp-chips { gap:.7rem; }
+    #SoltecPremium[data-sp-page] .sp-chip { padding:.7rem .55rem; border-radius:.7rem; }
+    #SoltecPremium[data-sp-page] .sp-chip strong { font-size:1.34rem; }
+    #SoltecPremium[data-sp-page] .sp-chip:hover { transform:translateY(-1px); border-color:rgba(18,18,18,.4); }
+    #SoltecPremium[data-sp-page] .sp-result { top:calc(var(--sp-sticky-top) + var(--sp-local-nav-space) + 1.2rem); padding:1.45rem; border-radius:.9rem; box-shadow:0 .8rem 2.2rem rgba(18,18,18,.11); }
+    #SoltecPremium[data-sp-page] .sp-result__eyebrow { color:rgba(255,255,255,.68); }
+    #SoltecPremium[data-sp-page] .sp-result__model { margin-bottom:.9rem; font-size:1.7rem; }
+    #SoltecPremium[data-sp-page] .sp-result__price { font-size:clamp(2.7rem,3.1vw,3.3rem); }
+    #SoltecPremium[data-sp-page] .sp-result__list { margin-top:1rem; }
+    #SoltecPremium[data-sp-page] .sp-result__list li { padding:.5rem 0; font-size:1.18rem; }
+    #SoltecPremium[data-sp-page] .sp-result__money b { color:var(--sp-yellow); }
+    #SoltecPremium[data-sp-page] .sp-result__addons { display:none; }
+    #SoltecPremium[data-sp-page] .sp-result__note { margin-top:1.1rem; color:rgba(255,255,255,.72); font-size:1.15rem; }
+
+
+    #SoltecPremium[data-sp-page] .sp-addon-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .9rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-card { min-width: 0; padding: 1.15rem; border: 1px solid var(--sp-line); border-radius: .8rem; background: var(--sp-soft); }
+    #SoltecPremium[data-sp-page] .sp-addon-card__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-card__head strong { display: block; font-family: var(--font-heading-family); font-size: 1.4rem; font-weight: 500; }
+    #SoltecPremium[data-sp-page] .sp-addon-card__head small { display: block; margin-top: .15rem; color: var(--sp-muted); font-size: 1.05rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-card label { color: var(--sp-muted); font-size: 1.05rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-card select,
+    #SoltecPremium[data-sp-page] .sp-addon-card input[type="number"] { width: 100%; min-height: 3.8rem; margin-top: .4rem; padding: .65rem .8rem; border: 1px solid var(--sp-line); border-radius: .6rem; background: #fff; color: var(--sp-ink); font: inherit; font-size: 1.15rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-config { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: .7rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--sp-line); }
+    #SoltecPremium[data-sp-page] .sp-addon-config[hidden] { display: none; }
+    #SoltecPremium[data-sp-page] .sp-addon-config p { grid-column: 1 / -1; margin: .2rem 0 0; color: var(--sp-muted); font-size: 1.08rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-config p b { color: var(--sp-ink); }
+    #SoltecPremium[data-sp-page] .sp-addon-select { display: block; margin-top: .8rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-inline { display: grid; grid-template-columns: 1.2fr 1fr .6fr; gap: .55rem; margin-top: .8rem; }
+    #SoltecPremium[data-sp-page] .sp-switch { display: inline-flex; align-items: center; gap: .55rem; cursor: pointer; }
+    #SoltecPremium[data-sp-page] .sp-switch input { position: absolute; opacity: 0; pointer-events: none; }
+    #SoltecPremium[data-sp-page] .sp-switch > span { position: relative; width: 3.5rem; height: 2rem; border-radius: 100px; background: #d7d7d7; transition: background-color .2s ease; }
+    #SoltecPremium[data-sp-page] .sp-switch > span:after { content: ''; position: absolute; top: .3rem; left: .3rem; width: 1.4rem; height: 1.4rem; border-radius: 50%; background: #fff; box-shadow: 0 .1rem .4rem rgba(18,18,18,.18); transition: transform .2s ease; }
+    #SoltecPremium[data-sp-page] .sp-switch input:checked + span { background: var(--sp-yellow); }
+    #SoltecPremium[data-sp-page] .sp-switch input:checked + span:after { transform: translateX(1.5rem); }
+    #SoltecPremium[data-sp-page] .sp-switch input:disabled + span { opacity: .4; }
+    #SoltecPremium[data-sp-page] .sp-switch em { color: var(--sp-ink); font-size: 1.05rem; font-style: normal; }
+    #SoltecPremium[data-sp-page] .sp-sensor-list { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: .45rem; margin-top: .8rem; }
+    #SoltecPremium[data-sp-page] .sp-sensor-list label { display: grid; grid-template-columns: auto 1fr auto; gap: .45rem; align-items: center; padding: .65rem; border-radius: .55rem; background: #fff; cursor: pointer; }
+    #SoltecPremium[data-sp-page] .sp-sensor-list b { color: var(--sp-ink); font-size: 1.05rem; font-weight: 500; }
+
+    #SoltecPremium[data-sp-page] .sp-acc { box-shadow: 0 .8rem 3rem rgba(18,18,18,.06); }
+    #SoltecPremium[data-sp-page] .sp-acc__slide { min-height: 46rem; }
+    #SoltecPremium[data-sp-page] .sp-acc__media { overflow: hidden; }
+    #SoltecPremium[data-sp-page] .sp-acc__media img { transition: transform .8s cubic-bezier(.22,.61,.36,1); }
+    #SoltecPremium[data-sp-page] .sp-acc:hover .sp-acc__media img { transform: scale(1.018); }
+    #SoltecPremium[data-sp-page] .sp-acc__kicker { margin: 0 0 .7rem !important; color: var(--sp-slate) !important; font-size: 1.1rem !important; letter-spacing: .12em; text-transform: uppercase; }
+
+    @media screen and (max-width: 1199px) {
+      #SoltecPremium[data-sp-page] .sp-model-layout { height: auto; min-height: 0; }
+      #SoltecPremium[data-sp-page] .sp-model-copy { overflow: visible; }
+    }
+    @media screen and (max-width: 989px) {
+      #SoltecPremium[data-sp-page] .sp-calc { grid-template-columns:1fr; }
+      #SoltecPremium[data-sp-page] .sp-calc__panel { grid-template-columns: 1fr; }
+      #SoltecPremium[data-sp-page] .sp-field--model,
+      #SoltecPremium[data-sp-page] .sp-field--load,
+      #SoltecPremium[data-sp-page] .sp-field--addons { grid-column: auto; }
+      #SoltecPremium[data-sp-page] .sp-addon-grid { grid-template-columns: 1fr; }
+      #SoltecPremium[data-sp-page] .sp-result { top: auto; }
+      #SoltecPremium[data-sp-page] .sp-acc__slide { min-height: 0; }
+    }
+    @media screen and (max-width: 749px) {
+      #SoltecPremium[data-sp-page] .sp-local-nav a { min-width: 8.4rem; padding: 1.3rem .75rem 1.2rem; font-size: 1.2rem; }
+      #SoltecPremium[data-sp-page] .sp-hero__actions { gap: .8rem; }
+      #SoltecPremium[data-sp-page] .sp-cta { width: 100%; }
+      #SoltecPremium[data-sp-page] .sp-trust--refined , #SoltecPremium[data-sp-page="bio"] .sp-trust--refined, #SoltecPremium[data-sp-page="canopy"] .sp-trust--refined { grid-template-columns: 1fr; gap: .8rem; }
+      #SoltecPremium[data-sp-page] .sp-trust--refined li , #SoltecPremium[data-sp-page="bio"] .sp-trust--refined li, #SoltecPremium[data-sp-page="canopy"] .sp-trust--refined li { min-height: 0; }
+      #SoltecPremium[data-sp-page] .sp-addon-config { grid-template-columns: 1fr; }
+      #SoltecPremium[data-sp-page] .sp-addon-config p { grid-column: auto; }
+      #SoltecPremium[data-sp-page] .sp-addon-inline { grid-template-columns: 1fr 1fr; }
+      #SoltecPremium[data-sp-page] .sp-addon-inline label:last-child { grid-column: 1 / -1; }
+      #SoltecPremium[data-sp-page] .sp-sensor-list { grid-template-columns: 1fr; }
+      #SoltecPremium[data-sp-page] .sp-result__list li { font-size: 1.25rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #SoltecPremium *,
+      #SoltecPremium *:before,
+      #SoltecPremium *:after { scroll-behavior: auto !important; animation: none !important; transition-duration: .01ms !important; }
+      #SoltecPremium.sp-motion-ready [data-sp-reveal],
+      #SoltecPremium.sp-motion-ready [data-sp-reveal] .sp-rule,
+      #SoltecPremium.sp-motion-ready [data-sp-reveal] .sp-benefit { opacity: 1; transform: none; }
+      #SoltecPremium .sp-hero__media img { transform: none; }
+    }
+
+
+    /* ==========================================================
+       CARPORT V13 — stable navigation + premium refinements
+       ========================================================== */
+    #SoltecPremium[data-sp-page] .sp-local-nav {
+      z-index: 2; /* Koverta header/dropdowns sit above this local nav */
+      box-shadow: 0 .65rem 2rem rgba(18,18,18,.035);
+    }
+    #SoltecPremium[data-sp-page] .sp-local-nav a:after { transition: transform .13s linear; }
+
+    #SoltecPremium[data-sp-page] .sp-story { padding: clamp(6rem, 8vw, 10rem) 0; }
+    #SoltecPremium[data-sp-page] .sp-story .page-width { max-width:min(142rem,calc(100vw - 4rem)); }
+    #SoltecPremium[data-sp-page] .sp-story__grid { grid-template-columns:minmax(34rem,.78fr) minmax(0,1.22fr); gap:clamp(3rem,4.2vw,5.5rem); }
+    #SoltecPremium[data-sp-page] .sp-story__media { position:relative; min-height:58rem; border-radius:1rem; box-shadow:none; }
+    #SoltecPremium[data-sp-page] .sp-story__media img { height:100%; min-height:58rem; aspect-ratio:auto; object-fit:cover; object-position:56% center; }
+    #SoltecPremium[data-sp-page] .sp-story .sp-eyebrow { display:inline-flex; align-items:center; min-height:3.2rem; margin-bottom:1.6rem; padding:0 1rem; border-radius:999px; background:#efefec; color:#5f666a; letter-spacing:.1em; }
+    #SoltecPremium[data-sp-page] .sp-story .sp-copy { max-width:54rem; margin-bottom:0; font-size:1.58rem; line-height:1.62; }
+    #SoltecPremium[data-sp-page] .sp-story .sp-benefits { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.8rem; margin-top:2.4rem; }
+    #SoltecPremium[data-sp-page] .sp-story .sp-benefit { display:block; min-width:0; padding:1.5rem; border:1px solid var(--sp-line); border-radius:1rem; background:#fff; transition:transform .25s cubic-bezier(.22,.61,.36,1),border-color .25s ease,box-shadow .25s ease; }
+    #SoltecPremium[data-sp-page] .sp-story .sp-benefit:hover { transform:translateY(-.25rem); border-color:rgba(18,18,18,.22); box-shadow:0 .8rem 2.4rem rgba(18,18,18,.05); }
+    #SoltecPremium[data-sp-page] .sp-story .sp-benefit__icon { width:3.8rem; height:3.8rem; margin-bottom:1rem; padding:.6rem; border-radius:.9rem; background:#f1f1ee; object-fit:contain; }
+    #SoltecPremium[data-sp-page] .sp-story .sp-benefit h3 { margin:0 0 .45rem; font-size:1.42rem; line-height:1.25; }
+    #SoltecPremium[data-sp-page] .sp-story .sp-benefit p { margin:0; font-size:1.17rem; line-height:1.45; }
+
+    #SoltecPremium[data-sp-page] .sp-explorer,
+    #SoltecPremium[data-sp-page] .sp-acc,
+    #SoltecPremium[data-sp-page] [data-sp-gallery-rotator] { overflow-anchor: none; }
+    #SoltecPremium[data-sp-page] .sp-field--addons { padding: 0; overflow: hidden; background: transparent; border: 0; }
+    #SoltecPremium[data-sp-page] .sp-field__label--addons { margin: 0 0 1rem; padding: 0 .2rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-stack { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .8rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-panel { min-width: 0; border: 1px solid var(--sp-line); border-radius: 1rem; background: #fff; overflow: clip; transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease; }
+    #SoltecPremium[data-sp-page] .sp-addon-panel:hover { border-color: rgba(18,18,18,.28); box-shadow: 0 .6rem 2rem rgba(18,18,18,.045); }
+    #SoltecPremium[data-sp-page] .sp-addon-panel.is-selected { border-color: rgba(255,192,7,.9); box-shadow: inset 0 0 0 1px rgba(255,192,7,.3); }
+    #SoltecPremium[data-sp-page] .sp-addon-panel summary { display:grid; grid-template-columns:3.2rem minmax(0,1fr) auto 1.5rem; gap:.85rem; align-items:center; min-height:6.4rem; padding:.95rem 1.1rem; cursor:pointer; list-style:none; }
+    #SoltecPremium[data-sp-page] .sp-addon-panel summary::-webkit-details-marker { display: none; }
+    #SoltecPremium[data-sp-page] .sp-addon-panel__icon { display:grid; width:3.2rem; height:3.2rem; place-items:center; border-radius:.75rem; background:rgba(255,192,7,.12); color:var(--sp-ink); }
+    #SoltecPremium[data-sp-page] .sp-addon-panel__icon svg { width: 2rem; height: 2rem; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+    #SoltecPremium[data-sp-page] .sp-addon-panel__title strong { display: block; color: var(--sp-ink); font-family: var(--font-heading-family); font-size: 1.42rem; font-weight: 500; line-height: 1.2; }
+    #SoltecPremium[data-sp-page] .sp-addon-panel__title small { display: block; margin-top: .3rem; color: var(--sp-muted); font-size: 1.08rem; line-height: 1.3; }
+    #SoltecPremium[data-sp-page] .sp-addon-panel__price { color: var(--sp-slate); font-size: 1.14rem; font-weight: 600; white-space: nowrap; }
+    #SoltecPremium[data-sp-page] .sp-addon-panel__chevron { width: .8rem; height: .8rem; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg) translateY(-.2rem); transition: transform .22s ease; }
+    #SoltecPremium[data-sp-page] .sp-addon-panel[open] .sp-addon-panel__chevron { transform: rotate(225deg) translate(-.1rem,-.1rem); }
+    #SoltecPremium[data-sp-page] .sp-addon-panel__body { padding:0 1.1rem 1.1rem; border-top:1px solid var(--sp-line); animation:sp-detail-in .25s cubic-bezier(.22,.61,.36,1); }
+    #SoltecPremium[data-sp-page] .sp-addon-panel__toggle { display: flex; align-items: center; justify-content: space-between; gap: 2rem; padding: 1.2rem 0; }
+    #SoltecPremium[data-sp-page] .sp-addon-panel__toggle strong { display: block; font-size: 1.25rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-panel__toggle small { display: block; margin-top: .25rem; color: var(--sp-muted); font-size: 1.05rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-availability { margin:.2rem 0 .9rem; padding:.8rem .9rem; border-radius:.7rem; background:rgba(255,192,7,.12); color:var(--sp-slate); font-size:1.05rem; line-height:1.4; }
+    #SoltecPremium[data-sp-page] .sp-addon-config--compact { grid-template-columns: repeat(3,minmax(0,1fr)); gap: .7rem; padding-top: .2rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-config--compact label,
+    #SoltecPremium[data-sp-page] .sp-addon-inline--clean label,
+    #SoltecPremium[data-sp-page] .sp-addon-select--clean { font-size: 1.05rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-panel select,
+    #SoltecPremium[data-sp-page] .sp-addon-panel input[type="number"] { width:100%; min-height:4rem; margin-top:.4rem; padding:.65rem .8rem; border:1px solid var(--sp-line); border-radius:.7rem; background:var(--sp-soft); color:var(--sp-ink); font:inherit; font-size:1.12rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-select--clean { display:block; padding-top:1.1rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-config--compact select,
+    #SoltecPremium[data-sp-page] .sp-addon-inline--clean select,
+    #SoltecPremium[data-sp-page] .sp-addon-inline--clean input,
+    #SoltecPremium[data-sp-page] .sp-addon-select--clean select { min-height: 4rem; border-radius: .7rem; background: var(--sp-soft); }
+    #SoltecPremium[data-sp-page] .sp-addon-live-price { grid-column: 1/-1; display: flex; align-items: baseline; justify-content: flex-end; gap: .7rem; margin: .2rem 0 0; color: var(--sp-muted); font-size: 1.05rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-live-price b { color: var(--sp-ink); font-size: 1.4rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-inline--clean { grid-template-columns: minmax(0,1.2fr) minmax(0,1fr) 8rem; gap: .7rem; padding-top: 1.2rem; }
+    #SoltecPremium[data-sp-page] .sp-sensor-list--clean { grid-template-columns:1fr; padding-top: 1rem; }
+    #SoltecPremium[data-sp-page] .sp-sensor-list--clean label { min-height: 4rem; padding: .5rem .2rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-note { margin: 1rem .2rem 0; font-size: 1.08rem; line-height: 1.45; }
+    #SoltecPremium[data-sp-page] .sp-addon-panel__title small { display:none; }
+    #SoltecPremium[data-sp-page] .sp-scale { margin-top:.35rem; font-size:1.05rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-panel summary { min-height:4.8rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-panel__body { padding-top:.7rem; }
+    #SoltecPremium[data-sp-page] .sp-addon-panel__price { font-size:1.45rem; }
+
+    #SoltecPremium[data-sp-page] .sp-gallery [data-sp-gallery-swap] { opacity: 1; transition: opacity .42s ease, transform .7s cubic-bezier(.2,.75,.2,1); }
+    #SoltecPremium[data-sp-page] .sp-gallery [data-sp-gallery-swap].is-switching { opacity: .18; }
+    #SoltecPremium[data-sp-page] .sp-gallery .page-width,
+    #SoltecPremium[data-sp-page] .sp-gallery__wide { max-width:min(142rem,calc(100vw - 4rem)); margin-right:auto; margin-left:auto; padding-right:0; padding-left:0; }
+    #SoltecPremium[data-sp-page] .sp-gallery__grid { grid-template-columns:minmax(0,1.42fr) minmax(36rem,.78fr); gap:1.8rem; }
+    #SoltecPremium[data-sp-page] .sp-media-card--large img { aspect-ratio:16/10; }
+    #SoltecPremium[data-sp-page] .sp-gallery__side .sp-media-card img { aspect-ratio:16/10; }
+
+    #SoltecPremium[data-sp-page] .sp-colors--carport , #SoltecPremium[data-sp-page="bio"] .sp-colors--carport, #SoltecPremium[data-sp-page="canopy"] .sp-colors--carport { padding:clamp(4.8rem,6vw,6.5rem) 0; background:#fff; }
+    #SoltecPremium[data-sp-page] .sp-colors__heading , #SoltecPremium[data-sp-page="bio"] .sp-colors__heading, #SoltecPremium[data-sp-page="canopy"] .sp-colors__heading { max-width:58rem; margin-bottom:clamp(2.8rem,4vw,4rem); }
+    #SoltecPremium[data-sp-page] .sp-colors__heading .sp-eyebrow , #SoltecPremium[data-sp-page="bio"] .sp-colors__heading .sp-eyebrow, #SoltecPremium[data-sp-page="canopy"] .sp-colors__heading .sp-eyebrow { display:inline-flex; align-items:center; min-height:3.2rem; margin:0 0 1.15rem; padding:0 1rem; border-radius:999px; background:#ededeb; color:#5f666a; letter-spacing:.1em; }
+    #SoltecPremium[data-sp-page] .sp-colors__title , #SoltecPremium[data-sp-page="bio"] .sp-colors__title, #SoltecPremium[data-sp-page="canopy"] .sp-colors__title { margin:0; font-family:var(--font-heading-family); font-size:clamp(2.6rem,3.2vw,3.8rem); font-weight:400; line-height:1.08; letter-spacing:-.02em; }
+    /* Colour swatches: matt fine-structure powder coat (RAL …FS). Real coated
+       aluminium does not shine, so there is no specular sweep here - only a fine
+       grain and a very slight falloff so the sample still reads as a solid object. */
+    #SoltecPremium .sp-color-swatch-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:clamp(1.6rem,2.2vw,2.6rem); margin-top:2.6rem; }
+    #SoltecPremium .sp-color-swatch { min-width:0; display:flex; flex-direction:column; align-items:center; gap:.35rem; padding:0; border:0; border-radius:0; background:none; color:var(--sp-ink); text-align:center; box-shadow:none; }
+    #SoltecPremium .sp-color-swatch__orb {
+      position:relative; width:min(6.6rem,86%); aspect-ratio:1 / 1; margin:.9rem auto 1.9rem;
+      border:0; outline:0; border-radius:.5rem; overflow:hidden;
+      transform:rotate(45deg);
+      background-color:var(--sp-swatch);
+      background-image:
+        radial-gradient(circle at 1px 1px, rgba(255,255,255,.11) 0 .6px, transparent .85px),
+        radial-gradient(circle at 2.5px 3.5px, rgba(0,0,0,.075) 0 .55px, transparent .8px),
+        linear-gradient(178deg, rgba(255,255,255,.055) 0%, rgba(255,255,255,0) 42%, rgba(0,0,0,.065) 100%);
+      background-size:4px 4px, 5px 5px, 100% 100%;
+      box-shadow:
+        inset 0 0 0 1px rgba(18,18,18,.11),
+        inset 0 -.1rem .22rem rgba(0,0,0,.10),
+        0 .45rem 1.1rem rgba(18,18,18,.11);
+      transition:transform .24s cubic-bezier(.22,.61,.36,1), box-shadow .24s ease;
+    }
+    #SoltecPremium .sp-color-swatch__orb::after { content:none; }
+    #SoltecPremium .sp-color-swatch:hover .sp-color-swatch__orb { transform:rotate(45deg) scale(1.07); box-shadow: inset 0 0 0 1px rgba(18,18,18,.13), inset 0 -.1rem .22rem rgba(0,0,0,.11), 0 .9rem 2rem rgba(18,18,18,.16); }
+    #SoltecPremium .sp-color-swatch strong { display:block; min-height:3rem; font-size:1.3rem; font-weight:500; line-height:1.25; letter-spacing:-.01em; }
+    #SoltecPremium .sp-color-swatch small { display:block; margin-top:.1rem; color:var(--sp-muted); font-size:1.1rem; line-height:1.2; white-space:nowrap; }
+    /* Pale coats need even less shading or they read as dirty grey. */
+    #SoltecPremium .sp-color-swatch--light .sp-color-swatch__orb {
+      background-image:
+        radial-gradient(circle at 1px 1px, rgba(255,255,255,.16) 0 .6px, transparent .85px),
+        radial-gradient(circle at 2.5px 3.5px, rgba(0,0,0,.05) 0 .55px, transparent .8px),
+        linear-gradient(178deg, rgba(255,255,255,.07) 0%, rgba(255,255,255,0) 42%, rgba(0,0,0,.04) 100%);
+    }
+
+    #SoltecPremium[data-sp-page] .sp-faq--carport { padding:clamp(5.5rem,7vw,8rem) 0; }
+    #SoltecPremium[data-sp-page] .sp-faq--carport .page-width { max-width:min(142rem,calc(100vw - 4rem)); }
+    #SoltecPremium[data-sp-page] .sp-faq--carport .sp-faq__grid { grid-template-columns:minmax(0,1.18fr) minmax(38rem,.82fr); gap:clamp(3rem,4.2vw,5.5rem); align-items:center; }
+    #SoltecPremium[data-sp-page] .sp-faq--carport .sp-faq__media { position:relative; min-height:60rem; border-radius:1rem; box-shadow:none; }
+    #SoltecPremium[data-sp-page] .sp-faq--carport .sp-faq__media img { height:60rem; aspect-ratio:auto; object-fit:cover; object-position:center; }
+    #SoltecPremium[data-sp-page] .sp-faq__intro { max-width:56rem; margin:1.2rem 0 1.8rem; color:var(--sp-muted); font-size:1.4rem; line-height:1.55; }
+    #SoltecPremium[data-sp-page] .sp-faq--carport .sp-faq__items { display:grid; gap:.75rem; margin-top:0; border-top:0; }
+    #SoltecPremium[data-sp-page] .sp-faq--carport details { border:1px solid var(--sp-line); border-radius:1rem; background:#fff; overflow:hidden; transition:border-color .2s ease,box-shadow .2s ease; }
+    #SoltecPremium[data-sp-page] .sp-faq--carport details:hover { border-color:rgba(18,18,18,.25); box-shadow:0 .6rem 2rem rgba(18,18,18,.04); }
+    #SoltecPremium[data-sp-page] .sp-faq--carport summary { min-height:5.8rem; gap:1.1rem; padding:0 1.2rem; font-size:1.42rem; }
+    #SoltecPremium[data-sp-page] .sp-faq--carport summary:after { content:'+'; display:grid; flex:0 0 3.1rem; width:3.1rem; height:3.1rem; place-items:center; border-radius:50%; background:#f0f0ed; color:#555b5e; font-size:2rem; font-weight:300; transition:transform .2s ease,background-color .2s ease; }
+    #SoltecPremium[data-sp-page] .sp-faq--carport details[open] summary:after { content:'−'; background:rgba(255,192,7,.16); color:var(--sp-ink); }
+    #SoltecPremium[data-sp-page] .sp-faq--carport summary i { order:-1; flex:0 0 2.6rem; color:rgba(18,18,18,.34); font-size:1rem; font-style:normal; letter-spacing:.08em; }
+    #SoltecPremium[data-sp-page] .sp-faq--carport details[open] summary i { color:#9a7400; }
+    #SoltecPremium[data-sp-page] .sp-faq--carport details p { padding:0 5.2rem 1.5rem 4rem; animation:sp-detail-in .25s cubic-bezier(.22,.61,.36,1); }
+    @keyframes sp-detail-in { from { opacity:0; transform:translateY(-.5rem); } to { opacity:1; transform:none; } }
+    @keyframes sp-carport-hero-media-in { from { opacity:.5; scale:1.05; } to { opacity:1; scale:1; } }
+    @keyframes sp-carport-hero-copy-in { from { opacity:0; transform:translateY(2.6rem); } to { opacity:1; transform:none; } }
+    @keyframes sp-carport-trust-in { from { opacity:0; transform:translateY(1.6rem); } to { opacity:1; transform:none; } }
+    #SoltecPremium[data-sp-page] .sp-hero__media img { animation:sp-carport-hero-media-in 1.35s cubic-bezier(.22,.61,.36,1) both; }
+    #SoltecPremium[data-sp-page] .sp-hero__panel > * { animation:sp-carport-hero-copy-in .75s cubic-bezier(.22,.61,.36,1) both; }
+    #SoltecPremium[data-sp-page] .sp-hero__panel > *:nth-child(1) { animation-delay:.08s; }
+    #SoltecPremium[data-sp-page] .sp-hero__panel > *:nth-child(2) { animation-delay:.16s; }
+    #SoltecPremium[data-sp-page] .sp-hero__panel > *:nth-child(3) { animation-delay:.24s; }
+    #SoltecPremium[data-sp-page] .sp-hero__panel > *:nth-child(4) { animation-delay:.32s; }
+    #SoltecPremium[data-sp-page] .sp-hero__panel > *:nth-child(5) { animation-delay:.4s; }
+    #SoltecPremium[data-sp-page] .sp-trust--refined li , #SoltecPremium[data-sp-page="bio"] .sp-trust--refined li, #SoltecPremium[data-sp-page="canopy"] .sp-trust--refined li { animation:sp-carport-trust-in .62s cubic-bezier(.22,.61,.36,1) both; }
+    #SoltecPremium[data-sp-page] .sp-trust--refined li:nth-child(1) , #SoltecPremium[data-sp-page="bio"] .sp-trust--refined li:nth-child(1), #SoltecPremium[data-sp-page="canopy"] .sp-trust--refined li:nth-child(1) { animation-delay:.3s; }
+    #SoltecPremium[data-sp-page] .sp-trust--refined li:nth-child(2) , #SoltecPremium[data-sp-page="bio"] .sp-trust--refined li:nth-child(2), #SoltecPremium[data-sp-page="canopy"] .sp-trust--refined li:nth-child(2) { animation-delay:.38s; }
+    #SoltecPremium[data-sp-page] .sp-trust--refined li:nth-child(3) , #SoltecPremium[data-sp-page="bio"] .sp-trust--refined li:nth-child(3), #SoltecPremium[data-sp-page="canopy"] .sp-trust--refined li:nth-child(3) { animation-delay:.46s; }
+    #SoltecPremium[data-sp-page] .sp-trust--refined li:nth-child(4) , #SoltecPremium[data-sp-page="bio"] .sp-trust--refined li:nth-child(4), #SoltecPremium[data-sp-page="canopy"] .sp-trust--refined li:nth-child(4) { animation-delay:.54s; }
+
+    @media screen and (max-width: 989px) {
+      #SoltecPremium[data-sp-page] .sp-story__grid,
+      #SoltecPremium[data-sp-page] .sp-faq--carport .sp-faq__grid { grid-template-columns:1fr; }
+      #SoltecPremium[data-sp-page] .sp-story__media { order:-1; min-height:0; }
+      #SoltecPremium[data-sp-page] .sp-story__media img { min-height:0; height:auto; aspect-ratio:16/10; }
+      #SoltecPremium[data-sp-page] .sp-story .sp-benefits { grid-template-columns:repeat(3,minmax(0,1fr)); }
+      #SoltecPremium[data-sp-page] .sp-addon-stack { grid-template-columns:1fr; }
+      #SoltecPremium[data-sp-page] .sp-color-swatch-grid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:1.6rem 1rem; }
+      #SoltecPremium[data-sp-page] .sp-faq--carport .sp-faq__media { min-height:0; }
+      #SoltecPremium[data-sp-page] .sp-faq--carport .sp-faq__media img { height:auto; aspect-ratio:16/10; }
+    }
+    @media screen and (max-width: 749px) {
+      #SoltecPremium[data-sp-page] .sp-story { padding:4.8rem 0; }
+      #SoltecPremium[data-sp-page] .sp-story__grid { gap:2.8rem; }
+      #SoltecPremium[data-sp-page] .sp-story .sp-benefits { grid-template-columns:1fr; }
+      #SoltecPremium[data-sp-page] .sp-photo-proof { right:1rem; bottom:1rem; padding:.65rem .8rem; font-size:1rem; }
+      #SoltecPremium[data-sp-page] .sp-addon-panel summary { grid-template-columns:3.4rem minmax(0,1fr) 1.5rem; min-height:6.8rem; }
+      #SoltecPremium[data-sp-page] .sp-addon-panel__price { grid-column:2; margin-top:-.4rem; font-size:1.05rem; }
+      #SoltecPremium[data-sp-page] .sp-addon-panel__chevron { grid-column:3; grid-row:1/3; }
+      #SoltecPremium[data-sp-page] .sp-addon-config--compact,
+      #SoltecPremium[data-sp-page] .sp-addon-inline--clean { grid-template-columns:1fr; }
+      #SoltecPremium[data-sp-page] .sp-colors__heading , #SoltecPremium[data-sp-page="bio"] .sp-colors__heading, #SoltecPremium[data-sp-page="canopy"] .sp-colors__heading { margin-bottom:2.7rem; }
+      #SoltecPremium[data-sp-page] .sp-colors__heading .sp-eyebrow , #SoltecPremium[data-sp-page="bio"] .sp-colors__heading .sp-eyebrow, #SoltecPremium[data-sp-page="canopy"] .sp-colors__heading .sp-eyebrow { margin-bottom:.9rem; }
+      #SoltecPremium[data-sp-page] .sp-colors__title , #SoltecPremium[data-sp-page="bio"] .sp-colors__title, #SoltecPremium[data-sp-page="canopy"] .sp-colors__title { font-size:2.55rem; }
+      #SoltecPremium[data-sp-page] .sp-color-swatch-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+      #SoltecPremium[data-sp-page] .sp-color-swatch { padding:1.15rem .7rem 1rem; border-radius:1.6rem; }
+      #SoltecPremium[data-sp-page] .sp-color-swatch__orb { width:min(8rem,100%); height:5.2rem; margin-bottom:.8rem; border-radius:.9rem; }
+      #SoltecPremium[data-sp-page] .sp-color-swatch strong { min-height:2.8rem; font-size:1.05rem; line-height:1.2; }
+      #SoltecPremium[data-sp-page] .sp-color-swatch small { margin-top:.2rem; font-size:.88rem; }
+      #SoltecPremium[data-sp-page] .sp-color-swatch:hover .sp-color-swatch__orb { transform:none; }
+      #SoltecPremium[data-sp-page] .sp-faq--carport { padding:5rem 0; }
+      #SoltecPremium[data-sp-page] .sp-faq--carport .sp-faq__grid { gap:2.8rem; }
+      #SoltecPremium[data-sp-page] .sp-faq--carport summary { min-height:5.8rem; font-size:1.35rem; }
+      #SoltecPremium[data-sp-page] .sp-faq--carport details p { padding:0 1.2rem 1.35rem 1.2rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        #SoltecPremium[data-sp-page] .sp-story .sp-benefit,
+      #SoltecPremium[data-sp-page] [data-sp-gallery-swap] { transition:none !important; }
+    }
+
+    /* Single vertical rhythm: every band breathes the same on carport and bio. */
+    #SoltecPremium[data-sp-page] .sp-story,
+    #SoltecPremium[data-sp-page] .sp-models,
+    #SoltecPremium[data-sp-page] .sp-pricing,
+    #SoltecPremium[data-sp-page] .sp-cfg,
+    #SoltecPremium[data-sp-page] .sp-gallery,
+    #SoltecPremium[data-sp-page] .sp-accessories,
+    #SoltecPremium[data-sp-page] .sp-colors,
+    #SoltecPremium[data-sp-page] .sp-colors--carport, #SoltecPremium[data-sp-page="bio"] .sp-colors--carport, #SoltecPremium[data-sp-page="canopy"] .sp-colors--carport,
+    #SoltecPremium[data-sp-page] .sp-faq,
+    #SoltecPremium[data-sp-page] .sp-related,
+    #SoltecPremium[data-sp-page] .sp-contact {
+      padding-top: var(--sp-rhythm);
+      padding-bottom: var(--sp-rhythm);
+    }
+    #SoltecPremium[data-sp-page="bio"] .sp-story, #SoltecPremium[data-sp-page="canopy"] .sp-story,
+    #SoltecPremium[data-sp-page="bio"] .sp-models, #SoltecPremium[data-sp-page="canopy"] .sp-models,
+    #SoltecPremium[data-sp-page="bio"] .sp-pricing, #SoltecPremium[data-sp-page="canopy"] .sp-pricing,
+    #SoltecPremium[data-sp-page="bio"] .sp-cfg, #SoltecPremium[data-sp-page="canopy"] .sp-cfg,
+    #SoltecPremium[data-sp-page="bio"] .sp-gallery, #SoltecPremium[data-sp-page="canopy"] .sp-gallery,
+    #SoltecPremium[data-sp-page="bio"] .sp-accessories, #SoltecPremium[data-sp-page="canopy"] .sp-accessories,
+    #SoltecPremium[data-sp-page="bio"] .sp-colors, #SoltecPremium[data-sp-page="canopy"] .sp-colors,
+    #SoltecPremium[data-sp-page="bio"] .sp-colors--carport, #SoltecPremium[data-sp-page="canopy"] .sp-colors--carport,
+    #SoltecPremium[data-sp-page="bio"] .sp-faq, #SoltecPremium[data-sp-page="canopy"] .sp-faq,
+    #SoltecPremium[data-sp-page="bio"] .sp-related, #SoltecPremium[data-sp-page="canopy"] .sp-related,
+    #SoltecPremium[data-sp-page="bio"] .sp-contact, #SoltecPremium[data-sp-page="canopy"] .sp-contact {
+      padding-top: var(--sp-rhythm);
+      padding-bottom: var(--sp-rhythm);
+    }
+    #SoltecPremium[data-sp-page] .sp-trust , #SoltecPremium[data-sp-page="bio"] .sp-trust, #SoltecPremium[data-sp-page="canopy"] .sp-trust { margin: 0; padding-top: var(--sp-rhythm); padding-bottom: 0; }
+    #SoltecPremium[data-sp-page] .sp-story, #SoltecPremium[data-sp-page="bio"] .sp-story, #SoltecPremium[data-sp-page="canopy"] .sp-story { padding-top: var(--sp-rhythm-sm); }
+    #SoltecPremium[data-sp-page] .sp-related, #SoltecPremium[data-sp-page="bio"] .sp-related, #SoltecPremium[data-sp-page="canopy"] .sp-related { padding-top: var(--sp-rhythm); }
+
+    /* ------------------------------------------- configurator full screen */
+    #SoltecPremium .sp-cfg__open { display: inline-flex; align-items: center; gap: .7rem; min-height: 4.2rem; padding: 0 1.6rem; border: 1px solid var(--sp-line); border-radius: 999px; background: #fff; color: var(--sp-ink); cursor: pointer; font-size: 1.35rem; transition: border-color .18s ease, background-color .18s ease; }
+    #SoltecPremium .sp-cfg__open:hover { border-color: var(--sp-ink); background: var(--sp-ink); color: #fff; }
+    #SoltecPremium .sp-cfg__open svg { width: 1.6rem; height: 1.6rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    #SoltecPremium .sp-cfg__close { display: none; }
+
+    #SoltecPremium .sp-cfg.is-full .sp-cfg__grid {
+      position: fixed; inset: 0; z-index: 60; display: grid;
+      grid-template-columns: minmax(0, 1fr) 40rem; grid-template-rows: 100%;
+      gap: 0; margin: 0; background: #fff;
+    }
+    #SoltecPremium .sp-cfg.is-full .sp-stage { position: relative; top: 0; display: flex; flex-direction: column; min-height: 0; border-radius: 0; }
+    #SoltecPremium .sp-cfg.is-full .sp-stage__canvas { flex: 1 1 auto; min-height: 0; aspect-ratio: auto; }
+    #SoltecPremium .sp-cfg.is-full .sp-panel { overflow-y: auto; border-left: 1px solid var(--sp-line); border-radius: 0; -webkit-overflow-scrolling: touch; }
+    #SoltecPremium .sp-cfg.is-full .sp-cfg__close { position: absolute; top: 1.6rem; right: 1.6rem; z-index: 2; display: grid; width: 4.4rem; height: 4.4rem; place-items: center; border: 1px solid var(--sp-line); border-radius: 50%; background: rgba(255,255,255,.94); color: var(--sp-ink); cursor: pointer; }
+    #SoltecPremium .sp-cfg.is-full .sp-cfg__close svg { width: 1.8rem; height: 1.8rem; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; }
+    #SoltecPremium .sp-cfg.is-full .sp-cfg__close:hover { border-color: var(--sp-ink); background: var(--sp-ink); color: #fff; }
+    #SoltecPremium .sp-cfg.is-full .sp-cfg__open { display: none; }
+    /* Placeholder keeps the page height stable while the grid is lifted out. */
+    #SoltecPremium .sp-cfg__spacer { display: none; }
+    #SoltecPremium .sp-cfg.is-full .sp-cfg__spacer { display: block; }
+
+    /* choices recap so the visitor always sees what is already set */
+    #SoltecPremium .sp-recap { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 2rem; }
+    #SoltecPremium .sp-recap span { padding: .5rem 1rem; border-radius: 999px; background: rgba(18,18,18,.05); color: var(--sp-slate); font-size: 1.15rem; }
+    #SoltecPremium .sp-recap span b { color: var(--sp-ink); font-weight: 500; }
+
+    @media screen and (max-width: 989px) {
+      #SoltecPremium .sp-cfg.is-full .sp-cfg__grid { grid-template-columns: 1fr; grid-template-rows: minmax(24rem, 42vh) minmax(0, 1fr); }
+      #SoltecPremium .sp-cfg.is-full .sp-panel { border-left: 0; border-top: 1px solid var(--sp-line); }
+    }
+
+    /* ------------------------------------------- model coverage chart */
+    #SoltecPremium .sp-chart { padding: var(--sp-rhythm) 0; background: #fff; }
+    #SoltecPremium .sp-chart__head { max-width: 62rem; margin-bottom: clamp(2.4rem, 3vw, 3.4rem); }
+    #SoltecPremium .sp-chart__head p { margin: 1.4rem 0 0; }
+    #SoltecPremium .sp-chart__wrap { overflow-x: auto; }
+    #SoltecPremium .sp-chart__svg { display: block; width: 100%; min-width: 62rem; height: auto; }
+    #SoltecPremium .sp-chart__legend { display: flex; flex-wrap: wrap; gap: 1rem 2rem; margin-top: 1.8rem; }
+    #SoltecPremium .sp-chart__legend span { display: inline-flex; align-items: center; gap: .6rem; color: var(--sp-muted); font-size: 1.25rem; }
+    #SoltecPremium .sp-chart__legend i { width: 2.4rem; height: 1.1rem; border-radius: .2rem; }
+    #SoltecPremium .sp-chart__note { margin: 1.6rem 0 0; color: var(--sp-muted); font-size: 1.3rem; line-height: 1.55; }
+    /* ------------------------------------------------ stepped panel */
+    #SoltecPremium .sp-step[hidden] { display: none; }
+    #SoltecPremium .sp-step + .sp-step { margin-top: 0; padding-top: 0; border-top: 0; }
+    #SoltecPremium .sp-rail { display: flex; gap: .6rem; margin-bottom: 2rem; }
+    #SoltecPremium .sp-rail button { flex: 1 1 0; min-width: 0; padding: .7rem .3rem 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border: 0; background: none; color: var(--sp-muted); cursor: pointer; font-size: 1.05rem; line-height: 1.2; text-align: left; }
+    #SoltecPremium .sp-rail button:before { content: ''; display: block; height: .3rem; margin-bottom: .6rem; border-radius: 999px; background: var(--sp-line); transition: background-color .2s ease; }
+    #SoltecPremium .sp-rail button.is-done:before { background: var(--sp-slate); }
+    #SoltecPremium .sp-rail button[aria-current="true"]:before { background: var(--sp-yellow); }
+    #SoltecPremium .sp-rail button[aria-current="true"] { color: var(--sp-ink); }
+    #SoltecPremium .sp-navrow { display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; align-items: center; margin-top: 2.4rem; padding-top: 1.8rem; border-top: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-navrow button { min-height: 4.6rem; padding: 0 2rem; border: 1px solid var(--sp-line); border-radius: 999px; background: #fff; color: var(--sp-ink); cursor: pointer; font-size: 1.4rem; transition: border-color .18s ease, background-color .18s ease; }
+    #SoltecPremium .sp-navrow button[data-sp-next] {
+      min-width: 16rem; min-height: 5.4rem; padding: 0 2.6rem;
+      border-color: var(--sp-ink); background: var(--sp-ink); color: #fff;
+      font-size: 1.6rem; font-weight: 500; letter-spacing: .01em;
+      box-shadow: 0 .6rem 1.6rem rgba(18,18,18,.18);
+    }
+    #SoltecPremium .sp-navrow button[data-sp-next]:after { content: ' →'; }
+    #SoltecPremium .sp-navrow button[data-sp-next]:hover { transform: translateY(-1px); box-shadow: 0 .8rem 2rem rgba(18,18,18,.24); }
+    #SoltecPremium .sp-navrow button[data-sp-next]:disabled { transform: none; box-shadow: none; }
+
+    /* Nothing you have to hit with a thumb should be under the 44 px every
+       platform's guidance settles on. */
+    #SoltecPremium .sp-chip,
+    #SoltecPremium .sp-side-opts button,
+    #SoltecPremium .sp-louver-toggle button,
+    #SoltecPremium .sp-stepper button,
+    #SoltecPremium .sp-colorrow button,
+    #SoltecPremium .sp-rail button,
+    #SoltecPremium .sp-viewpick button,
+    #SoltecPremium .sp-cfg__tabs button,
+    #SoltecPremium .sp-cfg__open,
+    #SoltecPremium .sp-louver-btn,
+    #SoltecPremium .sp-louver-range { min-height: 4.4rem; }
+    #SoltecPremium .sp-louver-btn { width: 4.4rem; }
+    #SoltecPremium .sp-navrow button:disabled { opacity: .35; cursor: default; }
+    #SoltecPremium .sp-navrow__price { text-align: center; font-size: 1.35rem; color: var(--sp-muted); }
+    #SoltecPremium .sp-navrow__price b { display: block; color: var(--sp-ink); font-family: var(--font-heading-family); font-size: 2rem; font-weight: 400; }
+    #SoltecPremium .sp-quote[hidden] { display: none; }
+    /* ------------------------------------------- configurator reference */
+    #SoltecPremium .sp-stage__ref { display: grid; grid-template-columns: 12rem minmax(0, 1fr); gap: 1.4rem; align-items: center; margin: 0; padding: 1.2rem clamp(1.6rem, 2.2vw, 2.4rem) 1.6rem; border-top: 1px solid var(--sp-line); }
+    #SoltecPremium .sp-stage__ref img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: .6rem; }
+    #SoltecPremium .sp-stage__ref figcaption { color: var(--sp-muted); font-size: 1.25rem; line-height: 1.45; }
+    #SoltecPremium .sp-stage__ref figcaption b { display: block; color: var(--sp-ink); font-weight: 500; }
+    #SoltecPremium .sp-cfg.is-full .sp-stage__ref { display: none; }
+    @media screen and (max-width: 749px) {
+      #SoltecPremium .sp-stage__ref { grid-template-columns: 8.4rem minmax(0, 1fr); gap: 1rem; padding: 1rem 1.4rem 1.2rem; }
+    }
+
+/* ---------------------------------------------- configurator workspace */
+#SoltecPremium .sp-steps { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: .4rem; }
+#SoltecPremium .sp-step { padding: 0; }
+#SoltecPremium .sp-step__label { margin-bottom: 1rem; }
+#SoltecPremium .sp-step__label b { font-size: 1.6rem; }
+#SoltecPremium .sp-field + .sp-field { margin-top: 1.6rem; padding-top: 1.6rem; }
+#SoltecPremium .sp-navrow { flex: 0 0 auto; margin-top: 1.4rem; padding-top: 1.2rem; }
+/* numbered rail: a pill per step, caption underneath - nothing to truncate */
+#SoltecPremium .sp-rail { display: flex; gap: .4rem; margin: 0 0 .6rem; }
+#SoltecPremium .sp-rail button { flex: 1 1 0; min-width: 0; padding: 0; border: 0; background: none; cursor: pointer; }
+#SoltecPremium .sp-rail button:before { content: none; }
+#SoltecPremium .sp-rail button i { display: grid; height: 2.8rem; place-items: center; border-radius: .5rem; background: rgba(18,18,18,.06); color: var(--sp-muted); font-size: 1.2rem; font-style: normal; transition: background-color .18s ease, color .18s ease; }
+#SoltecPremium .sp-rail button span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+#SoltecPremium .sp-rail button.is-done i { background: rgba(69,90,100,.16); color: var(--sp-slate); }
+#SoltecPremium .sp-rail button[aria-current="true"] i { background: var(--sp-yellow); color: var(--sp-ink); }
+#SoltecPremium .sp-railcap { margin: 0 0 1.4rem; color: var(--sp-muted); font-size: 1.25rem; }
+#SoltecPremium .sp-railcap b { color: var(--sp-ink); font-weight: 500; }
+#SoltecPremium .sp-quote { margin-top: 0; }
+/* the reference shot only earns its space when there is room for it */
+#SoltecPremium .sp-stage__ref { flex: 0 0 auto; }
+@media screen and (max-height: 780px) { #SoltecPremium .sp-stage__ref { display: none; } }
+@media screen and (max-width: 989px) {
+  #SoltecPremium .sp-cfg__grid { grid-template-columns: 1fr; height: auto; min-height: 0; }
+  #SoltecPremium .sp-stage { height: auto; }
+  #SoltecPremium .sp-stage__canvas { aspect-ratio: 4 / 3; flex: 0 0 auto; }
+  #SoltecPremium .sp-panel { height: auto; }
+  #SoltecPremium .sp-steps { overflow: visible; }
+}
+
+/* ═══════════════ refinement pass ═══════════════ */
+
+/* The rhythm rule had reset margin to 0, which killed the auto centring that
+   .page-width provides. The strip was pinned to the left edge. */
+#SoltecPremium[data-sp-page] .sp-trust,
+#SoltecPremium[data-sp-page="bio"] .sp-trust, #SoltecPremium[data-sp-page="canopy"] .sp-trust {
+  margin-inline: auto;
+  max-width: var(--page-width, 140rem);
+}
+
+/* Three benefit rows, one geometry. */
+#SoltecPremium[data-sp-page] .sp-benefit,
+#SoltecPremium[data-sp-page="bio"] .sp-benefit, #SoltecPremium[data-sp-page="canopy"] .sp-benefit {
+  align-items: start;
+  min-height: 0;
+}
+#SoltecPremium[data-sp-page] .sp-benefit > div,
+#SoltecPremium[data-sp-page="bio"] .sp-benefit > div, #SoltecPremium[data-sp-page="canopy"] .sp-benefit > div { min-width: 0; }
+#SoltecPremium[data-sp-page] .sp-benefit h3,
+#SoltecPremium[data-sp-page="bio"] .sp-benefit h3, #SoltecPremium[data-sp-page="canopy"] .sp-benefit h3 { margin: .2rem 0 .5rem; font-size: 1.7rem; line-height: 1.25; }
+#SoltecPremium[data-sp-page] .sp-benefit p,
+#SoltecPremium[data-sp-page="bio"] .sp-benefit p, #SoltecPremium[data-sp-page="canopy"] .sp-benefit p { font-size: 1.4rem; line-height: 1.5; }
+
+/* Model cards: same presence, far less height, so more of the range fits. */
+#SoltecPremium .sp-model-layout { gap: clamp(1.6rem, 2.2vw, 2.8rem); }
+#SoltecPremium .sp-model-photo img { aspect-ratio: 16 / 10; object-fit: cover; }
+#SoltecPremium .sp-model-copy { padding: 2rem 1.8rem; }
+#SoltecPremium .sp-model-copy h3 { font-size: clamp(2rem, 2.2vw, 2.6rem); }
+#SoltecPremium .sp-model-summary { font-size: 1.45rem; line-height: 1.5; }
+#SoltecPremium .sp-quickfacts { margin-bottom: 1.4rem; }
+#SoltecPremium .sp-quickfacts li { padding: .55rem 1rem; font-size: 1.2rem; }
+#SoltecPremium .sp-price-line { padding: 1.4rem 1.6rem; }
+#SoltecPremium .sp-price-line strong { font-size: 2.4rem; }
+#SoltecPremium .sp-model-tab { padding: 1.4rem 1.6rem; }
+
+/* The anchoring select clipped its own label. */
+#SoltecPremium .sp-addrow select,
+#SoltecPremium select[data-sp-anchor] {
+  width: 100%;
+  min-height: 4.4rem;
+  padding: .8rem 3.2rem .8rem 1.2rem;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+}
+#SoltecPremium .sp-addrow { flex-wrap: wrap; gap: .8rem 1.2rem; }
+#SoltecPremium .sp-addrow > .sp-side-opts { flex: 1 1 16rem; min-width: 0; }
+
+/* While the configurator is the active tool, the local rail must not eat height. */
+
+
+/* Full screen: a real workspace, both halves inside the viewport. */
+#SoltecPremium .sp-cfg.is-full .sp-cfg__grid {
+  height: 100vh; height: 100dvh; min-height: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(34rem, 38rem);
+  padding: 0;
+}
+#SoltecPremium .sp-cfg.is-full .sp-stage { border-radius: 0; height: 100%; }
+#SoltecPremium .sp-cfg.is-full .sp-panel { height: 100%; border-radius: 0; padding: clamp(1.6rem, 2vw, 2.4rem); }
+#SoltecPremium .sp-cfg.is-full .sp-steps { overflow-y: auto; }
+@media screen and (max-width: 989px) {
+  #SoltecPremium .sp-cfg.is-full .sp-cfg__grid { grid-template-columns: 1fr; grid-template-rows: minmax(0, 40vh) minmax(0, 1fr); }
+  #SoltecPremium .sp-cfg.is-full .sp-stage__canvas { aspect-ratio: auto; flex: 1 1 auto; }
+}
+
+/* One content column for the whole page. Some bands sat at 1000px and others at
+   1400px, which read as blocks drifting to the left instead of a grid. */
+#SoltecPremium[data-sp-page] .page-width,
+#SoltecPremium[data-sp-page="bio"] .page-width, #SoltecPremium[data-sp-page="canopy"] .page-width { max-width: 140rem; }
+
+/* Canopy joins the same content column and rhythm. */
+#SoltecPremium[data-sp-page="canopy"] .page-width { max-width: 140rem; }
+#SoltecPremium[data-sp-page="canopy"] .sp-story,
+#SoltecPremium[data-sp-page="canopy"] .sp-models,
+#SoltecPremium[data-sp-page="canopy"] .sp-pricing,
+#SoltecPremium[data-sp-page="canopy"] .sp-gallery,
+#SoltecPremium[data-sp-page="canopy"] .sp-accessories,
+#SoltecPremium[data-sp-page="canopy"] .sp-colors,
+#SoltecPremium[data-sp-page="canopy"] .sp-faq,
+#SoltecPremium[data-sp-page="canopy"] .sp-related,
+#SoltecPremium[data-sp-page="canopy"] .sp-contact { padding-top: var(--sp-rhythm); padding-bottom: var(--sp-rhythm); }
+#SoltecPremium[data-sp-page="canopy"] .sp-trust { margin-inline: auto; padding-top: var(--sp-rhythm); padding-bottom: 0; }
+
+/* ═══════════ v15 refinement ═══════════ */
+
+/* Model and accessory imagery: one height language across all three pages. */
+#SoltecPremium .sp-model-figure { align-self: start; }
+#SoltecPremium .sp-model-photo img { aspect-ratio: 3 / 2; max-height: 42rem; object-fit: cover; }
+#SoltecPremium .sp-model-panel { align-items: start; }
+#SoltecPremium .sp-acc__media img { aspect-ratio: 3 / 2; max-height: 38rem; object-fit: cover; }
+#SoltecPremium .sp-accessory img { aspect-ratio: 4 / 3; }
+#SoltecPremium .sp-media-card img { max-height: 46rem; object-fit: cover; }
+#SoltecPremium .sp-story__media img { max-height: 46rem; object-fit: cover; }
+
+/* The reading progress sat under the rail and drifted out of step with it. */
+#SoltecPremium .sp-progress { position: absolute; right: 0; bottom: 0; left: 0; height: 3px; overflow: hidden; background: rgba(18,18,18,.07); }
+#SoltecPremium .sp-progress span { display: block; width: var(--sp-progress, 0%); height: 100%; background: var(--sp-yellow); transition: none; }
+#SoltecPremium .sp-local-nav a:after { bottom: 3px; }
+
+/* The calculator is now behind a switch, so the configurator owns the page. */
+#SoltecPremium .sp-pricing[hidden] { display: none; }
+#SoltecPremium .sp-calcswitch { display: flex; justify-content: center; margin-top: 1.6rem; }
+#SoltecPremium .sp-calcswitch button { display: inline-flex; align-items: center; gap: .7rem; min-height: 4.4rem; padding: 0 1.8rem; border: 1px solid var(--sp-line); border-radius: 999px; background: #fff; color: var(--sp-ink); cursor: pointer; font-size: 1.35rem; transition: border-color .18s ease, background-color .18s ease; }
+#SoltecPremium .sp-calcswitch button:hover { border-color: var(--sp-ink); background: var(--sp-ink); color: #fff; }
+
+/* One sticky rail on every Soltec page, with the reading progress pinned to its
+   bottom edge and the active-tab underline sitting just above it. */
+#SoltecPremium .sp-local-nav { position: sticky; top: var(--sp-sticky-top); z-index: 2; }
+#SoltecPremium .sp-progress { position: absolute; right: 0; bottom: 0; left: 0; height: 3px; background: rgba(18,18,18,.07); overflow: hidden; }
+#SoltecPremium .sp-progress span { display: block; width: var(--sp-progress, 0%); height: 100%; background: var(--sp-yellow); }
+#SoltecPremium .sp-local-nav a:after { bottom: 3px; }
+
+/* ═══ v16 ═══ */
+/* The enquiry form ran the full content width and looked like a landing page. */
+#SoltecPremium .sp-contact .contact { max-width: 62rem; margin-inline: auto; }
+#SoltecPremium .sp-contact__intro { max-width: 62rem; margin-inline: auto; }
+
+/* Model shots were being cropped by object-fit: cover. Show the whole product. */
+#SoltecPremium .sp-model-photo { background: #f3f3f3; }
+#SoltecPremium .sp-model-photo img { aspect-ratio: 3 / 2; max-height: 42rem; object-fit: contain; }
+#SoltecPremium .sp-model-photo--contain img { object-fit: contain; }
+
+/* ═══ v17: segmented reading progress ═══
+   The old bar ran unbroken across the whole rail. Now each nav item carries its
+   own segment: it fills while you read that section, stops at the item edge and
+   the next one starts from zero. */
+#SoltecPremium .sp-progress { display: none; }
+#SoltecPremium .sp-local-nav a { position: relative; }
+#SoltecPremium .sp-local-nav a:after {
+  content: '';
+  position: absolute;
+  right: .6rem; bottom: 0; left: .6rem;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(to right,
+    var(--sp-yellow) 0 var(--sp-seg, 0%),
+    rgba(18,18,18,.10) var(--sp-seg, 0%) 100%);
+  transform: none;
+  transition: none;
+}
+#SoltecPremium[data-sp-page] .sp-local-nav a:after,
+#SoltecPremium[data-sp-page="bio"] .sp-local-nav a:after,
+#SoltecPremium[data-sp-page="canopy"] .sp-local-nav a:after {
+  right: .6rem; left: .6rem; bottom: 0; height: 3px;
+  transform: none; transition: none;
+  background: linear-gradient(to right,
+    var(--sp-yellow) 0 var(--sp-seg, 0%),
+    rgba(18,18,18,.10) var(--sp-seg, 0%) 100%);
+}
+#SoltecPremium[data-sp-page] .sp-progress,
+#SoltecPremium[data-sp-page="bio"] .sp-progress,
+#SoltecPremium[data-sp-page="canopy"] .sp-progress { display: none; }
+
+#SoltecPremium .sp-slider,
+#SoltecPremium .sp-louver-range { touch-action: pan-y; }
+
+/* Let the page keep scrolling when the pointer is over the configurator. */
+#SoltecPremium .sp-steps { overscroll-behavior: auto; }
+#SoltecPremium .sp-cfg__grid { height: auto; min-height: 0; }
+#SoltecPremium .sp-stage { height: auto; }
+#SoltecPremium .sp-stage__canvas { aspect-ratio: 4 / 3; }
+#SoltecPremium .sp-panel { height: auto; }
+#SoltecPremium .sp-steps { max-height: none; overflow: visible; }
+@media screen and (min-width: 990px) {
+  #SoltecPremium .sp-cfg__grid { align-items: start; }
+  #SoltecPremium .sp-stage { position: sticky; top: calc(var(--sp-sticky-top) + 2rem); }
+}
+
+#SoltecPremium .sp-stage { cursor: grab; }
+#SoltecPremium .sp-stage:active { cursor: grabbing; }
+#SoltecPremium .sp-stage__canvas { touch-action: none; }
+#SoltecPremium .sp-viewpick { display: inline-flex; gap: .3rem; padding: .3rem; border-radius: 999px; background: rgba(18,18,18,.06); }
+#SoltecPremium .sp-viewpick button { min-height: 3.4rem; padding: 0 1.2rem; border: 0; border-radius: 999px; background: transparent; color: var(--sp-muted); cursor: pointer; font-size: 1.25rem; }
+#SoltecPremium .sp-viewpick button[aria-pressed="true"] { background: var(--sp-ink); color: #fff; }
+
+/* ═══ accessories ═══ */
+#SoltecPremium .sp-switch { display: inline-flex; align-items: center; gap: .55rem; cursor: pointer; flex: none; }
+#SoltecPremium .sp-switch input { position: absolute; opacity: 0; pointer-events: none; }
+#SoltecPremium .sp-switch > span { position: relative; width: 3.5rem; height: 2rem; border-radius: 100px; background: #d7d7d7; transition: background-color .2s ease; }
+#SoltecPremium .sp-switch > span:after { content: ''; position: absolute; top: .3rem; left: .3rem; width: 1.4rem; height: 1.4rem; border-radius: 50%; background: #fff; box-shadow: 0 .1rem .4rem rgba(18,18,18,.18); transition: transform .2s ease; }
+#SoltecPremium .sp-switch input:checked + span { background: var(--sp-yellow); }
+#SoltecPremium .sp-switch input:checked + span:after { transform: translateX(1.5rem); }
+#SoltecPremium .sp-switch input:focus-visible + span { outline: 2px solid var(--sp-ink); outline-offset: 2px; }
+
+#SoltecPremium .sp-add { padding: 1.15rem 0; border-bottom: 1px solid var(--sp-line); }
+#SoltecPremium .sp-add:last-child { border-bottom: 0; }
+#SoltecPremium .sp-add__head { display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; }
+#SoltecPremium .sp-add__t { min-width: 0; font-size: 1.4rem; }
+#SoltecPremium .sp-add__t small { display: block; margin-top: .2rem; color: var(--sp-muted); font-size: 1.15rem; line-height: 1.4; }
+#SoltecPremium .sp-add__body { display: grid; gap: .8rem; margin-top: 1.1rem; }
+#SoltecPremium .sp-add__body[hidden] { display: none; }
+#SoltecPremium .sp-add__row { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .6rem; }
+#SoltecPremium .sp-add__row .sp-chip { padding: .9rem .8rem; }
+#SoltecPremium .sp-add__row .sp-chip strong { font-size: 1.4rem; }
+#SoltecPremium .sp-add__row select { min-height: 4.2rem; }
+#SoltecPremium .sp-add__lab { color: var(--sp-muted); font-size: 1.2rem; }
+#SoltecPremium .sp-add__note { margin: .3rem 0 0; color: var(--sp-muted); font-size: 1.2rem; line-height: 1.5; }
+/* rozmer, ktorý cenník nesie, ale konštrukcia naň je malá: stále čitateľný,
+   zjavne mimo dosahu, a na čipe je napísané prečo */
+#SoltecPremium .sp-add__row .sp-chip[disabled] { cursor: not-allowed; border-style: dashed; border-color: var(--sp-line); background: rgba(18,18,18,.03); }
+#SoltecPremium .sp-add__row .sp-chip[disabled] strong { color: var(--sp-muted); }
+#SoltecPremium .sp-add__row .sp-chip[disabled] span { color: var(--sp-muted); }
+#SoltecPremium .sp-add__row .sp-chip[disabled]:hover { transform: none; border-color: var(--sp-line); }
+#SoltecPremium .sp-add.is-off .sp-add__t { color: var(--sp-muted); }
+/* paleta boxu sedí vnútri panela doplnku, takže je o číslo menšia
+   než tá v kroku s farbami */
+#SoltecPremium .sp-colorrow--sm { gap: .6rem; }
+#SoltecPremium .sp-colorrow--sm .sp-colorchip span { width: 2.8rem; height: 2.8rem; }
+#SoltecPremium .sp-colorrow--sm .sp-colorchip small { font-size: 1rem; }
+
+/* ═══ keyboard ═══ */
+#SoltecPremium .sp-visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+#SoltecPremium .sp-stage:focus { outline: none; }
+#SoltecPremium .sp-stage:focus-visible { outline: 2px solid var(--sp-ink); outline-offset: 3px; }
+#SoltecPremium .sp-stage__hint { position: absolute; left: 1.6rem; bottom: 1.6rem; margin: 0; padding: .5rem 1rem; border-radius: 100px; background: rgba(18,18,18,.62); color: #fff; font-size: 1.1rem; letter-spacing: .02em; opacity: 0; transition: opacity .25s ease; pointer-events: none; }
+#SoltecPremium .sp-stage:hover .sp-stage__hint, #SoltecPremium .sp-stage:focus-within .sp-stage__hint { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { #SoltecPremium .sp-stage__hint { transition: none; } }
+
+/* ═══ reference gallery ═══ */
+#SoltecPremium .sp-stage__ref { position: relative; }
+#SoltecPremium .sp-ref__nav { display: flex; align-items: center; gap: .8rem; margin-top: .6rem; }
+#SoltecPremium .sp-ref__nav button { width: 3.2rem; height: 3.2rem; border: 1px solid var(--sp-line); border-radius: 50%; background: #fff; color: var(--sp-ink); font-size: 1.8rem; line-height: 1; cursor: pointer; transition: border-color .18s ease, background-color .18s ease; }
+#SoltecPremium .sp-ref__nav button:hover { border-color: var(--sp-ink); }
+#SoltecPremium .sp-ref__nav button:focus-visible { outline: 2px solid var(--sp-ink); outline-offset: 2px; }
+#SoltecPremium [data-sp-ref-count] { color: var(--sp-muted); font-size: 1.2rem; font-variant-numeric: tabular-nums; }
