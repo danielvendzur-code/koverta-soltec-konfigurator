@@ -434,7 +434,7 @@
     #SoltecPremium .sp-side-opts { display: grid; grid-template-columns: minmax(0, 1fr); gap: .55rem; }
     #SoltecPremium .sp-side-opts__group { grid-column: 1 / -1; margin: 1rem 0 .1rem; color: var(--sp-muted); font-size: 1.05rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
     #SoltecPremium .sp-side-opts__group:first-child { margin-top: 0; }
-    #SoltecPremium .sp-side-opts button.sp-sideopt { position: relative; display: grid; width: 100%; min-width: 0; grid-template-columns: 4.4rem minmax(0, 1fr) 1.7rem; align-items: center; gap: .8rem; min-height: 5.8rem; padding: .65rem .8rem; border: 1px solid var(--sp-line); border-radius: .9rem; background: #fff; color: var(--sp-ink); cursor: pointer; font-size: 1.22rem; text-align: left; transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+    #SoltecPremium .sp-side-opts button.sp-sideopt { position: relative; display: grid; width: 100%; min-width: 0; grid-template-columns: minmax(0, 1fr) 1.7rem; align-items: center; gap: 1rem; min-height: 5.2rem; padding: .9rem 1rem; border: 1px solid var(--sp-line); border-radius: .9rem; background: #fff; color: var(--sp-ink); cursor: pointer; font-size: 1.22rem; text-align: left; transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
     #SoltecPremium .sp-side-opts button.sp-sideopt:hover { border-color: var(--sp-slate); transform: translateY(-1px); }
     #SoltecPremium .sp-side-opts button.sp-sideopt[aria-pressed="true"] { border-color: var(--sp-ink); box-shadow: inset 0 0 0 1px var(--sp-ink); }
     #SoltecPremium .sp-sideopt__copy { min-width: 0; }
@@ -442,21 +442,6 @@
     #SoltecPremium .sp-side-opts em { display: block; margin-top: .25rem; color: var(--sp-muted); font-size: 1rem; font-style: normal; line-height: 1.2; }
     #SoltecPremium .sp-sideopt__check { width: 1.7rem; height: 1.7rem; border: 1px solid var(--sp-line); border-radius: 50%; }
     #SoltecPremium .sp-sideopt[aria-pressed="true"] .sp-sideopt__check { border-color: var(--sp-ink); background: var(--sp-ink); box-shadow: inset 0 0 0 .38rem #fff; }
-    #SoltecPremium .sp-sideopt__material { position: relative; display: block; width: 4.4rem; height: 4.4rem; overflow: hidden; border: 1px solid rgba(18,18,18,.14); border-radius: .65rem; background: #f3f3f0; }
-    #SoltecPremium .sp-sideopt__material:after { content: ''; position: absolute; inset: .45rem; border: 1px solid rgba(18,18,18,.32); }
-    #SoltecPremium .sp-sideopt__material--open:after { border-style: dashed; opacity: .45; }
-    #SoltecPremium .sp-sideopt__material--zip { background: repeating-linear-gradient(0deg,#5b6063 0 1px,#777c7e 1px 3px); }
-    #SoltecPremium .sp-sideopt__material--g1,
-    #SoltecPremium .sp-sideopt__material--g2 { background: linear-gradient(145deg,rgba(194,220,230,.9),rgba(241,248,249,.45)); }
-    #SoltecPremium .sp-sideopt__material--g1:before { content:''; position:absolute; z-index:1; inset:.45rem 1.55rem .45rem auto; border-left:1px solid rgba(18,18,18,.34); }
-    #SoltecPremium .sp-sideopt__material--g2:before { content:''; position:absolute; z-index:1; inset:.45rem; background:repeating-linear-gradient(90deg,transparent 0 .72rem,rgba(18,18,18,.28) .72rem .8rem); }
-    #SoltecPremium .sp-sideopt__material--h50l,
-    #SoltecPremium .sp-sideopt__material--fw25 { background-color:#ae7d47; background-image:repeating-linear-gradient(0deg,rgba(57,31,10,.42) 0 .12rem,transparent .12rem .62rem),linear-gradient(90deg,rgba(255,255,255,.18),transparent 55%,rgba(39,20,6,.16)); }
-    #SoltecPremium .sp-sideopt__material--h50a,
-    #SoltecPremium .sp-sideopt__material--l44alu { background:repeating-linear-gradient(0deg,#7d8485 0 .15rem,#a9adae .15rem .62rem); }
-    #SoltecPremium .sp-sideopt__material--fi30 { background:repeating-linear-gradient(90deg,#e3e1d7 0 1.25rem,#c5c4bc 1.25rem 1.32rem); }
-    #SoltecPremium .sp-sideopt__material--l44es { background-color:#6f7475; background-image:repeating-linear-gradient(45deg,transparent 0 .32rem,rgba(255,255,255,.38) .32rem .4rem),repeating-linear-gradient(-45deg,transparent 0 .32rem,rgba(18,18,18,.28) .32rem .4rem); }
-    #SoltecPremium .sp-sideopt__material--e300 { background:repeating-linear-gradient(90deg,#4a4f50 0 .38rem,#d1d3d0 .38rem .82rem); }
     #SoltecPremium .sp-side-note { margin: .8rem 0 0; color: var(--sp-muted); font-size: 1.2rem; line-height: 1.45; }
 
     /* colour rows reuse the matt swatch, laid out as a strip */

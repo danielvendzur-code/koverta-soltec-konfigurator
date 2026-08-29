@@ -1121,24 +1121,21 @@
             if (kind === 'open') continue;
             const opt = SIDE_OPTS.find((o) => o.id === kind);
             const span = sideSpan(side);
-            /* The book gives a rate for 1,5 / 2 / 2,5 m; anything between
-               takes the nearest of them, which is how it is ordered. */
+            /* Catalogue points are price-band boundaries. The configured
+               geometry remains exact, while the active price changes only
+               when the next published boundary is reached. */
             const runRate = (code) => {
               const t = BIO.wallRun && BIO.wallRun[code];
               if (!t) return null;
               const bands = Object.keys(t).map(Number).sort((a, b) => a - b);
-              let best = bands[0];
-              bands.forEach((b) => { if (Math.abs(b - state.height) < Math.abs(best - state.height)) best = b; });
-              return t[best];
+              return t[bands[dimensionBandIndex(bands, state.height)]];
             };
             const WALL_CODE = { fi30: 'iso', fw25: 'wood', l44es: 'l44es', l44alu: 'l44alu' };
 
-            /* the nearest row of a table keyed by number */
-            const nearestKey = (obj, want) => {
+            /* Published numeric keys are lower bounds of discrete price bands. */
+            const bandKey = (obj, want) => {
               const keys = Object.keys(obj).map(Number).sort((a, b) => a - b);
-              let best = keys[0];
-              keys.forEach((k) => { if (Math.abs(k - want) < Math.abs(best - want)) best = k; });
-              return best;
+              return keys[dimensionBandIndex(keys, want)];
             };
             const slidePrice = (mat) => {
               const t = BIO.slide && BIO.slide[mat];
@@ -1146,9 +1143,8 @@
               const leaves = sideLeaves(kind, span);
               const each = span / leaves;
               if (each < BIO.slideW[0] * 0.75) return null;   // narrower than the book goes
-              const band = t[nearestKey(t, state.height)];
-              let wi = 0;
-              BIO.slideW.forEach((w, i) => { if (Math.abs(w - each) < Math.abs(BIO.slideW[wi] - each)) wi = i; });
+              const band = t[bandKey(t, state.height)];
+              const wi = dimensionBandIndex(BIO.slideW, each);
               return { v: band[wi] * leaves, n: leaves };
             };
             const glassPrice = () => {
@@ -1156,9 +1152,8 @@
               if (!g) return null;
               const sys = ['2', '3', '4'].find((k) => span <= g[k].len[g[k].len.length - 1] && span >= g[k].len[0]);
               if (!sys) return null;
-              const t = g[sys], band = t.h[nearestKey(t.h, state.height)];
-              let li = 0;
-              t.len.forEach((l, i) => { if (Math.abs(l - span) < Math.abs(t.len[li] - span)) li = i; });
+              const t = g[sys], band = t.h[bandKey(t.h, state.height)];
+              const li = dimensionBandIndex(t.len, span);
               return { v: band[li], n: Number(sys) };
             };
             let value = null, note = '';
@@ -1364,8 +1359,9 @@
              higher. Compare against the roof plane itself. */
           const fromAbove = se * DIST > (H + beam) / 2;
 
-          // The roof is a horizontal separator: seen from above it covers
-          // whatever is under it, seen from below it sits behind all of it.
+          // Parts still set a semantic layer while they are generated, but
+          // visibility is resolved from the real polygon planes below. Layer
+          // and legacy bias values never participate in depth ordering.
           let layer = 0;
           const ROOF_LAYER = 1e7;
           const UNDER_SIDE = 1e5;   // frame and beams, in front of the skin from below
@@ -1374,13 +1370,14 @@
           const faces = [];
           const quad = (pts, fill, opts) => {
             const o = opts || {};
-            if (o.cull && facing(o.normal || faceNormal(pts)) <= 0) return;
+            const normal = o.normal || faceNormal(pts);
+            if (o.cull && facing(normal) <= 0) return;
             const pp = pts.map((v) => cam(v[0], v[1], v[2]));
-            const lit = o.raw ? fill : litFill(fill, o.normal || faceNormal(pts));
+            const lit = o.raw ? fill : litFill(fill, normal);
             const depths = pp.map((point) => point.d);
             const depthAvg = depths.reduce((sum, value) => sum + value, 0) / depths.length;
-            const depthFar = Math.min(...depths);
             faces.push({
+              w: pts.map((point) => point.slice()),
               p: pp,
               fill: lit,
               edge: o.edge !== false,
@@ -1388,8 +1385,140 @@
                  colour, so members merge into one surface without a gap */
               edgeCol: o.edge === false ? null : (o.edgeHex || (o.arris === false ? lit : darken(lit, 0.72))),
               fit: o.fit !== false,
-              d: depthAvg * 0.38 + depthFar * 0.62 + (o.bias || 0) + layer
+              depthAvg,
+              order: faces.length
             });
+          };
+
+          /* A scalar centroid (or a hand-authored bias) cannot order two large
+             polygons whose projected areas overlap. It is also the reason a
+             rear H50 wall could suddenly cover a nearer post after a half turn.
+             Build a small BSP from the actual world-space planes instead. Any
+             face crossing a separator is split, then the tree is traversed from
+             the camera's far side to its near side. This is view-independent
+             painter logic: the same rule works above, below and through 360°.
+          */
+          const BSP_EPS = Math.max(L, W, H) * 1e-6;
+          const dot3 = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+          const planeFor = (face) => {
+            const n = faceNormal(face.w);
+            if (Math.hypot(n[0], n[1], n[2]) < 0.5) return null;
+            return { n, d: dot3(n, face.w[0]) };
+          };
+          const sideOf = (point, plane) => dot3(point, plane.n) - plane.d;
+          const faceSides = (face, plane) => {
+            let front = false, back = false;
+            for (const point of face.w) {
+              const side = sideOf(point, plane);
+              if (side > BSP_EPS) front = true;
+              else if (side < -BSP_EPS) back = true;
+              if (front && back) break;
+            }
+            return front && back ? 2 : front ? 1 : back ? -1 : 0;
+          };
+          const compactPolygon = (points) => {
+            const out = [];
+            points.forEach((point) => {
+              const prev = out[out.length - 1];
+              if (!prev || Math.hypot(point[0] - prev[0], point[1] - prev[1], point[2] - prev[2]) > BSP_EPS) out.push(point);
+            });
+            if (out.length > 2) {
+              const a = out[0], b = out[out.length - 1];
+              if (Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) <= BSP_EPS) out.pop();
+            }
+            return out;
+          };
+          const faceFragment = (face, world, fragmentOrder) => {
+            const w = compactPolygon(world);
+            if (w.length < 3) return null;
+            const p = w.map((point) => cam(point[0], point[1], point[2]));
+            const depths = p.map((point) => point.d);
+            return Object.assign({}, face, {
+              w,
+              p,
+              depthAvg: depths.reduce((sum, value) => sum + value, 0) / depths.length,
+              order: face.order + fragmentOrder * 1e-5,
+              // A split edge is artificial. Painting it in the face colour
+              // prevents the BSP cut from becoming a visible seam.
+              edgeCol: face.edge ? face.fill : null
+            });
+          };
+          const splitFace = (face, plane) => {
+            const front = [], back = [];
+            const points = face.w;
+            for (let i = 0; i < points.length; i += 1) {
+              const a = points[i], b = points[(i + 1) % points.length];
+              const da = sideOf(a, plane), db = sideOf(b, plane);
+              if (da >= -BSP_EPS) front.push(a.slice());
+              if (da <= BSP_EPS) back.push(a.slice());
+              if ((da > BSP_EPS && db < -BSP_EPS) || (da < -BSP_EPS && db > BSP_EPS)) {
+                const t = da / (da - db);
+                const hit = [
+                  a[0] + (b[0] - a[0]) * t,
+                  a[1] + (b[1] - a[1]) * t,
+                  a[2] + (b[2] - a[2]) * t
+                ];
+                front.push(hit.slice());
+                back.push(hit.slice());
+              }
+            }
+            return [faceFragment(face, front, 1), faceFragment(face, back, 2)];
+          };
+          const chooseSplitter = (list) => {
+            if (list.length < 8) return 0;
+            const picks = [0, Math.floor(list.length * 0.25), Math.floor(list.length * 0.5), Math.floor(list.length * 0.75), list.length - 1]
+              .filter((value, index, values) => values.indexOf(value) === index);
+            const stride = Math.max(1, Math.floor(list.length / 48));
+            let best = picks[0], bestScore = Infinity;
+            picks.forEach((candidate) => {
+              const plane = planeFor(list[candidate]);
+              if (!plane) return;
+              let front = 0, back = 0, split = 0;
+              for (let i = 0; i < list.length; i += stride) {
+                const side = faceSides(list[i], plane);
+                if (side === 2) split += 1;
+                else if (side === 1) front += 1;
+                else if (side === -1) back += 1;
+              }
+              const score = split * 12 + Math.abs(front - back);
+              if (score < bestScore) { bestScore = score; best = candidate; }
+            });
+            return best;
+          };
+          const buildBsp = (list, depth) => {
+            if (!list.length) return null;
+            if (depth > 96) return { leaf: list.slice().sort((a, b) => a.depthAvg - b.depthAvg || a.order - b.order) };
+            const splitterIndex = chooseSplitter(list);
+            const plane = planeFor(list[splitterIndex]);
+            if (!plane) return { leaf: list.slice().sort((a, b) => a.depthAvg - b.depthAvg || a.order - b.order) };
+            const coplanar = [], front = [], back = [];
+            list.forEach((face) => {
+              const side = faceSides(face, plane);
+              if (side === 0) coplanar.push(face);
+              else if (side === 1) front.push(face);
+              else if (side === -1) back.push(face);
+              else {
+                const parts = splitFace(face, plane);
+                if (parts[0]) front.push(parts[0]);
+                if (parts[1]) back.push(parts[1]);
+              }
+            });
+            coplanar.sort((a, b) => a.order - b.order);
+            return { plane, coplanar, front: buildBsp(front, depth + 1), back: buildBsp(back, depth + 1) };
+          };
+          const cameraWorld = [L / 2 + VIEWDIR[0] * DIST, W / 2 + VIEWDIR[1] * DIST, H / 2 + VIEWDIR[2] * DIST];
+          const bspPaintOrder = (list) => {
+            const out = [];
+            const visit = (node) => {
+              if (!node) return;
+              if (node.leaf) { out.push(...node.leaf); return; }
+              const cameraFront = sideOf(cameraWorld, node.plane) >= 0;
+              visit(cameraFront ? node.back : node.front);
+              out.push(...node.coplanar);
+              visit(cameraFront ? node.front : node.back);
+            };
+            visit(buildBsp(list, 0));
+            return out;
           };
           /* the four upright faces of a post or a rail, which have to run
              into their neighbours without a line showing */
@@ -2406,7 +2535,7 @@
           const oy = pad - minY * scale + ((VH - pad * 2) - (maxY - minY) * scale) / 2;
 
           const g = svgEl('g', { 'shape-rendering': 'geometricPrecision' });
-          faces.sort((a, b) => a.d - b.d).forEach((f) => {
+          bspPaintOrder(faces).forEach((f) => {
             const pts = f.p.map((q) => (q.x * scale + ox).toFixed(1) + ',' + (q.y * scale + oy).toFixed(1)).join(' ');
             const a = { points: pts, fill: f.fill };
             /* Two anti-aliased faces sharing an edge leave a hairline of
@@ -2626,8 +2755,7 @@
             b.className = 'sp-sideopt';
             b.dataset.spSideOpt = o.id;
             b.setAttribute('aria-pressed', String(state.sides[side] === o.id));
-            b.innerHTML = `<i class="sp-sideopt__material sp-sideopt__material--${o.id}" aria-hidden="true"></i>`
-              + `<span class="sp-sideopt__copy"><strong>${o.label}</strong><em>${o.note}</em></span>`
+            b.innerHTML = `<span class="sp-sideopt__copy"><strong>${o.label}</strong><em>${o.note}</em></span>`
               + `<i class="sp-sideopt__check" aria-hidden="true"></i>`;
             host.appendChild(b);
           });
@@ -2666,6 +2794,7 @@
              structure taller than the model is made in. */
           const hMax = Number(m.maxHeight) || Number(h.max) || 3000;
           h.max = String(hMax);
+          h.step = '1';
           if (state.height > hMax) state.height = hMax;
           h.value = String(state.height);
           [w, l, h].forEach((s) => {
