@@ -170,7 +170,21 @@
     return true;
   }
 
+  /* Strecha aj všetky pohyblivé strany sa majú rozbehnúť naraz a plynulo.
+     Predtým to prepínalo stranu po strane a každej nastavilo koncovú hodnotu
+     skokom — na obrazovke z toho bol len iný obrázok, hoci práve ten pohyb
+     je na bioklimatickej pergole to, čo predáva. Beh si vypýtame od runtimu
+     udalosťou; keď runtime hák nemá (staršia verzia), ide sa pôvodnou cestou. */
   function setAll(root, open) {
+    var hook = root.querySelector('[data-sp-move-hook]');
+    if (hook && typeof window.CustomEvent === 'function') {
+      hook.dispatchEvent(new CustomEvent('sp:move', {
+        bubbles: true,
+        detail: { channel: 'all', to: open ? 1 : 0 }
+      }));
+      return;
+    }
+
     var pct = open ? 100 : 0;
     var sides = sideButtons(root);
     // Tlačidlá strán sa označujú cez aria-expanded, nie aria-pressed —

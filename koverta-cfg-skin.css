@@ -728,3 +728,48 @@ body { background: var(--k-white); color: var(--k-ink); }
   #SoltecPremium .sp-cfg__head .sp-copy { margin-top: .8rem; }
   #SoltecPremium .sp-cfg__tabs { margin-bottom: 1.2rem; }
 }
+
+/* --- Jedno písmo pre názvy volieb --------------------------------------
+   Názov voľby mal v konfigurátore štyri rôzne ošetrenia: model „SL 170/28"
+   Titillium 700, výplň boku Archivo 700/11,5 px, dlaždica Archivo 600/12,5 px
+   a doplnok Archivo 400/14 px. Web má pritom jasné pravidlo — názvy nesie
+   Titillium Web, text nesie Archivo. Držíme sa ho, takže dlaždica prestane
+   vyzerať ako z iného webu. */
+#SoltecPremium .sp-tile span,
+#SoltecPremium .sp-sideopt strong,
+#SoltecPremium .sp-modelgrid strong,
+#SoltecPremium .sp-chip strong,
+#SoltecPremium .sp-roofchip strong,
+#SoltecPremium .sp-colorchip strong,
+#SoltecPremium .sp-add__t {
+  font-family: var(--font-heading-family, "Titillium Web", sans-serif);
+  font-weight: 600;
+  letter-spacing: -.005em;
+}
+#SoltecPremium .sp-tile span { font-size: 1.34rem; line-height: 1.3; }
+#SoltecPremium .sp-sideopt strong { font-size: 1.4rem; }
+#SoltecPremium .sp-add__t { font-size: 1.5rem; }
+
+/* Popisy a kódy zostávajú v Archive — sú to vety a značky, nie názvy. */
+#SoltecPremium .sp-tile span b,
+#SoltecPremium .sp-sideopt em,
+#SoltecPremium .sp-modelgrid small,
+#SoltecPremium .sp-add__t small,
+#SoltecPremium .sp-colorchip small,
+#SoltecPremium .sp-roofchip small,
+#SoltecPremium .sp-chip span {
+  font-family: var(--font-body-family, Archivo, sans-serif);
+  letter-spacing: normal;
+}
+#SoltecPremium .sp-tile span b { letter-spacing: .12em; }
+
+/* --- Ešte tesnejšia hlavička -------------------------------------------
+   Medzi lištou a slovom KONFIGURÁTOR ostávalo 73 px prázdna a vizualizácia
+   začínala až v druhej polovici okna. Na stránke, kde je konfigurátor jediný
+   obsah, sa nemá čakať na nič. */
+#SoltecPremium .sp-cfg__head .sp-eyebrow { margin-top: 0; }
+@media (min-width: 990px) {
+  #SoltecPremium .sp-cfg { padding-top: 1.8rem; }
+  #SoltecPremium .sp-cfg__head { margin-bottom: 1.2rem; }
+  #SoltecPremium .sp-cfg__head .sp-copy { margin-top: .6rem; }
+}

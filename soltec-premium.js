@@ -1454,6 +1454,11 @@
                  colour, so members merge into one surface without a gap */
               edgeCol: o.edge === false ? null : (o.edgeHex || (o.arris === false ? lit : darken(lit, 0.72))),
               fit: o.fit !== false,
+              /* Priesvitná plocha sa nesmie obťahovať: keď ju maliarske
+                 triedenie rozdelí, obrysy susedných kusov sa na spoji sčítajú
+                 a z hairline sa stane tmavá čiara. Namiesto obrysu jej
+                 vypneme vyhladzovanie, takže kusy na seba sadnú presne. */
+              seamless: o.seamless === true,
               depthAvg,
               order: faces.length
             });
@@ -2074,7 +2079,7 @@
                      bočnej stene sa v axonometrii premietali ako šikmé linky
                      a pôsobili ako vzor na látke. Ostáva rovná priesvitná
                      plocha, cez ktorú presvitá konštrukcia za ňou. */
-                  pane(gt, 1 - gt, barZ + barH, zTop, back, 'rgba(58,62,66,.78)', { raw: true, edge: true, arris: false });
+                  pane(gt, 1 - gt, barZ + barH, zTop, back, 'rgba(58,62,66,.78)', { raw: true, seamless: true });
                 }
                 memb(gt, 1 - gt, barZ, barZ + barH, back - 14, back + 16, shade(sideHex, -0.42), endsX, SHAFT);
               } else if (leaves) {
@@ -2102,7 +2107,7 @@
                   for (let i = 0; i < leaves; i++) {
                     const pA = dAt(i), pB = dAt(i + 1);
                     foldPane(tAt(i), tAt(i + 1), zA + fr, zB - fr, pA, pB,
-                             'rgba(181,205,214,.42)', { raw: true, edge: true, arris: false });
+                             'rgba(181,205,214,.42)', { raw: true, seamless: true });
                   }
                   // the hinge stiles, each square to the opening at its own depth
                   for (let j = 0; j <= leaves; j++) {
@@ -2162,7 +2167,7 @@
                   memb(t0, t1, zB - fr * 0.9, zB, p0, p1, shade(sideHex, 0.04), endsX, SHAFT);
                   const mid = (p0 + p1) / 2;
                   if (glazed) {
-                    pane(t0 + fr, t1 - fr, zA + fr, zB - fr, mid, 'rgba(181,205,214,.42)', { raw: true, edge: true, arris: false });
+                    pane(t0 + fr, t1 - fr, zA + fr, zB - fr, mid, 'rgba(181,205,214,.42)', { raw: true, seamless: true });
                   } else if (kind === 'h50l') {
                     boards(t0 + fr, t1 - fr, zA + fr, zB - fr, mid);
                   } else {
@@ -2721,6 +2726,7 @@
                closes it; the corner still reads, because the two sides are
                genuinely lit differently. */
             if (f.edge) { a.stroke = f.edgeCol; a['stroke-width'] = '1'; a['stroke-linejoin'] = 'round'; }
+            if (f.seamless) a['shape-rendering'] = 'crispEdges';
             g.appendChild(svgEl('polygon', a));
           });
           /* A screen reader gets the configuration, not just "a visualisation". */
@@ -3178,6 +3184,27 @@
           side: {
             get: () => (state.sideOpen[state.activeSide] || 0),
             set: (v) => { state.sideOpen[state.activeSide] = v; }
+          },
+          /* „Zavrieť všetko" a „Otvoriť všetko" majú byť vidieť. Skok na
+             koncovú polohu je z pohľadu zákazníka len iný obrázok — a práve
+             to plynulé prebehnutie je na bioklimatickej pergole to, čo
+             predáva. Jeden kanál hýbe strechou aj všetkými pohyblivými
+             stranami naraz, takže je to jeden pohyb konštrukcie, nie štyri
+             skoky za sebou. */
+          all: {
+            get: () => {
+              const v = [state.louverT];
+              Object.keys(state.sides).forEach((k) => {
+                if (SIDE_MOVES[state.sides[k]]) v.push(state.sideOpen[k] || 0);
+              });
+              return v.reduce((a, b) => a + b, 0) / v.length;
+            },
+            set: (v) => {
+              state.louverT = v;
+              Object.keys(state.sides).forEach((k) => {
+                if (SIDE_MOVES[state.sides[k]]) state.sideOpen[k] = v;
+              });
+            }
           }
         };
 
@@ -3239,6 +3266,10 @@
             const e = 1 - Math.pow(1 - k, 3);
             M.set(from + (to - from) * e);
             drawStage();
+            /* Počas behu má posuvník aj percentá bežať s ním, inak to vyzerá,
+               že sa ovládanie prebralo až na konci. */
+            syncSideMove();
+            syncLouverReadout();
             if (k < 1) { louverRun = requestAnimationFrame(step); return; }
             louverRun = 0;
             M.set(to);
@@ -3246,6 +3277,15 @@
           };
           louverRun = requestAnimationFrame(step);
         };
+
+        /* Vonkajšia nadstavba (tlačidlá „Zavrieť všetko" / „Otvoriť všetko")
+           nemá na `runMover` dosah, tak si ho vypýta udalosťou. */
+        cfgRoot.setAttribute('data-sp-move-hook', '1');
+        cfgRoot.addEventListener('sp:move', (e) => {
+          const d = e.detail || {};
+          if (!MOVER[d.channel]) return;
+          runMover(d.channel, Number(d.to));
+        });
 
         /* Holding turns the blades at the pace of the real thing until the
            button comes up or the roof reaches its stop. */
