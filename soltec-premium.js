@@ -780,6 +780,14 @@
            through the section: arcsin(170/200) for a 200 blade in a 170
            profile. Everything between shut and there is one continuous run. */
         const LOUVER_MAX = (beam, bw) => Math.asin(Math.min(1, (beam * 0.94) / (bw || 200)));
+        /* Zatvorená lamela nie je vodorovná doska. Lamely sa pri dosadnutí
+           prekrývajú a každá si nechá pár stupňov, aby voda stiekla — a práve
+           tie pár stupňov sú aj to, čo ich udrží v odlišných rovinách. Keď
+           uhol klesol na nulu, boli takmer rovnobežné, maliarske triedenie ich
+           začalo deliť na kusy a ich počet sa medzi snímkami hádzal zo 100 na
+           160 a späť — na obrazovke lamely poskakovali. */
+        const LOUVER_MIN_T = 0.055;
+        const louverAngle = (beam, bw, t) => LOUVER_MAX(beam, bw) * (LOUVER_MIN_T + (1 - LOUVER_MIN_T) * t);
         const LOUVER_STOPS = [
           { t: 0, label: 'Zatvorené' },
           { t: 0.84, label: 'Polotieň' },
@@ -1722,7 +1730,7 @@
             const li0 = post, li1 = L - post;
             const nb = (model().lamellas || [])[state.length] || Math.max(4, Math.round((li1 - li0) / 183));
             const lpitch = (li1 - li0) / nb;
-            const lang = LOUVER_MAX(beam, louverSize().w) * state.louverT;
+            const lang = louverAngle(beam, louverSize().w, state.louverT);
             // widen what counts as covered so the blade shadows between the
             // stripes stay legible instead of closing into one bright patch
             const cover = lpitch * (0.94 * Math.cos(lang) + 0.16);
@@ -2643,7 +2651,7 @@
             const pitch = (i1 - i0) / n;
             const blade = louverSize();
             const bladeW = blade.w;                      // "lamela 200" or "lamela 270"
-            const ang = LOUVER_MAX(beam, bladeW) * state.louverT;
+            const ang = louverAngle(beam, bladeW, state.louverT);
             const y0 = post, y1 = W - post;
             const lap = 30;   // blades tuck under the rails rather than butting them
             const half = bladeW / 2;
@@ -3235,26 +3243,37 @@
            a posuvník sekal, alebo sa zdalo, že vôbec nereaguje. Od polohy
            krídel ani lamiel nezávisí žiadna cena, takže počas ťahania stačí
            prekresliť scénu a dopísať percentá. */
-        let stagePending = 0;
+        /* Snímok nemusí prísť — v skrytej karte prehliadač rAF nespustí vôbec.
+           Bez záložného časovača by posuvník aj beh ticho nič neurobili, presne
+           ako to už rieši  o kus vyššie. */
+        let stagePending = 0, stageTimer = 0;
         const scheduleStage = () => {
           if (stagePending) return;
-          stagePending = window.requestAnimationFrame(() => {
+          stagePending = 1;
+          const run = () => {
+            if (!stagePending) return;
             stagePending = 0;
+            window.clearTimeout(stageTimer);
             drawStage();
             syncSideMove();
             syncLouverReadout();
-          });
+          };
+          window.requestAnimationFrame(run);
+          stageTimer = window.setTimeout(run, 60);
         };
 
-        let louverRun = 0;
+        let louverRun = 0, moverTimer = 0;
         const runMover = (ch, target, immediate) => {
           const M = MOVER[ch];
           const to = Math.max(0, Math.min(1, target));
           if (louverRun) { cancelAnimationFrame(louverRun); louverRun = 0; }
+          if (moverTimer) { window.clearTimeout(moverTimer); moverTimer = 0; }
           const from = M.get();
           if (immediate || reducedMotion || Math.abs(to - from) < 0.005) {
             M.set(to);
-            renderAll();
+            drawStage();
+            syncSideMove();
+            syncLouverReadout();
             return;
           }
           const ms = 380 + Math.abs(to - from) * 1750;
@@ -3270,12 +3289,26 @@
                že sa ovládanie prebralo až na konci. */
             syncSideMove();
             syncLouverReadout();
-            if (k < 1) { louverRun = requestAnimationFrame(step); return; }
+            if (k < 1) {
+              louverRun = requestAnimationFrame(step);
+              window.clearTimeout(moverTimer);
+              moverTimer = window.setTimeout(step, 90);
+              return;
+            }
             louverRun = 0;
+            window.clearTimeout(moverTimer);
+            moverTimer = 0;
             M.set(to);
-            renderAll();
+            /* Beh končil prestavbou celého panela. Tá prejde aj cez ,
+               takže posledný snímok behu a to, čo ostane na obrazovke, nie je tá istá
+               geometria — lamely na konci každého zatvorenia poskočili. Od polohy
+               lamiel ani krídel nezávisí nič v paneli okrem čísel, ktoré dopíšeme sami. */
+            drawStage();
+            syncSideMove();
+            syncLouverReadout();
           };
           louverRun = requestAnimationFrame(step);
+          moverTimer = window.setTimeout(step, 90);
         };
 
         /* Vonkajšia nadstavba (tlačidlá „Zavrieť všetko" / „Otvoriť všetko")

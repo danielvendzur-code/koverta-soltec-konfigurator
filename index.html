@@ -5113,7 +5113,7 @@ details-disclosure > details {
 
 <!-- Soltec runtime: single authoritative external build. -->
 
-<script charset="utf-8" src="./soltec-premium.js?v=20260831-24"></script>
+<script charset="utf-8" src="./soltec-premium.js?v=20260831-27"></script>
 
 <!-- Doplnky ku konfigurátoru: zadanie rozmeru číslom, fullscreen bez scrollovania.
      Nadstavba nad runtime, nič v ňom neprepisuje. -->
@@ -5146,6 +5146,12 @@ details-disclosure > details {
   bar.querySelector('[data-kv-fs-go]').addEventListener('click', function () {
     var el = document.documentElement;
     if (el.requestFullscreen) { el.requestFullscreen().catch(function () {}); }
+    /* Fullscreen prehliadača sám osebe nič nerieši — stránka pod ním ostane
+       bežnou stránkou a k prístrešku sa treba doscrollovať. Otvoríme rovno aj
+       pracovný režim konfigurátora, takže sa po kliknutí ocitneš v ňom celom. */
+    var otvor = document.querySelector('[data-sp-cfg-open]');
+    var uzJe = document.querySelector('.sp-cfg.is-full');
+    if (otvor && !uzJe) otvor.click();
     bar.hidden = true;
   });
   bar.querySelector('[data-kv-fs-close]').addEventListener('click', function () {
