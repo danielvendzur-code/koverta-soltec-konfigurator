@@ -715,6 +715,19 @@
         const grain = (i) => { const s = Math.sin(i * 12.9898 + 4.137) * 43758.5453; return s - Math.floor(s); };
         const LARCH = '#b0824e';
         const COURSE = 74;     // "wood rhomb 70x24" plus the shadow gap
+        /* Jedna stena rombového smrekovca má 33 radov a šesť plôch na rad —
+           tieň, dva skosy, líce a dve kresby dreva — a stojí za to. Šestnásť
+           posuvných krídel cez deväť metrov je päťsto radov a tri tisíc plôch;
+           maliarske triedenie je na nich kvadratické a jeden ťah posuvníkom
+           trval sekundy. Preto dosky s pribúdajúcim počtom rednú: plný profil,
+           kým je rozpočet, potom len tieň a líce, a nakoniec jedna plocha na
+           rad. Pri deviatich metroch sú od seba na obrazovke dva pixely. */
+        /* Úroveň musí byť pre celú stenu jedna. Miešať profilované a ploché
+           dosky vedľa seba vyzerá presne ako chyba výroby, čomu sa vyhýbame,
+           takže sa rozhoduje dopredu z počtu radov, ktoré celá zostava bude
+           potrebovať — nie priebežne, ako sa míňa rozpočet. */
+        let cladLevel = 2;         // 2 plný profil, 1 tieň a líce, 0 jedna plocha
+        let cladStride = 1;
         const ALU_COURSE = 54; // "alu slat 10/50 mm"
         /* the tone of the board at a given height, the same on every face */
         const boardTone = (k, hex) => {
@@ -1279,6 +1292,24 @@
           const beam = String(state.model).indexOf('240') > -1 ? 240 : 170;
           const walls = placementWalls();
           const panelRoof = model().roof === 'panel';
+          /* Koľko radov dosiek celá zostava vyžiada. Jedna stena smrekovca je
+             tridsať radov a plný profil za to stojí. Šestnásť posuvných krídel
+             cez deväť metrov je päťsto radov, tri tisíce plôch a maliarske
+             triedenie na nich ide kvadraticky — jeden ťah posuvníkom trval
+             sekundy. Vtedy dosky prídu o profil, ale celá stena naraz. */
+          (() => {
+            const rows = Math.max(1, Math.round(state.height / COURSE));
+            const priecne = Math.max(1, postXs().length - 1);
+            let radov = 0;
+            ['rear', 'front', 'left', 'right'].forEach((side) => {
+              const kind = state.sides[side];
+              if (kind !== 'h50l' && kind !== 'fw25') return;
+              const poli = (side === 'rear' || side === 'front') ? priecne : 1;
+              radov += rows * poli * (kind === 'h50l' ? sideLeaves(kind, sideSpan(side)) : 1);
+            });
+            cladLevel = radov <= 110 ? 2 : radov <= 300 ? 1 : 0;
+            cladStride = radov > 700 ? 2 : 1;
+          })();
           /* Kým divák sám neotočil model, drž otváraciu výšku podľa strechy —
              aj keď sa typ strechy zmení výberom iného modelu. */
           const roofKind = panelRoof ? 'panel' : 'louver';
@@ -1965,13 +1996,20 @@
               const clad = (t0, t1, zA, zB, depth, pitch, hex, timber) => {
                 const k0 = Math.floor(zA / pitch), k1 = Math.ceil(zB / pitch);
                 if (k1 - k0 > 60) return;                   // absurd height, draw nothing
-                for (let k = k0; k < k1; k++) {
-                  const a = Math.max(zA, k * pitch), b = Math.min(zB, (k + 1) * pitch);
+                const stride = timber ? cladStride : 1;
+                for (let k = k0; k < k1; k += stride) {
+                  const a = Math.max(zA, k * pitch), b = Math.min(zB, (k + stride) * pitch);
                   if (b - a < 2) continue;
                   const tone = timber ? boardTone(k, hex) : (hex || shade(sideHex, 0.12));
                   if (!timber) {
                     pane(t0, t1, a, b, depth, tone,
                          { raw: true, edgeHex: shade(sideHex, -0.22) });
+                    continue;
+                  }
+                  const uroven = cladLevel;
+                  if (uroven === 0) {
+                    pane(t0, t1, a, b, depth, tone,
+                         { raw: true, edgeHex: shade(tone, -0.42) });
                     continue;
                   }
                   /* Rhombus larch is not a flat striped wallpaper. A recessed
@@ -1984,6 +2022,11 @@
                   const faceB = b - Math.min(3, gap * 0.28);
                   pane(t0, t1, a, b, depth, shade(tone, -0.50),
                        { raw: true, edgeHex: shade(LARCH, -0.48) });
+                  if (uroven === 1) {
+                    pane(t0, t1, a + gap, faceB, depth, tone,
+                         { raw: true, edgeHex: shade(tone, -0.22), bias: ON_SKIN });
+                    continue;
+                  }
                   pane(t0, t1, a + gap * 0.34, faceA, depth, shade(tone, -0.18),
                        { raw: true, edge: false, bias: ON_SKIN });
                   pane(t0, t1, faceA, faceB, depth, tone,
@@ -2031,7 +2074,7 @@
                      bočnej stene sa v axonometrii premietali ako šikmé linky
                      a pôsobili ako vzor na látke. Ostáva rovná priesvitná
                      plocha, cez ktorú presvitá konštrukcia za ňou. */
-                  pane(gt, 1 - gt, barZ + barH, zTop, back, 'rgba(58,62,66,.78)', { raw: true });
+                  pane(gt, 1 - gt, barZ + barH, zTop, back, 'rgba(58,62,66,.78)', { raw: true, edge: true, arris: false });
                 }
                 memb(gt, 1 - gt, barZ, barZ + barH, back - 14, back + 16, shade(sideHex, -0.42), endsX, SHAFT);
               } else if (leaves) {
@@ -2059,7 +2102,7 @@
                   for (let i = 0; i < leaves; i++) {
                     const pA = dAt(i), pB = dAt(i + 1);
                     foldPane(tAt(i), tAt(i + 1), zA + fr, zB - fr, pA, pB,
-                             'rgba(181,205,214,.42)', { raw: true });
+                             'rgba(181,205,214,.42)', { raw: true, edge: true, arris: false });
                   }
                   // the hinge stiles, each square to the opening at its own depth
                   for (let j = 0; j <= leaves; j++) {
@@ -2080,13 +2123,25 @@
                    it started and only the depth offset below moved, which is why
                    the panels appeared to shuffle in place and never opened. */
                 const parked = gt + (1 - 2 * gt) - w;
+                /* Odsunuté krídla parkovali presne na sebe, takže osem krídel
+                   splynulo do jedného panela — na obrazovke to vyzeralo, že
+                   sedem z nich zmizlo, a pri veľkých rozmeroch to pôsobilo ako
+                   chyba výroby. Skutočný odsuvný systém ich odstaví jedno za
+                   druhým s presahom, takže z čela vidno hrebeň zvislíc a dá sa
+                   spočítať, koľko ich je. Presah držíme tak, aby sa celý balík
+                   zmestil do poľa aj pri dvoch krídlach aj pri desiatich. */
+                const fanRoom = Math.max(0, (1 - 2 * gt) - w) / Math.max(1, leaves - 1);
+                const fan = Math.min(fr * 1.8, fanRoom * 0.42);
                 /* Odsunuté krídla stoja na sebe. Kreslíme ich od najvzdialenejšieho
                    k najbližšiemu, aby predné krídlo zakrylo tie za sebou — inak
                    bolo vidno hranu panela, ktorý má byť schovaný. Poloha krídla
                    sa nemení, mení sa len poradie kreslenia. */
                 for (let i = leaves - 1; i >= 0; i--) {
                   const home = gt + w * i;
-                  const t0 = home + (parked - home) * open, t1 = t0 + w;
+                  /* Krídlo, ktoré ide najďalej, končí navrchu balíka; posledné
+                     stojí na svojom mieste a nehýbe sa. */
+                  const rest = parked - (leaves - 1 - i) * fan;
+                  const t0 = home + (rest - home) * open, t1 = t0 + w;
                   /* Each leaf has its own track, but shut they close into one
                      plane - stepping them in depth at rest doubled every stile
                      against its neighbour, so the wall read as a run of bars of
@@ -2107,7 +2162,7 @@
                   memb(t0, t1, zB - fr * 0.9, zB, p0, p1, shade(sideHex, 0.04), endsX, SHAFT);
                   const mid = (p0 + p1) / 2;
                   if (glazed) {
-                    pane(t0 + fr, t1 - fr, zA + fr, zB - fr, mid, 'rgba(181,205,214,.42)', { raw: true });
+                    pane(t0 + fr, t1 - fr, zA + fr, zB - fr, mid, 'rgba(181,205,214,.42)', { raw: true, edge: true, arris: false });
                   } else if (kind === 'h50l') {
                     boards(t0 + fr, t1 - fr, zA + fr, zB - fr, mid);
                   } else {
@@ -2330,6 +2385,50 @@
           layer = fromAbove ? ROOF_LAYER : -ROOF_LAYER;
           const roofBase = layer;
           const nearSide = (n) => { layer = roofBase + (facing(n) > 0 ? UNDER_SIDE : -UNDER_SIDE); };
+
+          /* Obvodové profily sú v skutočnosti rezané na pokos, nie na zraz.
+             Dva zrazené hranoly sa v rohu prekrývajú po celej dĺžke styku a ich
+             koplanárne horné plochy sa musia navzájom zoradiť — a práve tam
+             presvital vlas pozadia, takže to vyzeralo, že profil zmizol. Štyri
+             lichobežníky vyplnia prstenec presne: niet čo zoraďovať a niet kade
+             presvitať, a horná hrana ide jedným ťahom od rohu k rohu. */
+          const mitreRing = (x0, y0, x1, y1, z, t, d, hex, zAt) => {
+            const ix0 = x0 + t, iy0 = y0 + t, ix1 = x1 - t, iy1 = y1 - t;
+            if (ix1 <= ix0 || iy1 <= iy0) {          // profil vypĺňa celú plochu
+              boxFaces(x0, y0, z, x1 - x0, y1 - y0, d, hex, [], SHAFT);
+              return;
+            }
+            /* Modely s priznaným spádom majú hornú rovinu šikmú, takže výška
+               nie je číslo, ale funkcia polohy pozdĺž dĺžky. */
+            const T = zAt || (() => z + d);
+            const B = (x) => T(x) - d;
+            const cap = (pts, n) => quad(pts, hex, { normal: n, cull: true });
+            const web = (pts, n) => quad(pts, hex, { normal: n, cull: true, arris: false });
+            // predný profil, y od y0 po iy0
+            nearSide([0, -1, 0]);
+            cap([[x0,y0,T(x0)],[x1,y0,T(x1)],[ix1,iy0,T(ix1)],[ix0,iy0,T(ix0)]], [0,0,1]);
+            cap([[x0,y0,B(x0)],[ix0,iy0,B(ix0)],[ix1,iy0,B(ix1)],[x1,y0,B(x1)]], [0,0,-1]);
+            web([[x0,y0,B(x0)],[x1,y0,B(x1)],[x1,y0,T(x1)],[x0,y0,T(x0)]], [0,-1,0]);
+            web([[ix0,iy0,B(ix0)],[ix0,iy0,T(ix0)],[ix1,iy0,T(ix1)],[ix1,iy0,B(ix1)]], [0,1,0]);
+            // zadný profil, y od iy1 po y1
+            nearSide([0, 1, 0]);
+            cap([[x0,y1,T(x0)],[ix0,iy1,T(ix0)],[ix1,iy1,T(ix1)],[x1,y1,T(x1)]], [0,0,1]);
+            cap([[x0,y1,B(x0)],[x1,y1,B(x1)],[ix1,iy1,B(ix1)],[ix0,iy1,B(ix0)]], [0,0,-1]);
+            web([[x0,y1,B(x0)],[x0,y1,T(x0)],[x1,y1,T(x1)],[x1,y1,B(x1)]], [0,1,0]);
+            web([[ix0,iy1,B(ix0)],[ix1,iy1,B(ix1)],[ix1,iy1,T(ix1)],[ix0,iy1,T(ix0)]], [0,-1,0]);
+            // ľavý profil, x od x0 po ix0
+            nearSide([-1, 0, 0]);
+            cap([[x0,y0,T(x0)],[ix0,iy0,T(ix0)],[ix0,iy1,T(ix0)],[x0,y1,T(x0)]], [0,0,1]);
+            cap([[x0,y0,B(x0)],[x0,y1,B(x0)],[ix0,iy1,B(ix0)],[ix0,iy0,B(ix0)]], [0,0,-1]);
+            web([[x0,y0,B(x0)],[x0,y0,T(x0)],[x0,y1,T(x0)],[x0,y1,B(x0)]], [-1,0,0]);
+            web([[ix0,iy0,B(ix0)],[ix0,iy1,B(ix0)],[ix0,iy1,T(ix0)],[ix0,iy0,T(ix0)]], [1,0,0]);
+            // pravý profil, x od ix1 po x1
+            nearSide([1, 0, 0]);
+            cap([[x1,y0,T(x1)],[x1,y1,T(x1)],[ix1,iy1,T(ix1)],[ix1,iy0,T(ix1)]], [0,0,1]);
+            cap([[x1,y0,B(x1)],[ix1,iy0,B(ix1)],[ix1,iy1,B(ix1)],[x1,y1,B(x1)]], [0,0,-1]);
+            web([[x1,y0,B(x1)],[x1,y1,B(x1)],[x1,y1,T(x1)],[x1,y0,T(x1)]], [1,0,0]);
+            web([[ix1,iy0,B(ix1)],[ix1,iy0,T(ix1)],[ix1,iy1,T(ix1)],[ix1,iy1,B(ix1)]], [-1,0,0]);
+          };
           if (panelRoof) {
             const x0 = 0, x1 = L, y0 = 0, y1 = W;
             const fw = post;                           // frame 170/120 on a 120 post: flush
@@ -2376,24 +2475,11 @@
 
             if (integratedFall) {
               /* All four F rails share the same top and bottom datum. */
-              nearSide([0, -1, 0]);
-              boxFaces(x0, y0, bz, L, fw, beam, frame, [], SHAFT);
-              nearSide([0, 1, 0]);
-              boxFaces(x0, y1 - fw, bz, L, fw, beam, frame, [], SHAFT);
-              nearSide([-1, 0, 0]);
-              boxFaces(x0, inY0, bz, fw, inY1 - inY0, beam, frame, ['-y', '+y'], SHAFT);
-              nearSide([1, 0, 0]);
-              boxFaces(x1 - fw, inY0, bz, fw, inY1 - inY0, beam, frame, ['-y', '+y'], SHAFT);
+              mitreRing(x0, y0, x1, y1, bz, fw, beam, frame);
             } else {
-              // Visible-slope systems keep their established structural geometry.
-              nearSide([0, -1, 0]);
-              prismX(x0, x1, y0, y0 + fw, zRim(x0), zRim(x1), beam, frame, [], SHAFT);
-              nearSide([0, 1, 0]);
-              prismX(x0, x1, y1 - fw, y1, zRim(x0), zRim(x1), beam, frame, [], SHAFT);
-              nearSide([-1, 0, 0]);
-              boxFaces(x0, inY0, zRim(x0) - beam, fw, inY1 - inY0, beam, frame, ['-y', '+y'], SHAFT);
-              nearSide([1, 0, 0]);
-              boxFaces(x1 - fw, inY0, zRim(x1) - beam, fw, inY1 - inY0, beam, frame, ['-y', '+y'], SHAFT);
+              /* Priznaný spád: horná rovina rámu klesá pozdĺž dĺžky, ale rohy
+                 sú rezané na pokos rovnako ako na vodorovnom ráme. */
+              mitreRing(x0, y0, x1, y1, zRim(x1) - beam, fw, beam, frame, zRim);
             }
             layer = roofBase;
 
@@ -2524,28 +2610,24 @@
 
             if (!fromAbove) {
               const rib = 'rgba(120,126,118,.30)';
-              const RIB_BUDGET = 150;
-              const perBay = Math.max(0, Math.min(5, Math.floor(RIB_BUDGET / Math.max(1, panelCuts.length))));
-              for (let i = 0; i < panelCuts.length; i++) {
-                const a = panelCuts[i][0] + rw * 0.30, b = panelCuts[i][1] - rw * 0.30;
-                if (b - a < 40) continue;
-                for (let k = 1; k <= perBay; k++) {
-                  const x = a + ((b - a) / (perBay + 1)) * k;
-                  quad([[x - 4,inY1 - 45,panelBottomZ(x - 4,inY1 - 45)], [x + 4,inY1 - 45,panelBottomZ(x + 4,inY1 - 45)],
-                        [x + 4,inY0 + 45,panelBottomZ(x + 4,inY0 + 45)], [x - 4,inY0 + 45,panelBottomZ(x - 4,inY0 + 45)]], rib,
-                       { bias: ON_SKIN, edge: false, raw: true });
-                }
+              /* Rebrá podhľadu bežia po celej doske v stálom rastri. Kreslili
+                 sa po poliach a rozdelené na rovnaké diely, takže rozostup
+                 vnútri poľa bol iný ako cez spoj a na dvoch miestach zrazu
+                 vznikla širšia medzera — vyzeralo to ako chyba, nie ako profil.
+                 Teraz je raster jeden na celú dosku a rebro, ktoré by padlo na
+                 nosník, sa jednoducho vynechá. */
+              const RIB_BUDGET = 110;
+              const run = inX1 - inX0;
+              const pitchRib = Math.max(run / RIB_BUDGET, 250);
+              for (let x = inX0 + pitchRib * 0.5; x < inX1 - 20; x += pitchRib) {
+                if (beamRuns.some((r) => x > r.a - rw * 0.6 && x < r.b + rw * 0.6)) continue;
+                quad([[x - 4,inY1 - 45,panelBottomZ(x - 4,inY1 - 45)], [x + 4,inY1 - 45,panelBottomZ(x + 4,inY1 - 45)],
+                      [x + 4,inY0 + 45,panelBottomZ(x + 4,inY0 + 45)], [x - 4,inY0 + 45,panelBottomZ(x - 4,inY0 + 45)]], rib,
+                     { bias: ON_SKIN, edge: false, raw: true });
               }
             }
           } else {
-            nearSide([0, -1, 0]);
-            boxFaces(0, 0, bz, L, post, beam, frame, [], SHAFT);
-            nearSide([0, 1, 0]);
-            boxFaces(0, W - post, bz, L, post, beam, frame, [], SHAFT);
-            nearSide([-1, 0, 0]);
-            boxFaces(0, post, bz, post, W - 2 * post, beam, frame, ['-y', '+y'], SHAFT);
-            nearSide([1, 0, 0]);
-            boxFaces(L - post, post, bz, post, W - 2 * post, beam, frame, ['-y', '+y'], SHAFT);
+            mitreRing(0, 0, L, W, bz, post, beam, frame);
             layer = roofBase;
 
             /* LED recessed in the frame, seen when you look up at the pergola */
@@ -3099,15 +3181,15 @@
           }
         };
 
-        const syncLouver = () => {
+        const syncLouverReadout = () => {
           cfgRoot.querySelectorAll('[data-sp-louver]').forEach((b) => b.setAttribute('aria-pressed', String(Math.abs(Number(b.dataset.spLouver) - state.louverT) < 0.02)));
           const r = cfgRoot.querySelector('[data-sp-louver-range]');
           if (r && document.activeElement !== r) r.value = String(Math.round(state.louverT * 100));
           const pct = cfgRoot.querySelector('[data-sp-louver-pct]');
           if (pct) pct.textContent = state.louverT < 0.02 ? 'zatvorené'
             : state.louverT > 0.98 ? 'otvorené' : Math.round(state.louverT * 100) + ' %';
-          syncSideMove();
         };
+        const syncLouver = () => { syncLouverReadout(); syncSideMove(); };
 
         /* the same three readouts for whichever side is being worked on */
         const syncSideMove = () => {
@@ -3118,6 +3200,23 @@
           if (r && document.activeElement !== r) r.value = String(Math.round(v * 100));
           const pct = host.querySelector('[data-sp-side-pct]');
           if (pct) pct.textContent = v < 0.02 ? 'zatvorené' : v > 0.98 ? 'odsunuté' : Math.round(v * 100) + ' %';
+        };
+
+        /* Ťahanie posuvníka volalo `renderAll()`, čo znovu poskladá celý
+           bočný panel — dlaždice, farby, doplnky, ceny — a až potom kresbu.
+           Pri veľkej pergole to na jeden ťah prstom neprejde v jednom snímku
+           a posuvník sekal, alebo sa zdalo, že vôbec nereaguje. Od polohy
+           krídel ani lamiel nezávisí žiadna cena, takže počas ťahania stačí
+           prekresliť scénu a dopísať percentá. */
+        let stagePending = 0;
+        const scheduleStage = () => {
+          if (stagePending) return;
+          stagePending = window.requestAnimationFrame(() => {
+            stagePending = 0;
+            drawStage();
+            syncSideMove();
+            syncLouverReadout();
+          });
         };
 
         let louverRun = 0;
@@ -3460,8 +3559,8 @@
         });
         cfgRoot.addEventListener('input', (event) => {
           const t = event.target;
-          if (t.hasAttribute('data-sp-louver-range')) { runMover('louver', Number(t.value) / 100, true); return; }
-          if (t.hasAttribute('data-sp-side-range')) { runMover('side', Number(t.value) / 100, true); return; }
+          if (t.hasAttribute('data-sp-louver-range')) { MOVER.louver.set(Number(t.value) / 100); scheduleStage(); return; }
+          if (t.hasAttribute('data-sp-side-range')) { MOVER.side.set(Number(t.value) / 100); scheduleStage(); return; }
           if (t.hasAttribute('data-sp-w')) state.widthValue = Number(t.value);
           else if (t.hasAttribute('data-sp-l')) state.lengthValue = Number(t.value);
           else if (t.hasAttribute('data-sp-h')) state.height = Number(t.value);

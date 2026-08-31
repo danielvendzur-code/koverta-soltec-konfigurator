@@ -372,8 +372,7 @@ body { background: var(--k-white); color: var(--k-ink); }
 }
 #SoltecPremium .sp-chip[aria-pressed="true"] strong,
 #SoltecPremium .sp-modelgrid button[aria-pressed="true"] strong { color: var(--k-ink); }
-#SoltecPremium .sp-chip[aria-pressed="true"] span,
-#SoltecPremium .sp-modelgrid button[aria-pressed="true"] small { color: var(--k-amber-deep); }
+#SoltecPremium .sp-chip[aria-pressed="true"] span { color: var(--k-amber-deep); }
 #SoltecPremium .sp-chip strong,
 #SoltecPremium .sp-modelgrid strong { font-weight: 700; letter-spacing: -.015em; }
 
@@ -460,14 +459,28 @@ body { background: var(--k-white); color: var(--k-ink); }
    ako spustiť, lebo `state.car` zostáva prázdny. */
 
 /* --- Popisky dlaždíc netreba kričať ------------------------------------
-   „TYP 0" bolo verzálkami a tučné rovnako ako názov, takže na dlaždici
-   kričali dva riadky naraz. Kód typu je teraz tichý nadpis nad názvom. */
+   „TYP 0" je kód a znesie verzálkový nádych. Veta pod názvom modelu je
+   veta — dostala však to isté tučné písmo, široké prestrkanie aj jantárovú
+   farbu ako kód, takže vyzerala ako výstraha, nie ako popis. A obe spadli
+   do Arialu, lebo `small` ani `b` si rodinu nezdedili. */
 #SoltecPremium .sp-tile span b,
-#SoltecPremium .sp-modelgrid small {
+#SoltecPremium .sp-tile small,
+#SoltecPremium .sp-modelgrid small,
+#SoltecPremium .sp-sideopt em,
+#SoltecPremium .sp-add__t small,
+#SoltecPremium .sp-xrow__t small { font-family: inherit; font-style: normal; }
+#SoltecPremium .sp-tile span b {
   font-weight: 600;
   letter-spacing: .12em;
   color: var(--k-grey);
   opacity: .85;
+}
+#SoltecPremium .sp-modelgrid small {
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.45;
+  color: var(--k-grey);
+  opacity: 1;
 }
 #SoltecPremium .sp-tile[aria-pressed="true"] span b { color: var(--k-amber-deep); opacity: 1; }
 
@@ -679,4 +692,39 @@ body { background: var(--k-white); color: var(--k-ink); }
 /* --- Nízke okno: telefón naležato ------------------------------------- */
 @media (max-height: 560px) {
   #SoltecPremium .sp-stage__bar { gap: .6rem; padding-top: .8rem; padding-bottom: .8rem; }
+}
+
+/* --- Ovládacie prvky dedia písmo ---------------------------------------
+   Prehliadač nedáva tlačidlám, poliam ani výberom rodinu písma zo stránky —
+   nastaví si systémovú. Nadpisy v dlaždiciach mali rodinu predpísanú, takže
+   sedeli, ale popis pod nimi ju dedil z tlačidla a spadol do Arialu. */
+#SoltecPremium button,
+#SoltecPremium input,
+#SoltecPremium select,
+#SoltecPremium textarea,
+#SoltecPremium output { font-family: inherit; }
+
+/* --- Popis vybratého modelu musí byť čitateľný -------------------------
+   Základný štýl počíta s tmavou vybratou dlaždicou a dáva popisu bielu.
+   Naša vybratá dlaždica je krémová, takže na nej biela zmizla. */
+#SoltecPremium .sp-modelgrid button[aria-pressed="true"] small { color: var(--k-grey); }
+
+/* --- Hlavička konfigurátora nesmie zjesť polovicu obrazovky -------------
+   Na 1600 × 900 začínala vizualizácia až na 448. px, teda pod polovicou
+   výšky okna — a to je jediné, čo na tejto stránke niekto hľadá. Odsadenia
+   sú tesnejšie a výzva na celú obrazovku sa presunula do riadku s
+   prepínačom Konfigurátor / Kalkulácia namiesto vlastného pásu. */
+.kv-tabrow {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 1.2rem 1.6rem; margin-bottom: 1.4rem;
+}
+.kv-tabrow #SoltecPremium .sp-cfg__tabs,
+.kv-tabrow > [role="tablist"] { margin-bottom: 0; }
+.kv-tabrow > .kv-fs { flex: 1 1 26rem; margin: 0; }
+
+@media (min-width: 990px) {
+  #SoltecPremium .sp-cfg { padding-top: 2.8rem; }
+  #SoltecPremium .sp-cfg__head { margin-bottom: 1.8rem; }
+  #SoltecPremium .sp-cfg__head .sp-copy { margin-top: .8rem; }
+  #SoltecPremium .sp-cfg__tabs { margin-bottom: 1.2rem; }
 }

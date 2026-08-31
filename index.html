@@ -5033,7 +5033,7 @@ details-disclosure > details {
      deployed without regenerating the large embedded price catalogue. -->
 <link rel="stylesheet" href="./soltec-premium.css?v=20260828-4">
 <!-- Vzhľad zhodný s webom. Iba kozmetika — logika a cenník ostávajú v súbore vyššie. -->
-<link rel="stylesheet" href="./koverta-cfg-skin.css?v=20260831-19">
+<link rel="stylesheet" href="./koverta-cfg-skin.css?v=20260831-22">
 
 <div class="kv-topbar">
   <div class="page-width kv-topbar__in">
@@ -5113,7 +5113,7 @@ details-disclosure > details {
 
 <!-- Soltec runtime: single authoritative external build. -->
 
-<script charset="utf-8" src="./soltec-premium.js?v=20260831-13"></script>
+<script charset="utf-8" src="./soltec-premium.js?v=20260831-21"></script>
 
 <!-- Doplnky ku konfigurátoru: zadanie rozmeru číslom, fullscreen bez scrollovania.
      Nadstavba nad runtime, nič v ňom neprepisuje. -->
@@ -5131,6 +5131,17 @@ details-disclosure > details {
   try { zavrete = localStorage.getItem(KEY) === '1'; } catch (e) {}
   if (!tesno || zavrete || !document.documentElement.requestFullscreen) return;
 
+  /* Výzva stála vo vlastnom páse nad konfigurátorom a brala 58 px práve tam,
+     kde má byť vidieť vizualizáciu. Patrí vedľa prepínača Konfigurátor /
+     Kalkulácia — je to o tom istom a riadok je tam aj tak poloprázdny. */
+  var tabs = document.querySelector('.sp-cfg__tabs');
+  if (tabs && tabs.parentNode) {
+    var riadok = document.createElement('div');
+    riadok.className = 'kv-tabrow';
+    tabs.parentNode.insertBefore(riadok, tabs);
+    riadok.appendChild(tabs);
+    riadok.appendChild(bar);
+  }
   bar.hidden = false;
   bar.querySelector('[data-kv-fs-go]').addEventListener('click', function () {
     var el = document.documentElement;
