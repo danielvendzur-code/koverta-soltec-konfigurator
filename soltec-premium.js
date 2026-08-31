@@ -673,15 +673,18 @@
            customer link without maintaining two configurators. */
         const normalizeLegacySteps = () => {
           const rail = cfgRoot.querySelector('.sp-rail');
-          if (!rail || rail.querySelectorAll('[data-sp-goto]').length <= 5) return;
+          if (!rail || rail.querySelectorAll('[data-sp-goto]').length === 6) return;
           rail.innerHTML = [
             ['1', 'Riešenie', 'Riešenie'],
             ['2', 'Rozmer', 'Rozmer'],
             ['3', 'Strecha a farby', 'Strecha'],
-            ['4', 'Boky a doplnky', 'Doplnky'],
-            ['5', 'Súhrn', 'Súhrn']
+            ['4', 'Boky', 'Boky'],
+            ['5', 'Doplnky', 'Doplnky'],
+            ['6', 'Súhrn', 'Súhrn']
           ].map(([n, title, label], i) => `<button type="button" data-sp-goto="${n}" aria-current="${i === 0}" title="${title}"><i>${n}</i><span>${label}</span></button>`).join('');
-          const stepMap = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 3, 6: 4, 7: 5 };
+          /* Doplnky mali vlastný panel (6), ale delili krok s výberom bokov —
+             boli až pod celým zoznamom výplní. Dostávajú vlastný krok. */
+          const stepMap = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 3, 6: 5, 7: 6 };
           cfgRoot.querySelectorAll('.sp-step[data-sp-stepno]').forEach((panel) => {
             const oldStep = Number(panel.dataset.spStepno);
             const nextStep = stepMap[oldStep];
@@ -836,7 +839,7 @@
            is a hand-written SVG projection with no scene, no meshes and nothing
            to dispose. The tables were the valuable half and they check out to
            the millimetre against each car's own overall dimensions. */
-        const CARS = {"octavia":{"name":"Škoda Octavia Combi IV","length":4689,"width":1829,"height":1468,"wheel":660,"fa":900,"ra":3586,"hex":"#0f5b38","s":[[0,670,610,200,0],[0.035,770,710,180,0],[0.08,830,780,160,0],[0.14,880,840,150,0],[0.192,915,890,280,0],[0.27,905,960,150,0],[0.34,840,1210,150,1],[0.41,770,1440,150,1],[0.5,760,1468,150,1],[0.62,760,1460,150,1],[0.72,770,1445,150,1],[0.765,915,1435,280,1],[0.84,860,1410,150,1],[0.9,840,1220,170,1],[0.95,870,990,220,0],[0.985,810,840,290,0],[1,690,720,340,0]]},"mustang":{"name":"Ford Mustang Shelby GT500","length":4780,"width":1950,"height":1380,"wheel":680,"fa":950,"ra":3670,"hex":"#1144aa","s":[[0,740,540,130,0],[0.04,840,660,120,0],[0.09,910,750,115,0],[0.16,950,820,115,0],[0.199,975,860,280,0],[0.31,940,930,120,0],[0.37,880,1120,120,1],[0.44,790,1360,120,1],[0.52,770,1380,120,1],[0.62,780,1330,120,1],[0.72,830,1180,120,1],[0.768,975,1060,280,0],[0.85,950,1020,130,0],[0.92,920,1090,200,0],[0.965,890,920,260,0],[1,780,760,310,0]]},"caddy":{"name":"Volkswagen Caddy 5","length":4500,"width":1855,"height":1798,"wheel":650,"fa":870,"ra":3625,"hex":"#b0b7bd","s":[[0,700,670,220,0],[0.045,810,790,190,0],[0.09,870,870,170,0],[0.15,910,980,160,0],[0.193,928,1040,290,0],[0.245,910,1110,160,0],[0.31,870,1450,160,1],[0.38,830,1760,160,1],[0.48,820,1798,160,1],[0.6,820,1795,160,1],[0.72,820,1790,160,1],[0.806,928,1785,290,1],[0.89,840,1775,160,1],[0.945,850,1480,210,1],[0.98,840,1020,280,0],[1,760,790,350,0]]}};
+        const CARS = {"octavia":{"name":"Škoda Octavia Combi IV","length":4689,"width":1829,"height":1468,"wheel":660,"fa":900,"ra":3586,"hex":"#3d4750","s":[[0,670,610,200,0],[0.035,770,710,180,0],[0.08,830,780,160,0],[0.14,880,840,150,0],[0.192,915,890,280,0],[0.27,905,960,150,0],[0.34,840,1210,150,1],[0.41,770,1440,150,1],[0.5,760,1468,150,1],[0.62,760,1460,150,1],[0.72,770,1445,150,1],[0.765,915,1435,280,1],[0.84,860,1410,150,1],[0.9,840,1220,170,1],[0.95,870,990,220,0],[0.985,810,840,290,0],[1,690,720,340,0]]},"mustang":{"name":"Ford Mustang Shelby GT500","length":4780,"width":1950,"height":1380,"wheel":680,"fa":950,"ra":3670,"hex":"#6e2229","s":[[0,740,540,130,0],[0.04,840,660,120,0],[0.09,910,750,115,0],[0.16,950,820,115,0],[0.199,975,860,280,0],[0.31,940,930,120,0],[0.37,880,1120,120,1],[0.44,790,1360,120,1],[0.52,770,1380,120,1],[0.62,780,1330,120,1],[0.72,830,1180,120,1],[0.768,975,1060,280,0],[0.85,950,1020,130,0],[0.92,920,1090,200,0],[0.965,890,920,260,0],[1,780,760,310,0]]},"caddy":{"name":"Volkswagen Caddy 5","length":4500,"width":1855,"height":1798,"wheel":650,"fa":870,"ra":3625,"hex":"#b0b7bd","s":[[0,700,670,220,0],[0.045,810,790,190,0],[0.09,870,870,170,0],[0.15,910,980,160,0],[0.193,928,1040,290,0],[0.245,910,1110,160,0],[0.31,870,1450,160,1],[0.38,830,1760,160,1],[0.48,820,1798,160,1],[0.6,820,1795,160,1],[0.72,820,1790,160,1],[0.806,928,1785,290,1],[0.89,840,1775,160,1],[0.945,850,1480,210,1],[0.98,840,1020,280,0],[1,760,790,350,0]]}};
         const CAR_ORDER = ['octavia', 'mustang', 'caddy'];
         /* A bay is 2,5 m; the count follows the width, up to three abreast. */
         const carCount = () => Math.max(1, Math.min(3, Math.floor(widthMM() / 2500)));
@@ -844,9 +847,18 @@
            and no car is shorter than 4,5 m. Offering one there would draw a
            car sticking half out of the roof, so the choice only appears where
            the structure can actually take one. */
+        /* Zadný box zaberá koniec prístrešku, takže auto má na státie len to,
+           čo zostane za ním. Bez tohto sa 4,7 m dlhé auto vykreslilo do
+           prístrešku s 2,7 m boxom a prešlo cez jeho stenu. */
+        const boxDepthMM = () => {
+          if (!state.box || !state.box.on) return 0;
+          const bp = boxPrice();
+          return bp ? Math.min(bp.d, lengthMM()) : 0;
+        };
+        const clearLengthMM = () => lengthMM() - boxDepthMM();
         const carFits = (key) => {
           const c = CARS[key];
-          return Boolean(c) && lengthMM() >= c.length + 240 && widthMM() >= 2300;
+          return Boolean(c) && clearLengthMM() >= c.length + 240 && widthMM() >= 2300;
         };
         const anyCarFits = () => CAR_ORDER.some(carFits);
         const loadList = () => model().loads || model().gridLoads || null;
@@ -1240,6 +1252,13 @@
            A yaw/pitch camera with an orthographic projection. Every part is built
            as 3D quads, then painted far-to-near, so the model stays correct from
            any angle - including from underneath, where the roof soffit shows. */
+        /* Otváracia výška oka nie je jedna pre všetko. Plná strecha vyzerá
+           lepšie z výšky očí — stĺpy zostanú vysoké a stavba vyzerá ako stavba,
+           nie ako stolík. Lamelová strecha z tej istej výšky splynie do jednej
+           čiernej plochy, lebo lamely sa prekryjú, takže tá potrebuje vyššie oko. */
+        const FRONT_EL = () => (model().roof === 'panel' ? 0.26 : 0.42);
+        let viewTouched = false;
+        let lastRoofKind = null;
         const view = { az: -0.62, el: 0.42 };
         const VIEWS = {
           front:  { az: -0.62, el: 0.42 },   // the opening three-quarter view
@@ -1260,6 +1279,11 @@
           const beam = String(state.model).indexOf('240') > -1 ? 240 : 170;
           const walls = placementWalls();
           const panelRoof = model().roof === 'panel';
+          /* Kým divák sám neotočil model, drž otváraciu výšku podľa strechy —
+             aj keď sa typ strechy zmení výberom iného modelu. */
+          const roofKind = panelRoof ? 'panel' : 'louver';
+          if (!viewTouched && roofKind !== lastRoofKind) view.el = FRONT_EL();
+          lastRoofKind = roofKind;
           const meshPatternId = `sp-mesh-${String(state.model).replace(/[^a-z0-9]/gi, '-').toLowerCase()}`;
           /* The catalogue prices the box panels in the same palette as the
              frame but as a separate item, so the store can be picked out or
@@ -1368,14 +1392,28 @@
           const ON_SKIN = 5e4;      // joints and ribbing, just on top of the skin
 
           const faces = [];
+          /* Vzdušná perspektíva. Dva rovnaké stĺpy, jeden o päť metrov ďalej,
+             vychádzali presne rovnakým tónom — a práve to robí z vykreslenia
+             výkres. Skutočný vzduch dá medzi oko a všetko vzdialenejšie kúsok
+             pozadia. Držané nízko: je to hĺbka, nie hmla. */
+          const HAZE_R = Math.max(L, W, H) * 0.62;
+          const HAZE_I = 0.11;
+          const HAZE_TO = [246, 245, 243];
+          const haze = (c, d) => {
+            const t = Math.max(0, Math.min(1, -d / HAZE_R)) * HAZE_I;
+            if (t < 0.002) return c;
+            const v = toRGB(c);
+            const s = v.slice(0, 3).map((x, i) => Math.round(x + (HAZE_TO[i] - x) * t)).join(',');
+            return v[3] == null ? 'rgb(' + s + ')' : 'rgba(' + s + ',' + v[3] + ')';
+          };
           const quad = (pts, fill, opts) => {
             const o = opts || {};
             const normal = o.normal || faceNormal(pts);
             if (o.cull && facing(normal) <= 0) return;
             const pp = pts.map((v) => cam(v[0], v[1], v[2]));
-            const lit = o.raw ? fill : litFill(fill, normal);
             const depths = pp.map((point) => point.d);
             const depthAvg = depths.reduce((sum, value) => sum + value, 0) / depths.length;
+            const lit = o.raw ? fill : haze(litFill(fill, normal), depthAvg);
             faces.push({
               w: pts.map((point) => point.slice()),
               p: pp,
@@ -1727,24 +1765,49 @@
                 [cy - hw * 0.80, zb]          // closed, so there is a floor under it
               ];
             };
+            /* Jedenásť rovných úsekov robilo z karosérie skladaný papier —
+               rameno medzi strechou a bokom bol ostrý zlom, ktorý chytal
+               svetlo ako plochý fasetový trojuholník. Jeden Chaikinov prechod
+               zaobli každý roh a zdvojnásobí počet úsekov; až tým sa z tvaru
+               stane karoséria. */
+            const RING_N = 11;
+            const smoothRing = (P) => {
+              const out = [];
+              for (let i = 0; i < RING_N; i++) {
+                const a = P[i], b = P[i + 1];
+                out.push([a[0] * 0.75 + b[0] * 0.25, a[1] * 0.75 + b[1] * 0.25]);
+                out.push([a[0] * 0.25 + b[0] * 0.75, a[1] * 0.25 + b[1] * 0.75]);
+              }
+              out.push(out[0].slice());
+              return out;
+            };
 
             const bay = W / n;
             for (let i = 0; i < n; i++) {
               const cy = bay * (i + 0.5);
-              const cx = L / 2 + (i - (n - 1) / 2) * 0;      // centred along the length
+              // stred voľnej časti, teda za boxom, nie stred celej dĺžky
+              const bdCar = boxDepthMM();
+              const cx = bdCar + (L - bdCar) / 2;
               const x0 = cx - car.length / 2;
               const X = (t) => x0 + car.length * t;
               const S = car.s;
-              const rings = S.map((sec) => ring(sec, cy));
+              const rings = S.map((sec) => smoothRing(ring(sec, cy)));
 
               for (let k = 0; k < S.length - 1; k++) {
                 const a = S[k], b = S[k + 1];
                 const ra = rings[k], rb = rings[k + 1];
                 const xa = X(a[0]), xb = X(b[0]);
                 const rake = Math.abs(b[2] - a[2]) > 120;
+                /* Sklo sedelo na pevných číslach úsekov. Po zaoblení sedí
+                   párny úsek na pôvodnom a nepárny je zrezaný roh medzi
+                   dvoma — ten je sklom len vtedy, keď sú sklom obidva,
+                   takže sklo nepretečie do laku. */
+                const isGlass = (j) => (a[4] && b[4] && (j === 2 || j === 7))
+                  || ((a[4] || b[4]) && rake && j >= 3 && j <= 6);
                 for (let j = 0; j < ra.length - 1; j++) {
-                  const glazed = (a[4] && b[4] && (j === 2 || j === 7))
-                    || ((a[4] || b[4]) && rake && j >= 3 && j <= 6);
+                  const glazed = j % 2 === 0
+                    ? isGlass(j / 2)
+                    : isGlass((j - 1) / 2) && isGlass((((j - 1) / 2) + 1) % RING_N);
                   quad([
                     [xa, ra[j][0], ra[j][1]], [xb, rb[j][0], rb[j][1]],
                     [xb, rb[j + 1][0], rb[j + 1][1]], [xa, ra[j + 1][0], ra[j + 1][1]]
@@ -1963,14 +2026,14 @@
                 const travel = zTop - barH;
                 const barZ = travel * open;
                 if (barZ < travel - 1) {
-                  pane(gt, 1 - gt, barZ + barH, zTop, back, 'rgba(74,78,82,.96)', { raw: true });
-                  const rows = Math.max(4, Math.round((zTop - barZ - barH) / 95));
-                  for (let i = 1; i < rows; i++) {
-                    const z = barZ + barH + ((zTop - barZ - barH) * i) / rows;
-                    pane(gt, 1 - gt, z, z + 4, back - 1, 'rgba(34,37,40,.20)', { raw: true, bias: ON_SKIN });
-                  }
+                  /* ZIP je jedna súvislá tkanina napnutá v bočných lištách.
+                     Vodorovné pásy každých ~95 mm tu nemajú čo hľadať — na
+                     bočnej stene sa v axonometrii premietali ako šikmé linky
+                     a pôsobili ako vzor na látke. Ostáva rovná priesvitná
+                     plocha, cez ktorú presvitá konštrukcia za ňou. */
+                  pane(gt, 1 - gt, barZ + barH, zTop, back, 'rgba(58,62,66,.78)', { raw: true });
                 }
-                memb(gt, 1 - gt, barZ, barZ + barH, back - 12, back + 14, shade(sideHex, -0.2), endsX, SHAFT);
+                memb(gt, 1 - gt, barZ, barZ + barH, back - 14, back + 16, shade(sideHex, -0.42), endsX, SHAFT);
               } else if (leaves) {
                 const glazed = kind === 'g1' || kind === 'g2';
                 const fr = Math.max(0.006, gt * 0.55);
@@ -2017,17 +2080,29 @@
                    it started and only the depth offset below moved, which is why
                    the panels appeared to shuffle in place and never opened. */
                 const parked = gt + (1 - 2 * gt) - w;
-                for (let i = 0; i < leaves; i++) {
+                /* Odsunuté krídla stoja na sebe. Kreslíme ich od najvzdialenejšieho
+                   k najbližšiemu, aby predné krídlo zakrylo tie za sebou — inak
+                   bolo vidno hranu panela, ktorý má byť schovaný. Poloha krídla
+                   sa nemení, mení sa len poradie kreslenia. */
+                for (let i = leaves - 1; i >= 0; i--) {
                   const home = gt + w * i;
                   const t0 = home + (parked - home) * open, t1 = t0 + w;
                   /* Each leaf has its own track, but shut they close into one
                      plane - stepping them in depth at rest doubled every stile
                      against its neighbour, so the wall read as a run of bars of
                      uneven thickness. The tracks separate as the leaves run. */
-                  const dOff = Math.round(i * frD * 0.85 * open);
+                  /* Skutočné kovanie ukladá krídla tesne za seba. 0,85 × hĺbka
+                     rámu ich rozťahovala do vejára a hrany trčali. */
+                  const dOff = Math.round(i * frD * 0.5 * open);
                   const p0 = back - frD + dOff, p1 = back + frD + dOff;
                   memb(t0, t0 + fr, zA, zB, p0, p1, shade(sideHex, 0.04), [], SHAFT);
-                  memb(t1 - fr, t1, zA, zB, p0, p1, shade(sideHex, 0.04), [], SHAFT);
+                  /* Zatvorené krídla sa dotýkajú, takže pravá zvislica jedného
+                     stojí tesne vedľa ľavej zvislice suseda a spolu vyzerajú ako
+                     jeden hrubý stĺpik. Kým sú zatvorené, kreslíme pravú zvislicu
+                     len na poslednom krídle; keď sa krídla rozídu, má ju každé. */
+                  if (open > 0.02 || i === leaves - 1) {
+                    memb(t1 - fr, t1, zA, zB, p0, p1, shade(sideHex, 0.04), [], SHAFT);
+                  }
                   memb(t0, t1, zA, zA + fr * 0.9, p0, p1, shade(sideHex, 0.04), endsX, SHAFT);
                   memb(t0, t1, zB - fr * 0.9, zB, p0, p1, shade(sideHex, 0.04), endsX, SHAFT);
                   const mid = (p0 + p1) / 2;
@@ -2379,6 +2454,27 @@
               quad([[a, inY1, panelBottomZ(a, inY1)], [b, inY1, panelBottomZ(b, inY1)],
                     [b, inY0, panelBottomZ(b, inY0)], [a, inY0, panelBottomZ(a, inY0)]], skinLow,
                    Object.assign({ cull: true, edgeHex: seamLow }, pane));
+              /* Odlesk oblohy. Skutočná panelová ani sklenená strecha nie je
+                 jeden plochý tón — zbiera oblohu, najsvetlejšia je pri hrane
+                 otočenej k slnku a smerom k divákovi zoslabne. Bez toho vyzerá
+                 paluba ako papier. Pruhy, lebo vykresľovač maľuje plné plochy;
+                 krok priehľadnosti je taký malý, že sa pásy nedajú rozoznať. */
+              if (fromAbove) {
+                const savedSheen = layer;
+                layer = roofBase + ON_SKIN;
+                const BANDS = 12;
+                for (let i = 0; i < BANDS; i++) {
+                  const ya = inY0 + ((inY1 - inY0) * i) / BANDS;
+                  const yb = inY0 + ((inY1 - inY0) * (i + 1)) / BANDS;
+                  const t = (i + 0.5) / BANDS;
+                  const al = (0.012 + 0.062 * t * t).toFixed(4);
+                  quad([[a, ya, panelTopZ(a, ya)], [b, ya, panelTopZ(b, ya)],
+                        [b, yb, panelTopZ(b, yb)], [a, yb, panelTopZ(a, yb)]],
+                       'rgba(255,255,255,' + al + ')',
+                       { normal: [0, 0, 1], raw: true, edge: false, fit: false });
+                }
+                layer = savedSheen;
+              }
               if (integratedFall) {
                 const edge = { cull: true, edge: false, bias: -20 };
                 quad([[a,inY0,panelTopZ(a,inY0)],[b,inY0,panelTopZ(b,inY0)],
@@ -2397,7 +2493,7 @@
                into it - a flat fill meeting a flat fill at a hard edge, which
                is exactly what makes a render look drawn. Four soft bands, one
                per rail, stacked so they fade away from the metal. */
-            if (!integratedFall && !fromAbove && !glass) {
+            if (!integratedFall && fromAbove && !glass) {
               const ao = Math.min(340, Math.max(120, beam * 1.1));
               const savedAO = layer;
               layer = roofBase + ON_SKIN;
@@ -2840,8 +2936,12 @@
           const html = [];
           let count = 0;
 
-          const row = (key, on, title, note, body, off) => {
-            if (on) count++;
+          /* Odznak hovorí, koľko doplnkov je vybratých. Skupina z cenníka sa
+             zapne už tým, že sa rozbalí, takže počítanie zapnutých spravilo
+             z prázdnej rozbalenej skupiny vybratý doplnok. Skupiny preto
+             posielajú v `picked`, čo naozaj prispieva. */
+          const row = (key, on, title, note, body, off, picked) => {
+            if (picked === undefined ? on : picked) count++;
             html.push(`<div class="sp-add${off ? ' is-off' : ''}"><div class="sp-add__head"><div class="sp-add__t">${title}<small>${note}</small></div>`
               + `<label class="sp-switch"><input type="checkbox" data-sp-add-on="${key}"${on ? ' checked' : ''}${off ? ' disabled' : ''}><span></span></label></div>`
               + `<div class="sp-add__body"${on ? '' : ' hidden'}>${on ? body() : ''}</div></div>`);
@@ -2925,7 +3025,7 @@
                   + `<output>${q}</output>`
                   + `<button type="button" data-sp-x="${it.id}" data-sp-xd="1" aria-label="Viac: ${it.label}">+</button>`
                   + '</div></div>';
-              }).join('') + '</div>');
+              }).join('') + '</div>', false, chosen.length > 0);
           }
 
           // everything else the catalogue prices, straight from the payload
@@ -2954,7 +3054,7 @@
                   + `<output>${q}</output>`
                   + `<button type="button" data-sp-x="${it.id}" data-sp-xd="1" aria-label="Viac: ${it.label}">+</button>`
                   + '</div></div>';
-              }).join('') + '</div>');
+              }).join('') + '</div>', false, chosen.length > 0);
           });
 
           // anchoring
@@ -3371,9 +3471,9 @@
           scheduleRender();
         });
 
-        const STEPS = 5;
+        const STEPS = 6;
         let step = 1;
-        const STEP_NAMES = ['Riešenie', 'Rozmer', 'Strecha a farby', 'Boky a doplnky', 'Súhrn'];
+        const STEP_NAMES = ['Riešenie', 'Rozmer', 'Strecha a farby', 'Boky', 'Doplnky', 'Súhrn'];
         const showStep = (n, silent) => {
           step = Math.max(1, Math.min(STEPS, n));
           cfgRoot.querySelectorAll('[data-sp-stepno]').forEach((el) => { el.hidden = Number(el.dataset.spStepno) !== step; });
@@ -3458,11 +3558,12 @@
           stageEl.addEventListener('keydown', (e) => {
             const step = e.shiftKey ? 0.28 : 0.11;
             let used = true;
+            viewTouched = true;
             if (e.key === 'ArrowLeft') view.az -= step;
             else if (e.key === 'ArrowRight') view.az += step;
             else if (e.key === 'ArrowUp') view.el = Math.min(1.45, view.el + step * 0.7);
             else if (e.key === 'ArrowDown') view.el = Math.max(EL_FLOOR(), view.el - step * 0.7);
-            else if (e.key === 'Home') { view.az = VIEWS.front.az; view.el = VIEWS.front.el; }
+            else if (e.key === 'Home') { view.az = VIEWS.front.az; view.el = FRONT_EL(); }
             else used = false;
             if (!used) return;
             e.preventDefault();
@@ -3479,6 +3580,7 @@
             if (!dragging) return;
             // Drag right, model turns right: the point under the cursor has to
             // follow the cursor, and increasing az moves it right on screen.
+            viewTouched = true;
             view.az += (e.clientX - lastX) * 0.006;
             view.el = Math.max(EL_FLOOR(), Math.min(1.45, view.el + (e.clientY - lastY) * 0.005));
             lastX = e.clientX; lastY = e.clientY;
@@ -3493,7 +3595,9 @@
           if (!v) return;
           const preset = VIEWS[v.dataset.spView];
           if (!preset) return;
-          view.az = preset.az; view.el = Math.max(EL_FLOOR(), preset.el);
+          viewTouched = true;
+          view.az = preset.az;
+          view.el = Math.max(EL_FLOOR(), v.dataset.spView === 'front' ? FRONT_EL() : preset.el);
           cfgRoot.querySelectorAll('[data-sp-view]').forEach((b) => b.setAttribute('aria-pressed', String(b === v)));
           drawStage();
         });
