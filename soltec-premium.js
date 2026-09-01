@@ -780,13 +780,16 @@
            through the section: arcsin(170/200) for a 200 blade in a 170
            profile. Everything between shut and there is one continuous run. */
         const LOUVER_MAX = (beam, bw) => Math.asin(Math.min(1, (beam * 0.94) / (bw || 200)));
-        /* Zatvorená lamela nie je vodorovná doska. Lamely sa pri dosadnutí
-           prekrývajú a každá si nechá pár stupňov, aby voda stiekla — a práve
-           tie pár stupňov sú aj to, čo ich udrží v odlišných rovinách. Keď
-           uhol klesol na nulu, boli takmer rovnobežné, maliarske triedenie ich
-           začalo deliť na kusy a ich počet sa medzi snímkami hádzal zo 100 na
-           160 a späť — na obrazovke lamely poskakovali. */
-        const LOUVER_MIN_T = 0.055;
+        /* Zatvorené lamely majú tvoriť jednu rovnú plochu — zhora aj zdola.
+           Predtým si každá nechávala pár stupňov, aby sa v jednej rovine
+           neprekrývali: prekryté vodorovné plochy maliarske triedenie nevie
+           zoradiť, delilo ich na kusy a ich počet sa medzi snímkami hádzal zo
+           100 na 160, čo na obrazovke vyzeralo ako poskakovanie. Tie stupne
+           však bolo vidieť — zatvorená strecha bola pílovitá. Rieši sa to
+           opačne, nižšie pri kreslení: pri dosadnutí sa prekrytie stiahne na
+           nulu a lamely sa poskladajú vedľa seba. Niet čo triediť, a plocha
+           je rovná. */
+        const LOUVER_MIN_T = 0;
         const louverAngle = (beam, bw, t) => LOUVER_MAX(beam, bw) * (LOUVER_MIN_T + (1 - LOUVER_MIN_T) * t);
         const LOUVER_STOPS = [
           { t: 0, label: 'Zatvorené' },
@@ -1021,9 +1024,16 @@
           let full = Math.floor(usable / mod.p);
           let rem = usable - full * mod.p;
           if (full < 1) return null;
-          if (rem < 5) return new Array(full).fill(mod.p);
+          /* Zvyšok pod touto hranicou nie je panel, ale škára. Priečny profil
+             stojí na každom rozhraní modulov a je 50 až 80 mm široký, takže do
+             modulu užšieho než dva profily sa paluba nezmestí: susedné profily
+             sa prekryli a medzi nimi ostala diera bez panela — presne to bolo
+             vidieť pri pravom kraji strechy. Taký zvyšok sa preto rozpustí do
+             všetkých plných modulov a švy ostanú rovnomerné. */
+          const MIN_MODUL = 300;
+          if (rem < MIN_MODUL) return new Array(full).fill(mod.p + rem / full);
           const six = postLayout().n > 2;
-          if (six && rem >= 10) {
+          if (six && rem >= 2 * MIN_MODUL) {
             const half = rem / 2;
             return [half].concat(new Array(full).fill(mod.p)).concat([half]);
           }
@@ -2526,10 +2536,23 @@
             const beamCenters = integratedFall
               ? [inX0].concat(cuts.slice(0, -1).map((c) => c[1]), [inX1])
               : Array.from({ length: bays + 1 }, (_, i) => inX0 + step * i);
-            const beamRuns = beamCenters.map((center) => {
-              const a = Math.min(inX1 - rw, Math.max(inX0, center - rw / 2));
-              return { a: a, b: a + rw, center: a + rw / 2 };
+            /* Profil pri kraji sa zarovnáva dovnútra rámu, takže sa vie posunúť
+               zo svojho rozhrania. Keď tým dosadne na suseda, ostane medzi nimi
+               pás užší než osem milimetrov, ten vypadne z výberu palúb a v
+               streche je diera. Každý beh sa preto posúva až za koniec toho
+               predchádzajúceho a ktorý by sa už nezmestil, sa nekreslí. */
+            const beamRuns = [];
+            beamCenters.forEach((center) => {
+              let a = Math.min(inX1 - rw, Math.max(inX0, center - rw / 2));
+              const pred = beamRuns[beamRuns.length - 1];
+              if (pred && a < pred.b + 10) a = pred.b + 10;
+              if (a + rw > inX1 + 0.5) return;
+              beamRuns.push({ a: a, b: a + rw, center: a + rw / 2 });
             });
+            if (beamRuns.length) {
+              const koniec = beamRuns[beamRuns.length - 1];
+              if (koniec.b < inX1 - 10) { koniec.a = inX1 - rw; koniec.b = inX1; koniec.center = inX1 - rw / 2; }
+            }
 
             if (integratedFall || !fromAbove || glass) {
               const lit = !fromAbove && state.ledSet && state.ledSet.on;
@@ -2654,7 +2677,15 @@
             const ang = louverAngle(beam, bladeW, state.louverT);
             const y0 = post, y1 = W - post;
             const lap = 30;   // blades tuck under the rails rather than butting them
-            const half = bladeW / 2;
+            /* Šírka, ktorou sa lamela naozaj kreslí. Otvorená je to celá lamela
+               a susedy sa prekrývajú o ten lap, ktorý im rozteč necháva. Ako sa
+               zatvárajú, prekrytie sa plynulo stiahne na nulu a pri dosadnutí
+               presne vyplnia rozteč: strecha je potom súvislá rovná plocha
+               zhora aj zdola a nič sa neprekrýva, takže maliarske triedenie
+               nemá čo zamieňať. Prahom je pätina zdvihu — kým sa lamela
+               zreteľne otvorí, prekrytie je späť. */
+            const otvorenie = Math.min(1, ang / Math.max(1e-6, LOUVER_MAX(beam, bladeW) * 0.2));
+            const half = pitch / 2 + (bladeW / 2 - pitch / 2) * otvorenie;
             const dx = half * Math.cos(ang), dz = half * Math.sin(ang);
             /* The roof plane finishes level with the top of the frame at every
                position - that edge is the line the eye reads as the roof. Shut,
@@ -2685,9 +2716,12 @@
               quad([[aX,y0-lap,aZ],[bX,y0-lap,bZ],[bX,y1+lap,bZ],[aX,y1+lap,aZ]], shade(louv, 0.16), lay);
               quad([[aX+ox,y1+lap,aZ+oz],[bX+ox,y1+lap,bZ+oz],[bX+ox,y0-lap,bZ+oz],[aX+ox,y0-lap,aZ+oz]], shade(louv, -0.20), lay);
               quad([[bX,y0-lap,bZ],[bX,y1+lap,bZ],[bX+ox,y1+lap,bZ+oz],[bX+ox,y0-lap,bZ+oz]], shade(louv, -0.30), lay);
-              // the closing lip the blades seal against each other with
-              const lipX = dx * 0.16, lipZ = dz * 0.16;
-              quad([[aX,y0-lap,aZ],[aX+lipX,y0-lap,aZ+lipZ],[aX+lipX,y1+lap,aZ+lipZ],[aX,y1+lap,aZ]], shade(louv, -0.34), lay);
+              /* Tesniaca hrana, ktorou lamely dosadajú jedna na druhú. Pri
+                 dosadnutí by ležala v rovine hornej plochy a prekrývala ju,
+                 tak sa spolu s prekrytím stiahne na nulu a nekreslí sa. */
+              const lipX = dx * 0.16 * otvorenie, lipZ = dz * 0.16 * otvorenie;
+              if (otvorenie > 0.02)
+                quad([[aX,y0-lap,aZ],[aX+lipX,y0-lap,aZ+lipZ],[aX+lipX,y1+lap,aZ+lipZ],[aX,y1+lap,aZ]], shade(louv, -0.34), lay);
 
               /* the strip lies in the underside of this blade, along it, so it
                  tilts with the blade instead of floating at a fixed height */
