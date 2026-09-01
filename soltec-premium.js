@@ -903,7 +903,7 @@
           { id: 'tip2', label: 'Pri stene, kolmo', walls: ['rear'] },
           { id: 'tip4', label: 'Pri stene, pozdĺž', walls: ['left'] },
           { id: 'tip7', label: 'V rohu', walls: ['rear', 'left'] },
-          { id: 'tip0', label: 'Bez stĺpov', walls: ['rear'], noPosts: true },
+          { id: 'tip0', label: 'Bez stĺpov — medzi stenami', walls: ['rear'], noPosts: true },
           { id: 'tip6', label: 'Voľné stĺpy', walls: [], freePosts: true }
         ];
         const PLACEMENTS = (Array.isArray(BIO.placements) && BIO.placements.length) ? BIO.placements : FALLBACK_PLACEMENTS;
