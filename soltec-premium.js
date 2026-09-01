@@ -2713,15 +2713,32 @@
                  cannot order them. Stepping the bias along the run makes each
                  blade lap the one before it, the way they actually close. */
               const lay = { bias: i * 0.02 };
-              quad([[aX,y0-lap,aZ],[bX,y0-lap,bZ],[bX,y1+lap,bZ],[aX,y1+lap,aZ]], shade(louv, 0.16), lay);
-              quad([[aX+ox,y1+lap,aZ+oz],[bX+ox,y1+lap,bZ+oz],[bX+ox,y0-lap,bZ+oz],[aX+ox,y0-lap,aZ+oz]], shade(louv, -0.20), lay);
-              quad([[bX,y0-lap,bZ],[bX,y1+lap,bZ],[bX+ox,y1+lap,bZ+oz],[bX+ox,y0-lap,bZ+oz]], shade(louv, -0.30), lay);
+              /* Zospodu je vidieť len rub lamiel a ich čelnú hranu. Rub mal
+                 -0.20 a hrana -0.30, čo je na antracite rozdiel, ktorý oko
+                 nerozozná: strecha zdola vyzerala ako jedna hladká doska a
+                 lamely z nej zmizli. Na bielej farbe bolo pritom všetko
+                 vidieť, takže nešlo o poradie kreslenia, ale o tón. Hrana je
+                 preto výrazne tmavšia a každá lamela dostane vlastný obrys —
+                 tak sa rad číta na každej farbe aj z každého uhla. */
+              const obrys = { edgeHex: shade(louv, -0.58) };
+              const layO = Object.assign({}, lay, obrys);
+              quad([[aX,y0-lap,aZ],[bX,y0-lap,bZ],[bX,y1+lap,bZ],[aX,y1+lap,aZ]], shade(louv, 0.16), layO);
+              /* Rub lamely nie je jeden tón. Horná hrana je zastrčená pod
+                 susednou lamelou, takže tá polovica je v jej tieni; spodná
+                 hrana je otvorená k oblohe a je svetlejšia. Rub sa preto
+                 kreslí ako dva pásy. Je to skutočný jav a zároveň jediné,
+                 čo dá radu lamiel kontrast aj na antracite — na bielej bolo
+                 všetko vidieť, na tmavej sa strecha zdola zlievala do dosky. */
+              const sX = (aX + bX) / 2 + ox, sZ = (aZ + bZ) / 2 + oz;
+              quad([[aX+ox,y1+lap,aZ+oz],[sX,y1+lap,sZ],[sX,y0-lap,sZ],[aX+ox,y0-lap,aZ+oz]], shade(louv, -0.09), layO);
+              quad([[sX,y1+lap,sZ],[bX+ox,y1+lap,bZ+oz],[bX+ox,y0-lap,bZ+oz],[sX,y0-lap,sZ]], shade(louv, -0.34), layO);
+              quad([[bX,y0-lap,bZ],[bX,y1+lap,bZ],[bX+ox,y1+lap,bZ+oz],[bX+ox,y0-lap,bZ+oz]], shade(louv, -0.48), layO);
               /* Tesniaca hrana, ktorou lamely dosadajú jedna na druhú. Pri
                  dosadnutí by ležala v rovine hornej plochy a prekrývala ju,
                  tak sa spolu s prekrytím stiahne na nulu a nekreslí sa. */
               const lipX = dx * 0.16 * otvorenie, lipZ = dz * 0.16 * otvorenie;
               if (otvorenie > 0.02)
-                quad([[aX,y0-lap,aZ],[aX+lipX,y0-lap,aZ+lipZ],[aX+lipX,y1+lap,aZ+lipZ],[aX,y1+lap,aZ]], shade(louv, -0.34), lay);
+                quad([[aX,y0-lap,aZ],[aX+lipX,y0-lap,aZ+lipZ],[aX+lipX,y1+lap,aZ+lipZ],[aX,y1+lap,aZ]], shade(louv, -0.40), layO);
 
               /* the strip lies in the underside of this blade, along it, so it
                  tilts with the blade instead of floating at a fixed height */
