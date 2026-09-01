@@ -3200,19 +3200,42 @@
              stranami naraz, takže je to jeden pohyb konštrukcie, nie štyri
              skoky za sebou. */
           all: {
-            get: () => {
-              const v = [state.louverT];
+            /* Pozor na to, čo tu vracia `get`. Kým to bol priemer strechy a
+               bokov, `runMover` z neho vypočítal štart pohybu — a keďže
+               `set` priradí rovnakú hodnotu všetkému, strecha v prvom snímku
+               skočila na ten priemer a až odtiaľ sa rozbehla. Presne to bol
+               ten divný poskok pri „Zavrieť všetko" a dôvod, prečo bol pohyb
+               hotový skôr, než ho stihol niekto vidieť.
+
+               Teraz vracia hodnotu strechy, takže trvanie aj štart sedia s
+               tým, čo je najviac vidieť, a každá strana si dobehne po svojej
+               vlastnej dráhe z miesta, kde práve bola. */
+            zaciatky: null,
+            zapamataj: () => {
+              const z = { strecha: state.louverT, boky: {} };
               Object.keys(state.sides).forEach((k) => {
-                if (SIDE_MOVES[state.sides[k]]) v.push(state.sideOpen[k] || 0);
+                if (SIDE_MOVES[state.sides[k]]) z.boky[k] = state.sideOpen[k] || 0;
               });
-              return v.reduce((a, b) => a + b, 0) / v.length;
+              MOVER.all.zaciatky = z;
             },
+            get: () => state.louverT,
             set: (v) => {
+              const z = MOVER.all.zaciatky;
               state.louverT = v;
-              Object.keys(state.sides).forEach((k) => {
-                if (SIDE_MOVES[state.sides[k]]) state.sideOpen[k] = v;
+              if (!z) {
+                Object.keys(state.sides).forEach((k) => {
+                  if (SIDE_MOVES[state.sides[k]]) state.sideOpen[k] = v;
+                });
+                return;
+              }
+              /* Podiel prejdenej dráhy strechy prenesieme na každý bok zvlášť. */
+              const rozsah = MOVER.all.ciel - z.strecha;
+              const podiel = Math.abs(rozsah) < 1e-4 ? 1 : (v - z.strecha) / rozsah;
+              Object.keys(z.boky).forEach((k) => {
+                state.sideOpen[k] = z.boky[k] + (MOVER.all.ciel - z.boky[k]) * podiel;
               });
-            }
+            },
+            ciel: 0
           }
         };
 
@@ -3268,6 +3291,7 @@
           const to = Math.max(0, Math.min(1, target));
           if (louverRun) { cancelAnimationFrame(louverRun); louverRun = 0; }
           if (moverTimer) { window.clearTimeout(moverTimer); moverTimer = 0; }
+          if (ch === 'all') { MOVER.all.ciel = to; MOVER.all.zapamataj(); }
           const from = M.get();
           if (immediate || reducedMotion || Math.abs(to - from) < 0.005) {
             M.set(to);
