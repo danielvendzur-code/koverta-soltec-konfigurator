@@ -2677,15 +2677,21 @@
             const ang = louverAngle(beam, bladeW, state.louverT);
             const y0 = post, y1 = W - post;
             const lap = 30;   // blades tuck under the rails rather than butting them
-            /* Šírka, ktorou sa lamela naozaj kreslí. Otvorená je to celá lamela
-               a susedy sa prekrývajú o ten lap, ktorý im rozteč necháva. Ako sa
-               zatvárajú, prekrytie sa plynulo stiahne na nulu a pri dosadnutí
-               presne vyplnia rozteč: strecha je potom súvislá rovná plocha
-               zhora aj zdola a nič sa neprekrýva, takže maliarske triedenie
-               nemá čo zamieňať. Prahom je pätina zdvihu — kým sa lamela
-               zreteľne otvorí, prekrytie je späť. */
+            /* Šírka, ktorou sa lamela naozaj kreslí. Jediné, čo maliarske
+               triedenie nevie rozhodnúť, sú dve plochy, ktoré sa prekrývajú a
+               ležia takmer v jednej rovine — vtedy sa medzi snímkami prehadzuje
+               ich poradie a lamely preblikávajú. Preto sa lamela kreslí vždy
+               nanajvýš tak široko, aby jej priemet do roviny strechy práve
+               vyplnil rozteč: pri dosadnutí je z lamiel súvislá rovná plocha,
+               pri otvorení plná lamela s medzerami, a medzi tým sa nikdy
+               neprekryjú. Prechod je spojitý, takže sa všetky lamely hýbu
+               rovnakou rýchlosťou a nič sa cestou nemení skokom.
+
+               Prekrytie, ktoré tu ubudne, je ten lap, ktorým lamela zapadá pod
+               susednú — ten aj v skutočnosti nie je vidieť. */
+            const najviac = (pitch / 2) / Math.max(0.2, Math.cos(ang));
+            const half = Math.min(bladeW / 2, najviac);
             const otvorenie = Math.min(1, ang / Math.max(1e-6, LOUVER_MAX(beam, bladeW) * 0.2));
-            const half = pitch / 2 + (bladeW / 2 - pitch / 2) * otvorenie;
             const dx = half * Math.cos(ang), dz = half * Math.sin(ang);
             /* The roof plane finishes level with the top of the frame at every
                position - that edge is the line the eye reads as the roof. Shut,
@@ -2720,7 +2726,16 @@
                  vidieť, takže nešlo o poradie kreslenia, ale o tón. Hrana je
                  preto výrazne tmavšia a každá lamela dostane vlastný obrys —
                  tak sa rad číta na každej farbe aj z každého uhla. */
-              const obrys = { edgeHex: shade(louv, -0.58) };
+              /* Obrys lamely sa nesmie kresliť inou farbou než jej plocha.
+                 Maliarske triedenie delí plochy rovinami ostatných dielov a
+                 rozdelený kúsok dostáva obrys vo farbe výplne, aby cez neho
+                 nebolo vidieť rez. Nerozdelený kúsok mal ale obrys tmavý —
+                 a keďže sa počas pohybu delí zakaždým niečo iné, obrysy
+                 lamiel medzi snímkami blikali. Teraz je obrys vždy vo farbe
+                 vlastnej plochy: rozdelený aj nerozdelený kus vyzerá rovnako,
+                 vlasové škáry medzi plochami sa aj tak zatvoria a kontrast
+                 nesie geometria — dva pásy na rube a tmavšia čelná hrana. */
+              const obrys = { arris: false };
               const layO = Object.assign({}, lay, obrys);
               quad([[aX,y0-lap,aZ],[bX,y0-lap,bZ],[bX,y1+lap,bZ],[aX,y1+lap,aZ]], shade(louv, 0.16), layO);
               /* Rub lamely nie je jeden tón. Horná hrana je zastrčená pod
@@ -2730,8 +2745,8 @@
                  čo dá radu lamiel kontrast aj na antracite — na bielej bolo
                  všetko vidieť, na tmavej sa strecha zdola zlievala do dosky. */
               const sX = (aX + bX) / 2 + ox, sZ = (aZ + bZ) / 2 + oz;
-              quad([[aX+ox,y1+lap,aZ+oz],[sX,y1+lap,sZ],[sX,y0-lap,sZ],[aX+ox,y0-lap,aZ+oz]], shade(louv, -0.09), layO);
-              quad([[sX,y1+lap,sZ],[bX+ox,y1+lap,bZ+oz],[bX+ox,y0-lap,bZ+oz],[sX,y0-lap,sZ]], shade(louv, -0.34), layO);
+              quad([[aX+ox,y1+lap,aZ+oz],[sX,y1+lap,sZ],[sX,y0-lap,sZ],[aX+ox,y0-lap,aZ+oz]], shade(louv, -0.04), layO);
+              quad([[sX,y1+lap,sZ],[bX+ox,y1+lap,bZ+oz],[bX+ox,y0-lap,bZ+oz],[sX,y0-lap,sZ]], shade(louv, -0.40), layO);
               quad([[bX,y0-lap,bZ],[bX,y1+lap,bZ],[bX+ox,y1+lap,bZ+oz],[bX+ox,y0-lap,bZ+oz]], shade(louv, -0.48), layO);
               /* Tesniaca hrana, ktorou lamely dosadajú jedna na druhú. Pri
                  dosadnutí by ležala v rovine hornej plochy a prekrývala ju,
