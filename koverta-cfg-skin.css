@@ -773,3 +773,97 @@ body { background: var(--k-white); color: var(--k-ink); }
   #SoltecPremium .sp-cfg__head { margin-bottom: 1.2rem; }
   #SoltecPremium .sp-cfg__head .sp-copy { margin-top: .6rem; }
 }
+
+/* --- 08/09 model picker correction --------------------------------------
+   Model cards must stay physically still on hover. The choice is communicated
+   by contrast, border and the existing check mark instead of jumping tiles. */
+#SoltecPremium .sp-modelgrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+#SoltecPremium .sp-modelgrid button {
+  min-height: 8.8rem;
+  padding: 1.3rem 3.4rem 1.3rem 1.35rem;
+  border: 1px solid rgba(18, 23, 26, 0.18);
+  border-radius: 1.2rem;
+  background: #fff;
+  text-align: left;
+  transform: none !important;
+  box-shadow: none !important;
+  transition:
+    border-color .18s var(--k-ease),
+    background-color .18s var(--k-ease);
+}
+
+#SoltecPremium .sp-modelgrid button:hover,
+#SoltecPremium .sp-modelgrid button:focus-visible {
+  border-color: rgba(18, 23, 26, 0.42);
+  background: #faf9f4;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+#SoltecPremium .sp-modelgrid button[aria-pressed="true"],
+#SoltecPremium .sp-modelgrid button[aria-pressed="true"]:hover {
+  border-color: var(--k-amber-deep);
+  background: #fff8dc;
+  transform: none !important;
+  box-shadow: inset 0 0 0 1px var(--k-amber-deep) !important;
+}
+
+#SoltecPremium .sp-modelgrid strong {
+  max-width: 22rem;
+  color: var(--k-ink);
+  font-size: 1.65rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+#SoltecPremium .sp-modelgrid small {
+  max-width: 30rem;
+  margin-top: .55rem;
+  color: #4e5a60;
+  font-size: 1.2rem;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+#SoltecPremium [data-sp-model-note] {
+  margin: 1rem 0 0;
+  padding: .95rem 1.1rem;
+  border: 0;
+  border-radius: .9rem;
+  background: #f3f4f1;
+  color: #3e4a50;
+  font-size: 1.18rem;
+  line-height: 1.5;
+}
+
+/* The same no-jump rule applies to option chips in this panel. */
+#SoltecPremium .sp-chip:hover,
+#SoltecPremium .sp-chip:focus-visible {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+@media screen and (max-width: 749px) {
+  #SoltecPremium .sp-modelgrid {
+    grid-template-columns: 1fr;
+    gap: .75rem;
+  }
+
+  #SoltecPremium .sp-modelgrid button {
+    min-height: 7.4rem;
+    padding: 1.1rem 3.1rem 1.1rem 1.1rem;
+  }
+
+  #SoltecPremium .sp-modelgrid strong {
+    font-size: 1.5rem;
+  }
+
+  #SoltecPremium .sp-modelgrid small {
+    font-size: 1.12rem;
+  }
+}
+
